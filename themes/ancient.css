@@ -1,0 +1,70 @@
+/* 骨与血 — 古风主题 */
+[data-bb-theme="ancient"] {
+  --bb-bg-primary: #1a1510;
+  --bb-bg-secondary: #231e15;
+  --bb-bg-tertiary: #2c2518;
+  --bb-bg-card: rgba(40, 32, 18, 0.85);
+  --bb-bg-input: rgba(35, 28, 15, 0.9);
+  --bb-bg-hover: rgba(180, 140, 60, 0.12);
+  --bb-bg-active: rgba(180, 140, 60, 0.2);
+  --bb-bg-glass: rgba(35, 28, 15, 0.7);
+  --bb-border: rgba(180, 140, 60, 0.25);
+  --bb-border-light: rgba(180, 140, 60, 0.12);
+  --bb-border-focus: rgba(200, 160, 80, 0.5);
+  --bb-text-primary: #e8dcc8;
+  --bb-text-secondary: #c8b898;
+  --bb-text-muted: #8a7a60;
+  --bb-text-accent: #d4a850;
+  --bb-accent: #b8942e;
+  --bb-accent-light: #d4b050;
+  --bb-accent-dark: #8a6e20;
+  --bb-accent-glow: rgba(184, 148, 46, 0.35);
+}
+
+/* 古风特殊装饰 */
+[data-bb-theme="ancient"] #bb-main-panel {
+  background-image: 
+    radial-gradient(ellipse at top right, rgba(180,140,60,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at bottom left, rgba(180,140,60,0.03) 0%, transparent 60%);
+}
+
+[data-bb-theme="ancient"] .bb-panel-header {
+  background: linear-gradient(135deg, #231e15, #2c2518);
+  border-bottom: 1px solid rgba(180,140,60,0.2);
+}
+
+[data-bb-theme="ancient"] .bb-panel-header h2::after {
+  content: ' ─';color: var(--bb-text-muted);
+  font-weight: 300;
+}
+
+[data-bb-theme="ancient"] .bb-quote-item {
+  border-left-color: var(--bb-accent);
+  font-style: italic;
+}
+
+[data-bb-theme="ancient"] .bb-tab-btn.active {
+  background: linear-gradient(135deg, rgba(180,140,60,0.15), rgba(180,140,60,0.08));
+}
+
+[data-bb-theme="ancient"] #bb-trigger-btn {
+  background: linear-gradient(135deg, #6a5020, #b8942e);
+}
+
+[data-bb-theme="ancient"] .bb-ooc-send-btn {
+  background: linear-gradient(135deg, #8a6e20, #b8942e);
+}
+
+[data-bb-theme="ancient"] .bb-msg-user .bb-ooc-msg-bubble {
+  background: linear-gradient(135deg, #8a6e20, #b8942e);
+}
+
+[data-bb-theme="ancient"] .bb-home-listen .bb-home-avatar {
+  border-color: var(--bb-accent-dark);
+  box-shadow: 0 0 20px rgba(184,148,46,0.3);
+}
+
+/* 古风字体微调 */
+[data-bb-theme="ancient"] {
+  --bb-font-main: 'Noto Serif SC', 'Source Han Serif','SimSun', serif;
+}
