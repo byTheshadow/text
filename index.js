@@ -916,40 +916,75 @@ function bindMainPanelEvents() {
     $('.bb-tab-panel').hide();
     $(`#bb-tab-${tab}`).show();
   });
-
-  // 首页：头像点击
-  $('#bb-home-user-avatar, #bb-home-char-avatar').on('click', function () {
+// 首页：头像点击（修复版）
+    $(document).on('click', '#bb-home-user-avatar, #bb-home-char-avatar', function () {
     const isUser = $(this).attr('id') === 'bb-home-user-avatar';
-    const method = prompt('选择方式:\n1 = 输入URL\n2 = 上传文件', '1');
-    if (method === '1') {
-      const url = prompt('输入头像URL:');
+    const avatarEl = $(this);
+    
+    // 创建弹窗选择方式
+    const modal = $(`
+      <div class="bb-modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:99999;display:flex;align-items:center;justify-content:center;">
+        <div class="bb-modal-content" style="background:var(--bb-bg-main);border:3px solid var(--bb-primary);border-radius:12px;padding:24px;width:90%;max-width:400px;box-shadow:var(--bb-shadow-lg);">
+          <h3 style="color:var(--bb-primary);margin:0 0 16px;text-align:center;">设置${isUser ? '用户' : '角色'}头像</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <button class="bb-big-btn" id="bb-avatar-url" style="width:100%;">🔗 输入URL</button>
+            <button class="bb-big-btn" id="bb-avatar-file" style="width:100%;">📁 上传文件</button>
+            <button class="bb-sm-btn" id="bb-avatar-cancel" style="width:100%;background:#444;">取消</button>
+          </div>
+        </div>
+      </div>
+    `);
+    
+    $('body').append(modal);
+    
+    // URL输入
+    modal.find('#bb-avatar-url').on('click', function () {
+      modal.remove();
+      const url = prompt('请输入头像URL:');
       if (url) {
-        $(this).html(`<img src="${url}" style="width:100%;height:100%;object-fit:cover;" />`);
+        avatarEl.html(`<img src="${url}" style="width:100%;height:100%;object-fit:cover;" />`);
         if (isUser) pluginData.home_config.user_avatar = url;
         else pluginData.home_config.char_avatar = url;
+        saveChatData();
+        toastr.success('头像已更新');
       }
-    } else if (method === '2') {
+    });
+    
+    // 文件上传
+    modal.find('#bb-avatar-file').on('click', function () {
+      modal.remove();
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+          toastr.error('文件过大，请选择小于5MB的图片');
+          return;
+        }
         const reader = new FileReader();
         reader.onload = (ev) => {
           const dataURL = ev.target.result;
-          $(this).html(`<img src="${dataURL}" style="width:100%;height:100%;object-fit:cover;" />`);
+          avatarEl.html(`<img src="${dataURL}" style="width:100%;height:100%;object-fit:cover;" />`);
           if (isUser) pluginData.home_config.user_avatar = dataURL;
           else pluginData.home_config.char_avatar = dataURL;
+          saveChatData();
+          toastr.success('头像已上传');
         };
         reader.readAsDataURL(file);
       };
       input.click();
-    }
+    });
+    
+    // 取消
+    modal.find('#bb-avatar-cancel').on('click', function () {
+      modal.remove();
+    });
   });
 
-  // 首页：保存配置
-  $('#bb-btn-save-home').on('click', () => {
+  // 首页：保存配置（修复版）
+  $(document).on('click', '#bb-btn-save-home', function () {
     pluginData.home_config.link_emoji = $('#bb-home-link-emoji').text();
     pluginData.home_config.user_bubble = $('#bb-home-user-bubble').text();
     pluginData.home_config.char_bubble = $('#bb-home-char-bubble').text();
@@ -957,6 +992,9 @@ function bindMainPanelEvents() {
     saveChatData();
     toastr.success('💾 首页配置已保存');
   });
+
+  // ... 其他绑定保持不变 ...
+}
 
   // 导出按钮
   $('#bb-btn-export-md').on('click', exportAsMarkdown);
