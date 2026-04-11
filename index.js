@@ -269,7 +269,7 @@ function buildSettingsPanelHTML() {
             <option value="custom">✏️ 自定义</option>
           </select>
         </div>
-                <div id="bb-custom-style-names" style="display:none;margin-top:12px;padding:12px;background:#222;border:1px solid #444;border-radius:6px;">
+        <div id="bb-custom-style-names" style="display:none;margin-top:12px;padding:12px;background:#222;border:1px solid #444;border-radius:6px;">
           <p style="font-size:12px;color:#aaa;margin-bottom:10px;">自定义各模块名称（支持emoji）:</p>
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;font-size:11px;">
             <label>首页:</label><input type="text" class="text_pole bb-custom-name" data-key="home" style="padding:4px;" />
@@ -287,8 +287,7 @@ function buildSettingsPanelHTML() {
           <button id="bb-save-custom-names" class="menu_button" style="width:100%;margin-top:10px;">💾 保存自定义名称</button>
         </div>
 
-
-               <hr />
+        <hr />
         <h4 style="margin:8px 0 4px;">📝 预设管理</h4>
         <div style="margin:6px 0;">
           <label for="bb-active-preset" style="font-size:13px;">当前预设:</label>
@@ -369,7 +368,6 @@ function buildSettingsPanelHTML() {
           <button id="bb-save-preset-editor" class="menu_button" style="width:100%;background:#8b0000;color:#fff;font-weight:bold;">💾 保存当前预设</button>
         </div>
 
-
         <hr />
         <h4 style="margin:8px 0 4px;">🎨 主题管理</h4>
         <div style="margin:6px 0;">
@@ -382,6 +380,80 @@ function buildSettingsPanelHTML() {
           <input id="bb-btn-upload-css" class="menu_button" type="button" value="📁 上传.css" />
         </div>
         <input type="file" id="bb-css-file-input" accept=".css" style="display:none;" />
+
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;color:var(--bb-primary);font-size:13px;font-weight:bold;">📚 CSS 示例模板</summary>
+          <div style="margin-top:12px;padding:12px;background:#111;border:1px solid #333;border-radius:6px;max-height:300px;overflow-y:auto;">
+            <h5 style="color:#8b0000;margin:0 0 8px;">🎨 示例1: 赛博朋克风</h5>
+            <pre style="background:#000;padding:8px;border-radius:4px;font-size:10px;overflow-x:auto;"><code id="bb-css-example-1">/* 赛博朋克风格 */
+:root {
+  --bb-primary: #00ffff;
+  --bb-primary-dark: #00aaaa;
+  --bb-primary-light: #66ffff;
+  --bb-bg-main: #0a0a15;
+  --bb-bg-secondary: #15152a;
+}
+#bb-main-panel {
+  box-shadow: 0 0 40px rgba(0,255,255,0.5);
+}
+.bb-tab.active {
+  text-shadow: 0 0 10px #00ffff;
+}</code></pre>
+            <button class="bb-sm-btn" onclick="navigator.clipboard.writeText(document.getElementById('bb-css-example-1').textContent);toastr.success('已复制')">📋 复制</button>
+            
+            <h5 style="color:#8b0000;margin:16px 0 8px;">🌸 示例2: 樱花梦幻风</h5>
+            <pre style="background:#000;padding:8px;border-radius:4px;font-size:10px;overflow-x:auto;"><code id="bb-css-example-2">/* 樱花梦幻风格 */
+:root {
+  --bb-primary: #ffb3d9;
+  --bb-primary-dark: #ff99cc;
+  --bb-primary-light: #ffcceb;
+  --bb-bg-main: #ffe6f2;
+  --bb-bg-secondary: #ffcceb;
+  --bb-text: #5c4a5a;
+}
+#bb-main-panel {
+  background: linear-gradient(135deg, #ffe6f2 0%, #ffcceb 100%);
+}</code></pre>
+            <button class="bb-sm-btn" onclick="navigator.clipboard.writeText(document.getElementById('bb-css-example-2').textContent);toastr.success('已复制')">📋 复制</button>
+            
+            <h5 style="color:#8b0000;margin:16px 0 8px;">🌌 示例3: 深空幽蓝</h5>
+            <pre style="background:#000;padding:8px;border-radius:4px;font-size:10px;overflow-x:auto;"><code id="bb-css-example-3">/* 深空幽蓝风格 */
+:root {
+  --bb-primary: #4169e1;
+  --bb-primary-dark: #2e4a99;
+  --bb-primary-light: #6495ed;
+  --bb-bg-main: #0c0e1a;
+  --bb-bg-secondary: #161b2e;
+}
+#bb-float-btn {
+  background: radial-gradient(circle, #4169e1, #1e3a8a);
+}</code></pre>
+            <button class="bb-sm-btn" onclick="navigator.clipboard.writeText(document.getElementById('bb-css-example-3').textContent);toastr.success('已复制')">📋 复制</button>
+          </div>
+        </details>
+        
+        <details style="margin-top:8px;">
+          <summary style="cursor:pointer;color:var(--bb-primary);font-size:13px;font-weight:bold;">🤖 AI 提示词模板</summary>
+          <div style="margin-top:8px;padding:12px;background:#111;border:1px solid #333;border-radius:6px;">
+            <p style="font-size:11px;color:#aaa;line-height:1.5;margin:0;">
+              复制以下文本发给AI（Claude/GPT）生成自定义CSS:<br/><br/>
+              <code style="background:#000;padding:8px;display:block;border-radius:4px;font-size:10px;white-space:pre-wrap;">请帮我生成一套骨与血插件的自定义CSS样式。
+主题风格：[在此描述你想要的风格，如"蒸汽朋克"、"赛博朋克"、"古典国风"等]
+配色要求：
+- 主色调：[如"紫色"、"深蓝"等]
+- 背景色：[如"深黑"、"深灰"等]
+- 强调色：[如"金色"、"银色"等]
+特殊效果：[可选，如"发光效果"、"渐变背景"、"阴影加深"等]
+请以CSS变量覆盖的方式生成代码，格式如下：
+:root {
+  --bb-primary: #颜色;
+  --bb-bg-main: #颜色;
+  ...
+}</code>
+            </p>
+            <button class="bb-sm-btn" style="width:100%;margin-top:8px;" onclick="navigator.clipboard.writeText(this.previousElementSibling.querySelector('code').textContent);toastr.success('已复制AI提示词')">📋 复制AI提示词</button>
+          </div>
+        </details>
 
         <hr />
         <h4 style="margin:8px 0 4px;">🔧 手动操作</h4>
@@ -465,10 +537,34 @@ function bindSettingsPanelEvents() {
     saveSettings();
   });
   
+  // 风格预设（含自定义面板显示逻辑）
   $('#bb-style-preset').on('change', function () {
-    getSettings().style_preset = $(this).val();
+    const val = $(this).val();
+    getSettings().style_preset = val;
+    saveSettings();
+    
+    if (val === 'custom') {
+      $('#bb-custom-style-names').slideDown();
+      loadCustomNames();
+    } else {
+      $('#bb-custom-style-names').slideUp();
+    }
+    
+    refreshFloatingUI();
+  });
+
+  // 保存自定义名称
+  $('#bb-save-custom-names').on('click', function () {
+    const s = getSettings();
+    s.custom_names = {};
+    $('.bb-custom-name').each(function () {
+      const key = $(this).data('key');
+      const val = $(this).val().trim();
+      if (val) s.custom_names[key] = val;
+    });
     saveSettings();
     refreshFloatingUI();
+    toastr.success('✅ 自定义名称已保存');
   });
   
   $('#bb-active-preset').on('change', function () {
@@ -477,7 +573,6 @@ function bindSettingsPanelEvents() {
   });
   
   $('#bb-btn-new-preset').on('click', createNewPreset);
-  $('#bb-btn-edit-preset').on('click', editCurrentPreset);
   $('#bb-btn-del-preset').on('click', deleteCurrentPreset);
   $('#bb-btn-import-preset').on('click', importPreset);
   $('#bb-btn-export-preset').on('click', exportPreset);
@@ -519,7 +614,7 @@ function bindSettingsPanelEvents() {
   $('#bb-btn-summary').on('click', generateSummary);
   $('#bb-btn-weather').on('click', generateWeather);
   $('#bb-btn-vibe').on('click', generateVibe);
-}
+
   // 预设编辑器展开/折叠
   $('#bb-toggle-preset-editor').on('click', function () {
     const editor = $('#bb-preset-editor');
@@ -535,9 +630,8 @@ function bindSettingsPanelEvents() {
   
   // 保存预设编辑器
   $('#bb-save-preset-editor').on('click', savePresetFromEditor);
-  
-  // 删除【编辑】按钮绑定，因为已用展开式编辑器替代
-  // $('#bb-btn-edit-preset').off('click');
+}
+
 // ============================================
 // 预设编辑器（v0.5.0）
 // ============================================
@@ -585,6 +679,18 @@ function savePresetFromEditor() {
   toastr.success('💾 预设已保存');
 }
 
+// ============================================
+// 自定义名称加载
+// ============================================
+
+function loadCustomNames() {
+  const s = getSettings();
+  const defaultPreset = STYLE_PRESETS.gothic;
+  $('.bb-custom-name').each(function () {
+    const key = $(this).data('key');
+    $(this).val(s.custom_names[key] || defaultPreset[key] || '');
+  });
+}
 
 // ============================================
 // API 测试与调用
@@ -720,23 +826,6 @@ function createNewPreset() {
   saveSettings();
   refreshPresetSelector();
   toastr.success(`➕ 已创建预设: ${name}`);
-}
-
-function editCurrentPreset() {
-  const preset = getActivePreset();
-  const editor = prompt('预设编辑器（JSON格式）\n\n请在浏览器控制台中编辑，或导出后用编辑器修改', JSON.stringify(preset, null, 2));
-  if (!editor) return;
-
-  try {
-    const updated = JSON.parse(editor);
-    const s = getSettings();
-    s.prompt_presets[s.active_preset] = updated;
-    saveSettings();
-    refreshPresetSelector();
-    toastr.success('✏️ 预设已更新');
-  } catch (e) {
-    toastr.error('JSON 格式错误');
-  }
 }
 
 function deleteCurrentPreset() {
@@ -998,12 +1087,13 @@ function buildMainPanelHTML() {
         <!-- 💬 破墙聊天室 -->
         <div id="bb-tab-ooc" class="bb-tab-panel" style="display:none;">
           <div style="margin-bottom:12px;display:flex;gap:8px;justify-content:flex-end;">
-            <button class="bb-sm-btn" id="bb-btn-open-ooc-win">🔓 打开聊天窗口</button>
+            <button class="bb-sm-btn" id="bb-btn-open-ooc-win">💬 打开对话窗口</button>
             <button class="bb-sm-btn" id="bb-btn-clear-ooc">🗑️ 清空历史</button>
           </div>
           <div id="bb-ooc-preview" style="background:#222;border:2px solid #444;border-radius:8px;padding:16px;min-height:200px;max-height:400px;overflow-y:auto;color:#ddd;">
             <div class="bb-empty" style="text-align:center;color:#888;">
-              暂无破墙聊天记录<br/>点击上方按钮开始OOC对话
+              这里是温柔的小天地 ✨<br/>
+              点击上方按钮，和TA聊聊剧本外的故事吧~
             </div>
           </div>
         </div>
@@ -1053,6 +1143,10 @@ function refreshFloatingUI() {
   renderAll();
 }
 
+// ============================================
+// 修复：头像按钮事件（v0.5.0）
+// ============================================
+
 function bindMainPanelEvents() {
   // 关闭按钮
   $('#bb-close-btn').on('click', () => $('#bb-main-panel').hide());
@@ -1065,8 +1159,9 @@ function bindMainPanelEvents() {
     $('.bb-tab-panel').hide();
     $(`#bb-tab-${tab}`).show();
   });
-// 首页：头像点击（修复版）
-    $(document).on('click', '#bb-home-user-avatar, #bb-home-char-avatar', function () {
+
+  // 首页：头像点击（修复版）
+  $(document).on('click', '#bb-home-user-avatar, #bb-home-char-avatar', function () {
     const isUser = $(this).attr('id') === 'bb-home-user-avatar';
     const avatarEl = $(this);
     
@@ -1141,9 +1236,6 @@ function bindMainPanelEvents() {
     saveChatData();
     toastr.success('💾 首页配置已保存');
   });
-
-  // ... 其他绑定保持不变 ...
-}
 
   // 导出按钮
   $('#bb-btn-export-md').on('click', exportAsMarkdown);
@@ -1346,14 +1438,14 @@ function injectOOCWindow() {
     <div id="bb-ooc-win" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:600px;height:70%;background:#1a1a1a;border:3px solid #8b0000;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.8);z-index:10001;display:flex;flex-direction:column;">
       
       <div class="bb-ooc-header" style="background:#000;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #8b0000;">
-        <div style="font-size:16px;font-weight:bold;">💬 破墙聊天室（OOC）</div>
+        <div style="font-size:16px;font-weight:bold;">💬 与角色面对面沟通</div>
         <button id="bb-ooc-close" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">✖</button>
       </div>
 
       <div id="bb-ooc-chat" style="flex:1;overflow-y:auto;padding:12px;background:#1a1a1a;"></div>
 
       <div style="background:#222;padding:12px;border-top:1px solid #444;display:flex;gap:8px;">
-        <input id="bb-ooc-input" type="text" placeholder="输入OOC消息..." style="flex:1;padding:8px;background:#333;border:1px solid #555;color:#fff;border-radius:4px;" />
+        <input id="bb-ooc-input" type="text" placeholder="在这里，你可以和TA聊聊天外的故事..." style="flex:1;padding:8px;background:#333;border:1px solid #555;color:#fff;border-radius:4px;" />
         <button id="bb-ooc-send" style="padding:8px 16px;background:#8b0000;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">发送</button>
       </div>
     </div>
@@ -1389,21 +1481,20 @@ async function sendOOCMsg() {
   const ctx = getContext();
   const preset = getActivePreset();
   
-    // 构建系统提示词，包含真实时间等宏
+  // 构建系统提示词（修复版 v0.5.0）
   const systemPrompt = `${preset.prompts.ooc}
 
-你正在与用户进行OOC（脱离角色扮演）对话。
+你正在与用户进行一场温柔的、治愈系的对话。这是一个安全的空间，用户可以：
+- 和你聊聊生活中的小事
+- 分享今天的心情和感受
+- 讨论剧情走向和角色想法
+- 寻求情感支持和温暖陪伴
+
 当前角色名: ${ctx.name2 || '角色'}
 用户名: ${ctx.name1 || '用户'}
 真实时间: ${new Date().toLocaleString('zh-CN')}
 
-你可以：
-1. 讨论剧情走向和角色塑造
-2. 以角色身份但非RP状态与用户闲聊
-3. 关心用户的真实生活状态
-4. 回应用户的情感需求
-
-请自然、真诚地回应。`;
+请用温柔、真诚、治愈的语气回应。如果用户看起来疲惫或难过，给予温暖的关怀。`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -1451,7 +1542,7 @@ function renderOOCPreview() {
   preview.empty();
   
   if (pluginData.ooc_chat.length === 0) {
-    preview.html(`<div class="bb-empty" style="text-align:center;color:#888;">暂无破墙聊天记录<br/>点击上方按钮开始OOC对话</div>`);
+    preview.html(`<div class="bb-empty" style="text-align:center;color:#888;">这里是温柔的小天地 ✨<br/>点击上方按钮，和TA聊聊剧本外的故事吧~</div>`);
     return;
   }
 
@@ -2031,7 +2122,6 @@ async function rollFate() {
     pluginData.chaos_event = result;
     
     // 添加到历史
-    const ctx = getContext();
     const floor = ctx.chat ? ctx.chat.length : 0;
     pluginData.fate_history.push({
       content: result,
@@ -2059,7 +2149,6 @@ async function generateWorldFeed() {
   toastr.info('📻 生成世界频段消息中...');
 
   const recent = getRecentChat(25);
-  const ctx = getContext();
   const preset = getActivePreset();
 
   const result = await callSubAPI([
@@ -2594,8 +2683,7 @@ if ($('#bb-marquee-style').length === 0) {
   `);
 }
 
-console.log('[骨与血] 🦴 index.js v0.4.0 完整加载');
-
+console.log('[骨与血] 🦴 index.js v0.5.0 完整加载');
 
 
 
