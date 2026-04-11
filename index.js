@@ -10,13 +10,13 @@ import { saveSettingsDebounced, eventSource, event_types } from '../../../../scr
 const EXTENSION_NAME = 'third-party/SillyTavern-BoneandBloodbyshadow';
 const VERSION = '0.7.0';
 
-//============================================
-// 风格预设
-//============================================
+//═══════════════════════════════════════════
+// 【区块 A】 风格预设 & 主题系统
+// ═══════════════════════════════════════════
 
 const STYLE_PRESETS = {
   modern: {
-    home: '🏠 主页', scrapbook: '🌟唱片机', diary: '📖日记本',
+    home: '🏠 主页', scrapbook: '🌟 唱片机', diary: '📖 日记本',
     npc: '🧑‍🤝‍🧑 情报站', weather: '☁️ 环境雷达', vibe: '❤️ 氛围心电图',
     parallel: '🦋 平行宇宙', fate: '🎲 命运盘', ooc: '💬 Burning Star',
     world: '📻 世界频段', achievements: '🏆 成就殿堂',
@@ -26,16 +26,69 @@ const STYLE_PRESETS = {
     npc: '👤 人物志', weather: '🌸 时节录', vibe: '💭 心境图',
     parallel: '🌀镜花水月', fate: '🎴卦象台', ooc: '💌 私语阁',
     world: '📰 江湖传闻', achievements: '🎖️ 功绩榜',
-    gallery: '🎨 丹青阁', couple: '🌙鸳鸯谱',
+    gallery: '🎨丹青阁', couple: '🌙鸳鸯谱',
   },
   gothic: {
     home: '🕯️ 庭院', scrapbook: '🦴骸骨之语', diary: '🩸 血迹手记',
     npc: '👻 幽影名录', weather: '⚰️ 天气', vibe: '🕷️ 血脉共鸣',
     parallel: '🌑 暗面分支', fate: '🗡️ 命运之骰', ooc: '🚪 Burning Star',
-    world: '📡亡者电台', achievements: '💀 死亡勋章',
+    world: '📡 亡者电台', achievements: '💀 死亡勋章',
     gallery: '🖤暗影画廊', couple: '🥀 血契空间',
   },
 };
+
+// Tab key 到 data-tab属性的映射
+const TAB_KEYS = ['home','scrapbook','diary','npc','weather','vibe','parallel','fate','ooc','world','achievements','gallery','couple'];
+
+/**
+ * 应用风格预设 — 更新所有 tab 按钮文字
+ */
+function applyStylePreset(presetName) {
+  const preset = STYLE_PRESETS[presetName];
+  if (!preset) return;
+  
+  TAB_KEYS.forEach(key => {
+    const btn = document.querySelector(`.bb-tab-btn[data-tab="${key}"]`);
+    if (btn && preset[key]) {
+      btn.textContent = preset[key];
+    }
+  });
+  
+  // 保存到设置
+  if (window.bbData) {
+    window.bbData.settings = window.bbData.settings || {};
+    window.bbData.settings.stylePreset = presetName;saveBBData();
+  }
+}
+
+/**
+ * 应用颜色主题 — 通过 data-bb-theme 属性切换CSS变量
+ */
+function applyColorTheme(themeName) {
+  // 移除旧主题
+  document.body.removeAttribute('data-bb-theme');
+  
+  if (themeName && themeName !== 'modern') {
+    document.body.setAttribute('data-bb-theme', themeName);
+  }
+  
+  // 加载对应主题CSS（如果还没加载）
+  if (themeName !== 'modern') {
+    const themeId = `bb-theme-${themeName}`;
+    if (!document.getElementById(themeId)) {
+      const link = document.createElement('link');
+      link.id = themeId;
+      link.rel = 'stylesheet';
+      link.href = `/scripts/extensions/third-party/骨与血/themes/${themeName}.css`;
+      document.head.appendChild(link);
+    }
+  }
+  if (window.bbData) {
+    window.bbData.settings = window.bbData.settings || {};
+    window.bbData.settings.colorTheme = themeName;
+    saveBBData();
+  }
+}
 
 // ============================================
 // 主页布局定义
