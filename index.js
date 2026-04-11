@@ -6,8 +6,8 @@ import { extension_settings, getContext, renderExtensionTemplateAsync } from '..
 import { saveSettingsDebounced } from '../../../../script.js';
 import { eventSource, event_types } from '../../../../script.js';
 
-const EXTENSION_NAME = 'third-party/bone-and-blood';
-const EXTENSION_FOLDER = 'third-party/bone-and-blood';
+const EXTENSION_NAME = 'third-party/SillyTavern-BoneandBloodbyshadow';
+const EXTENSION_FOLDER = 'third-party/SillyTavern-BoneandBloodbyshadow';
 
 // ---- 默认设置 ----
 const defaultSettings = {
