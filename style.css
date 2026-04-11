@@ -1,564 +1,1728 @@
 /* ============================================
-   🦴 骨与血 (Bone & Blood) - 主题样式
-   ============================================
-   所有颜色、字体均使用 CSS Variables
-   用户只需修改下方变量即可换肤
+   🦴 骨与血 (Bone & Blood) v0.4.0 样式表
+   By SHADOW <安息之影> © 2026
    ============================================ */
 
-/* ---- 主题变量 ---- */
+/* ============================================
+   字体引入
+   ============================================ */
+
+/* 中文字体：思源黑体/霞鹜文楷 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+
+/* 英文字体：Cinzel (哥特感)/Crimson Text */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+/* 等宽字体：JetBrains Mono */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ============================================
+   全局变量
+   ============================================ */
+
 :root {
-  /* 基础色板 */
-  --bb-bg-primary: #1a1a2e;
-  --bb-bg-secondary: #16213e;
-  --bb-bg-card: #0f3460;
-  --bb-bg-hover: #1a1a3e;
-  --bb-bg-input: #0d1b2a;
-
-  /* 强调色 */
-  --bb-accent: #e94560;
-  --bb-accent-glow: rgba(233, 69, 96, 0.4);
-  --bb-accent-secondary: #f5a623;
-
-  /* 文字色 */
-  --bb-text-primary: #eaeaea;
-  --bb-text-secondary: #a0a0b0;
-  --bb-text-muted: #6b6b80;
-
-  /* 边框与阴影 */
-  --bb-border: #2a2a4a;
-  --bb-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --bb-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.3);
-
-  /* 字体 */
-  --bb-font-main: 'Segoe UI', 'Noto Sans SC', sans-serif;
-  --bb-font-diary: 'Georgia', 'Noto Serif SC', serif;
-
+  /* 哥特风配色（默认） */
+  --bb-primary: #8b0000; /* 暗红 */
+  --bb-primary-dark: #600000;
+  --bb-primary-light: #a00000;
+  
+  --bb-bg-main: #1a1a1a;
+  --bb-bg-secondary: #222;
+  --bb-bg-dark: #000;
+  --bb-bg-card: #2a2a2a;
+  
+  --bb-border: #444;
+  --bb-border-light: #555;
+  --bb-border-primary: #8b0000;
+  
+  --bb-text: #ddd;
+  --bb-text-muted: #888;
+  --bb-text-dim: #666;
+  --bb-text-bright: #fff;
+  
+  /* 字体族 */
+  --bb-font-primary: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --bb-font-title: 'Cinzel', 'ZCOOL XiaoWei', serif;
+  --bb-font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  
   /* 圆角 */
-  --bb-radius: 12px;
-  --bb-radius-sm: 8px;
+  --bb-radius-sm: 4px;
+  --bb-radius-md: 8px;
+  --bb-radius-lg: 12px;
+  --bb-radius-xl: 16px;
+  
+  /* 阴影 */
+  --bb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --bb-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --bb-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
+  
+  /* 动画 */
+  --bb-transition: all 0.25s ease;
+}
 
-  /* 面板尺寸 */
-  --bb-panel-width: 380px;
-  --bb-panel-height: 600px;
+/* 现代风配色 */
+.bb-style-modern {
+  --bb-primary: #4a90e2;
+  --bb-primary-dark: #3a7ac2;
+  --bb-primary-light: #5aa0f2;
+  --bb-bg-main: #2c2c2c;
+  --bb-bg-secondary: #333;
+}
+
+/* 古风配色 */
+.bb-style-ancient {
+  --bb-primary: #d4a574; /* 古铜金 */
+  --bb-primary-dark: #b48554;
+  --bb-primary-light: #e4b584;
+  --bb-bg-main: #1e1810;
+  --bb-bg-secondary: #2a2318;
 }
 
 /* ============================================
-   悬浮按钮 (The Catalyst)
+   悬浮按钮
    ============================================ */
 
-#bb-float-button {
+#bb-float-btn {
   position: fixed;
-  bottom: 80px;
+  bottom: 20px;
   right: 20px;
-  z-index: 9998;
-
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--bb-bg-dark) 0%, var(--bb-primary-dark) 100%);
+  border: 2px solid var(--bb-primary);
   border-radius: 50%;
-
-  background: var(--bb-bg-primary);
-  border: 2px solid var(--bb-accent);
-  box-shadow: 0 0 12px var(--bb-accent-glow);
-
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-
+  font-size: 28px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
+  z-index: 9999;
+  box-shadow: var(--bb-shadow-lg);
+  transition: var(--bb-transition);
+  animation: bb-pulse 2s ease-in-out infinite;
 }
 
-#bb-float-button:hover {
-  transform: scale(1.15);
-  box-shadow: 0 0 24px var(--bb-accent-glow);
+#bb-float-btn:hover {
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 8px 32px rgba(139, 0, 0, 0.6);
+  border-color: var(--bb-primary-light);
 }
 
-#bb-float-button:active {
+#bb-float-btn:active {
   transform: scale(0.95);
 }
 
+@keyframes bb-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(139, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(139, 0, 0, 0.8);
+  }
+}
+
 /* ============================================
-   主面板 (The Device)
+   主面板
    ============================================ */
 
-#bb-panel {
+#bb-main-panel {
+  font-family: var(--bb-font-primary);
+  color: var(--bb-text);
   position: fixed;
-  bottom: 140px;
-  right: 20px;
-  z-index: 9999;
-
-  width: var(--bb-panel-width);
-  height: var(--bb-panel-height);
-
-  background: var(--bb-bg-primary);
-  border: 1px solid var(--bb-border);
-  border-radius: var(--bb-radius);
-  box-shadow: var(--bb-shadow);
-
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 900px;
+  height: 85%;
+  max-height: 750px;
+  background: var(--bb-bg-main);
+  border: 3px solid var(--bb-primary);
+  border-radius: var(--bb-radius-lg);
+  box-shadow: var(--bb-shadow-lg);
+  z-index: 10000;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-
-  font-family: var(--bb-font-main);
-  color: var(--bb-text-primary);
-
-  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
-  transform-origin: bottom right;
+  animation: bb-panel-show 0.3s ease;
 }
 
-/* 面板隐藏 */
-#bb-panel.bb-panel-hidden {
-  opacity: 0;
-  transform: scale(0.9) translateY(20px);
-  visibility: hidden;
-  pointer-events: none;
+@keyframes bb-panel-show {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
-/* ---- 面板头部 ---- */
-
-.bb-panel-header {
+/* 标题栏 */
+.bb-header {
+  background: linear-gradient(135deg, var(--bb-bg-dark) 0%, var(--bb-primary-dark) 100%);
+  color: var(--bb-text-bright);
+  padding: 14px 20px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: var(--bb-bg-secondary);
-  border-bottom: 1px solid var(--bb-border);
-  flex-shrink: 0;
+  align-items: center;
+  border-bottom: 2px solid var(--bb-primary);
+  font-family: var(--bb-font-title);
+  letter-spacing: 1px;
 }
 
-.bb-panel-title {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.bb-header > div:first-child {
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-.bb-panel-close {
+#bb-close-btn {
   background: none;
   border: none;
-  color: var(--bb-text-secondary);
-  font-size: 18px;
+  color: var(--bb-text-bright);
+  font-size: 22px;
   cursor: pointer;
-  padding: 0 4px;
+  transition: var(--bb-transition);
+  padding: 4px 8px;
   line-height: 1;
-  transition: color 0.2s;
 }
 
-.bb-panel-close:hover {
-  color: var(--bb-accent);
+#bb-close-btn:hover {
+  color: var(--bb-primary-light);
+  transform: rotate(90deg);
 }
 
-/* ---- 面板内容区 ---- */
+/* Tab 导航 */
+.bb-nav {
+  background: var(--bb-bg-secondary);
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--bb-border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--bb-primary) var(--bb-bg-dark);
+}
 
-.bb-panel-content {
+.bb-nav::-webkit-scrollbar {
+  height: 6px;
+}
+
+.bb-nav::-webkit-scrollbar-track {
+  background: var(--bb-bg-dark);
+}
+
+.bb-nav::-webkit-scrollbar-thumb {
+  background: var(--bb-primary);
+  border-radius: 3px;
+}
+
+.bb-tab {
+  padding: 12px 18px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  color: var(--bb-text-muted);
+  transition: var(--bb-transition);
+  user-select: none;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+}
+
+.bb-tab::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 3px;
+  background: var(--bb-primary);
+  transition: transform 0.3s ease;
+}
+
+.bb-tab:hover {
+  background: rgba(139, 0, 0, 0.1);
+  color: var(--bb-text-bright);
+}
+
+.bb-tab.active {
+  background: var(--bb-bg-main);
+  color: var(--bb-primary);
+  border-bottom-color: var(--bb-primary);
+  font-weight: 700;
+}
+
+.bb-tab.active::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* 内容区 */
+.bb-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
-}
-
-/* 滚动条 */
-.bb-panel-content::-webkit-scrollbar {
-  width: 4px;
-}
-
-.bb-panel-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.bb-panel-content::-webkit-scrollbar-thumb {
-  background: var(--bb-border);
-  border-radius: 2px;
-}
-
-/* ---- 底部导航栏 ---- */
-
-.bb-panel-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 8px 4px;
-  background: var(--bb-bg-secondary);
-  border-top: 1px solid var(--bb-border);
-  flex-shrink: 0;
-}
-
-.bb-nav-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  padding: 6px 10px;
-  border-radius: var(--bb-radius-sm);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.5;
-}
-
-.bb-nav-btn:hover {
-  opacity: 0.8;
-  background: var(--bb-bg-hover);
-}
-
-.bb-nav-btn.bb-nav-active {
-  opacity: 1;
-  background: var(--bb-bg-card);
-  box-shadow: 0 0 8px var(--bb-accent-glow);
-}
-
-/* ---- Tab 内容通用 ---- */
-
-.bb-tab-content h3 {
-  margin: 0 0 12px 0;
-  font-size: 16px;
-  color: var(--bb-accent);
-}
-
-.bb-hidden {
-  display: none !important;
-}
-
-.bb-empty-hint {
-  text-align: center;
-  color: var(--bb-text-muted);
-  font-size: 13px;
-  padding: 40px 0;
-}
-
-/* ============================================
-   🌟 唱片机 - 收藏卡片
-   ============================================ */
-
-.bb-record-card {
-  background: var(--bb-bg-card);
-  border: 1px solid var(--bb-border);
-  border-radius: var(--bb-radius-sm);
-  padding: 14px;
-  margin-bottom: 12px;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.bb-record-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--bb-shadow-light);
-}
-
-.bb-record-card .bb-card-who {
-  font-size: 12px;
-  color: var(--bb-accent);
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.bb-record-card .bb-card-text {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--bb-text-primary);
-  /* 最多显示6行 */
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.bb-record-card .bb-card-context {
-  font-size: 12px;
-  color: var(--bb-text-muted);
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--bb-border);
-  font-style: italic;
-  /* 最多显示2行 */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.bb-record-card .bb-card-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--bb-text-muted);
-}
-
-.bb-record-card .bb-card-delete {
-  background: none;
-  border: none;
-  color: var(--bb-text-muted);
-  cursor: pointer;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.bb-record-card .bb-card-delete:hover {
-  color: var(--bb-accent);
-  background: rgba(233, 69, 96, 0.1);
-}
-
-/* ============================================
-   📖 日记本 - 信纸风格
-   ============================================ */
-
-.bb-diary-entry {
-  background: linear-gradient(135deg, #1c1c30, #1a1a2e);
-  border: 1px solid var(--bb-border);
-  border-left: 3px solid var(--bb-accent-secondary);
-  border-radius: var(--bb-radius-sm);
-  padding: 16px;
-  margin-bottom: 14px;
-  font-family: var(--bb-font-diary);
-}
-
-.bb-diary-entry .bb-diary-date {
-  font-size: 11px;
-  color: var(--bb-accent-secondary);
-  margin-bottom: 8px;
-}
-
-.bb-diary-entry .bb-diary-text {
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--bb-text-primary);
-  white-space: pre-wrap;
-}
-
-/* ============================================
-   📻 情报站
-   ============================================ */
-
-.bb-intel-section {
-  margin-bottom: 16px;
-}
-
-.bb-intel-section h4 {
-  font-size: 14px;
-  color: var(--bb-accent-secondary);
-  margin: 0 0 8px 0;
-}
-
-.bb-intel-section > div {
-  background: var(--bb-bg-card);
-  border-radius: var(--bb-radius-sm);
-  padding: 12px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--bb-text-secondary);
-}
-
-.bb-intel-refresh-btn {
-  background: var(--bb-bg-card);
-  border: 1px solid var(--bb-border);
-  color: var(--bb-text-secondary);
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  margin-top: 6px;
-  transition: all 0.2s;
-}
-
-.bb-intel-refresh-btn:hover {
-  color: var(--bb-accent);
-  border-color: var(--bb-accent);
-}
-
-/* ============================================
-   🦋 观测站 - 平行宇宙卡片
-   ============================================ */
-
-.bb-parallel-card {
-  background: linear-gradient(135deg, #1a1a3e, #2a1a2e);
-  border: 1px solid #3a2a4e;
-  border-radius: var(--bb-radius-sm);
-  padding: 14px;
-  margin-bottom: 12px;
-}
-
-.bb-parallel-card .bb-parallel-origin {
-  font-size: 12px;
-  color: var(--bb-text-muted);
-  margin-bottom: 8px;
-  font-style: italic;
-}
-
-.bb-parallel-card .bb-parallel-text {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #d4a0ff;
-}
-
-/* ============================================
-   🃏 命运盘
-   ============================================ */
-
-.bb-big-button {
-  display: block;
-  width: 100%;
   padding: 20px;
-  margin: 20px 0;
-  background: linear-gradient(135deg, var(--bb-accent), #c0392b);
+  background: var(--bb-bg-main);
+  color: var(--bb-text);
+  line-height: 1.6;
+}
+
+.bb-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.bb-content::-webkit-scrollbar-track {
+  background: var(--bb-bg-dark);
+  border-radius: var(--bb-radius-sm);
+}
+
+.bb-content::-webkit-scrollbar-thumb {
+  background: var(--bb-primary);
+  border-radius: var(--bb-radius-sm);
+  border: 2px solid var(--bb-bg-dark);
+}
+
+.bb-content::-webkit-scrollbar-thumb:hover {
+  background: var(--bb-primary-light);
+}
+
+/* Tab 面板 */
+.bb-tab-panel {
+  display: none;
+  animation: bb-fade-in 0.3s ease;
+}
+
+.bb-tab-panel.active {
+  display: block;
+}
+
+@keyframes bb-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   按钮样式
+   ============================================ */
+
+.bb-sm-btn,
+.bb-big-btn {
+  font-family: var(--bb-font-primary);
   border: none;
-  border-radius: var(--bb-radius);
-  color: white;
-  font-size: 20px;
-  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px var(--bb-accent-glow);
+  transition: var(--bb-transition);
+  font-weight: 500;
+  outline: none;
 }
 
-.bb-big-button:hover {
+.bb-sm-btn {
+  padding: 7px 14px;
+  background: var(--bb-bg-card);
+  color: var(--bb-text);
+  border: 1px solid var(--bb-border-light);
+  border-radius: var(--bb-radius-sm);
+  font-size: 13px;
+}
+
+.bb-sm-btn:hover {
+  background: var(--bb-primary);
+  border-color: var(--bb-primary);
+  color: var(--bb-text-bright);
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--bb-accent-glow);
+  box-shadow: var(--bb-shadow-sm);
 }
 
-.bb-big-button:active {
+.bb-sm-btn:active {
   transform: translateY(0);
 }
 
-.bb-big-button.bb-loading {
-  opacity: 0.6;
-  pointer-events: none;
+.bb-big-btn {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, var(--bb-primary-dark) 0%, var(--bb-primary) 100%);
+  color: var(--bb-text-bright);
+  border-radius: var(--bb-radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: var(--bb-shadow-md);
+  letter-spacing: 1px;
 }
 
-.bb-fate-result {
-  background: var(--bb-bg-card);
-  border-radius: var(--bb-radius-sm);
-  padding: 16px;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--bb-text-primary);
-  min-height: 60px;
+.bb-big-btn:hover {
+  background: linear-gradient(135deg, var(--bb-primary) 0%, var(--bb-primary-light) 100%);
+  transform: scale(1.05);
+  box-shadow: 0 6px 24px rgba(139, 0, 0, 0.5);
+}
+
+.bb-big-btn:active {
+  transform: scale(0.98);
 }
 
 /* ============================================
-   ⚙️ 设置面板
+   首页（一起听界面）
    ============================================ */
 
-.bb-settings-form label {
-  display: block;
-  margin-bottom: 14px;
+.bb-home-card {
+  background: var(--bb-bg-secondary);
+  border: 2px solid var(--bb-border);
+  border-radius: var(--bb-radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--bb-shadow-sm);
 }
 
-.bb-settings-form label span {
-  display: block;
-  font-size: 13px;
-  color: var(--bb-text-secondary);
+.bb-home-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--bb-bg-card);
+  border: 3px solid var(--bb-primary);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  transition: var(--bb-transition);
+  box-shadow: var(--bb-shadow-sm);
+}
+
+.bb-home-avatar:hover {
+  transform: scale(1.1);
+  border-color: var(--bb-primary-light);
+  box-shadow: 0 4px 16px rgba(139, 0, 0, 0.6);
+}
+
+.bb-home-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#bb-home-user-name,
+#bb-home-char-name {
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--bb-text-bright);
   margin-bottom: 4px;
 }
 
-.bb-settings-form input[type="text"],
-.bb-settings-form input[type="password"],
-.bb-settings-form input[type="number"] {
-  width: 100%;
-  padding: 8px 12px;
-  background: var(--bb-bg-input);
-  border: 1px solid var(--bb-border);
-  border-radius: 6px;
-  color: var(--bb-text-primary);
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-
-.bb-settings-form input:focus {
-  border-color: var(--bb-accent);
-}
-
-.bb-button {
-  padding: 10px 20px;
-  background: var(--bb-accent);
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
+#bb-home-link-emoji {
+  font-size: 48px;
   cursor: pointer;
-  transition: all 0.2s;
-  width: 100%;
+  user-select: none;
+  transition: var(--bb-transition);
+  animation: bb-heart-beat 1.5s ease-in-out infinite;
 }
 
-.bb-button:hover {
-  opacity: 0.85;
+#bb-home-link-emoji:hover {
+  transform: scale(1.2) rotate(10deg);
+}
+
+@keyframes bb-heart-beat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+#bb-home-user-bubble,
+#bb-home-char-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: 75%;
+  font-size: 14px;
+  cursor: text;
+  transition: var(--bb-transition);
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+#bb-home-user-bubble {
+  background: var(--bb-bg-card);
+  color: var(--bb-text);
+  border-radius: 18px 18px 18px 4px;
+  border: 1px solid var(--bb-border);
+}
+
+#bb-home-char-bubble {
+  background: var(--bb-primary);
+  color: var(--bb-text-bright);
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: var(--bb-shadow-sm);
+}
+
+#bb-home-user-bubble:hover,
+#bb-home-char-bubble:hover {
+  box-shadow: var(--bb-shadow-md);
+  transform: translateY(-2px);
+}
+
+#bb-home-msg-count,
+#bb-home-time-count {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--bb-primary);
+  font-family: var(--bb-font-title);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#bb-home-radio-text {
+  font-size: 19px;
+  color: var(--bb-text-bright);
+  cursor: text;
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 1px;
+  transition: var(--bb-transition);
+}
+
+#bb-home-radio-text:hover {
+  color: var(--bb-primary-light);
+  text-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
 }
 
 /* ============================================
-   消息气泡内的注入按钮
+   卡片样式（通用）
    ============================================ */
 
-.bb-msg-buttons {
-  display: inline-flex;
-  gap: 2px;
+.bb-record-item,
+.bb-diary-item,
+.bb-npc-card,
+.bb-par-item {
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: var(--bb-transition);
+  box-shadow: var(--bb-shadow-sm);
 }
 
-.bb-msg-btn {
-  background: none;
-  border: none;
+.bb-record-item:hover,
+.bb-diary-item:hover,
+.bb-npc-card:hover,
+.bb-par-item:hover {
+  border-color: var(--bb-primary);
+  box-shadow: var(--bb-shadow-md);
+  transform: translateX(4px);
+}
+
+.bb-record-header,
+.bb-diary-header,
+.bb-par-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bb-border);
+}
+
+.bb-record-char,
+.bb-npc-card b {
+  color: var(--bb-primary);
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.bb-record-time {
+  font-size: 12px;
+  color: var(--bb-text-muted);
+}
+
+.bb-record-text,
+.bb-diary-body,
+.bb-npc-body,
+.bb-par-body {
+  color: var(--bb-text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.bb-record-del,
+.bb-diary-del,
+.bb-npc-del,
+.bb-par-del,
+.bb-feed-del,
+.bb-fate-del {
   cursor: pointer;
-  font-size: 16px;
-  padding: 2px 4px;
-  opacity: 0.4;
-  transition: all 0.2s;
+  font-size: 15px;
+  transition: var(--bb-transition);
+  padding: 4px;
 }
 
-.bb-msg-btn:hover {
-  opacity: 1;
-  transform: scale(1.2);
-}
-
-.bb-msg-btn.bb-collected {
-  opacity: 1;
-  filter: drop-shadow(0 0 4px var(--bb-accent-glow));
+.bb-record-del:hover,
+.bb-diary-del:hover,
+.bb-npc-del:hover,
+.bb-par-del:hover,
+.bb-feed-del:hover,
+.bb-fate-del:hover {
+  transform: scale(1.3);
+  filter: brightness(1.5);
 }
 
 /* ============================================
-   导出按钮
+   信息框
+   ============================================ */
+
+.bb-box {
+  background: var(--bb-bg-secondary);
+  border: 2px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 18px;
+  min-height: 120px;
+  color: var(--bb-text);
+  line-height: 1.7;
+  box-shadow: var(--bb-shadow-sm);
+  transition: var(--bb-transition);
+}
+
+.bb-box:hover {
+  border-color: var(--bb-primary);
+  box-shadow: var(--bb-shadow-md);
+}
+
+#bb-fate-result {
+  background: linear-gradient(135deg, var(--bb-bg-secondary) 0%, var(--bb-bg-dark) 100%);
+  border: 2px solid var(--bb-primary);
+  border-radius: var(--bb-radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  min-height: 140px;
+  color: var(--bb-text);
+  text-align: center;
+  box-shadow: var(--bb-shadow-md);
+}
+
+.bb-fate-text {
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+/* ============================================
+   空状态
+   ============================================ */
+
+.bb-empty {
+  text-align: center;
+  color: var(--bb-text-dim);
+  padding: 60px 20px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* ============================================
+   世界频段跑马灯
+   ============================================ */
+
+.bb-marquee-container {
+  background: var(--bb-bg-dark);
+  border: 2px solid var(--bb-primary);
+  border-radius: var(--bb-radius-md);
+  padding: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  position: relative;
+  height: 60px;
+  box-shadow: var(--bb-shadow-md);
+}
+
+#bb-marquee {
+  white-space: nowrap;
+  animation: bb-scroll 25s linear infinite;
+  color: var(--bb-text-bright);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  line-height: 32px;
+}
+
+@keyframes bb-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.bb-marquee-container:hover #bb-marquee {
+  animation-play-state: paused;
+}
+
+/* ============================================
+   成就卡片
+   ============================================ */
+
+#bb-ach-list > div {
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+  transition: var(--bb-transition);
+}
+
+#bb-ach-list > div:hover {
+  border-color: var(--bb-primary);
+  transform: translateX(4px);
+  box-shadow: var(--bb-shadow-sm);
+}
+
+.bb-achievement-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 420px;
+  background: linear-gradient(135deg, var(--bb-bg-dark) 0%, var(--bb-primary-dark) 100%);
+  border: 4px solid var(--bb-primary);
+  border-radius: var(--bb-radius-xl);
+  padding: 32px;
+  z-index: 99999;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9);
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.bb-achievement-popup::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: linear-gradient(45deg, var(--bb-primary), var(--bb-primary-light), var(--bb-primary));
+  border-radius: var(--bb-radius-xl);
+  z-index: -1;
+  opacity: 0.3;
+  animation: bb-glow 2s ease-in-out infinite;
+}
+
+@keyframes bb-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================
+   蝴蝶窗口 & 破墙窗口
+   ============================================ */
+
+#bb-bf-win,
+#bb-ooc-win {
+  font-family: var(--bb-font-primary);
+  color: var(--bb-text);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 650px;
+  height: 75%;
+  max-height: 600px;
+  background: var(--bb-bg-main);
+  border: 3px solid var(--bb-primary);
+  border-radius: var(--bb-radius-lg);
+  box-shadow: var(--bb-shadow-lg);
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  animation: bb-panel-show 0.3s ease;
+}
+
+.bb-bf-header,
+.bb-ooc-header {
+  background: linear-gradient(135deg, var(--bb-bg-dark) 0%, var(--bb-primary-dark) 100%);
+  color: var(--bb-text-bright);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--bb-primary);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+#bb-bf-close,
+#bb-ooc-close {
+  background: none;
+  border: none;
+  color: var(--bb-text-bright);
+  font-size: 20px;
+  cursor: pointer;
+  transition: var(--bb-transition);
+  padding: 4px 8px;
+}
+
+#bb-bf-close:hover,
+#bb-ooc-close:hover {
+  color: var(--bb-primary-light);
+  transform: rotate(90deg);
+}
+
+#bb-bf-origin {
+  background: var(--bb-bg-secondary);
+  padding: 14px;
+  border-bottom: 1px solid var(--bb-border);
+  color: var(--bb-text-muted);
+  font-size: 13px;
+  max-height: 90px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+#bb-bf-chat,
+#bb-ooc-chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--bb-bg-main);
+}
+
+#bb-bf-chat::-webkit-scrollbar,
+#bb-ooc-chat::-webkit-scrollbar {
+  width: 8px;
+}
+
+#bb-bf-chat::-webkit-scrollbar-track,
+#bb-ooc-chat::-webkit-scrollbar-track {
+  background: var(--bb-bg-dark);
+}
+
+#bb-bf-chat::-webkit-scrollbar-thumb,
+#bb-ooc-chat::-webkit-scrollbar-thumb {
+  background: var(--bb-primary);
+  border-radius: 4px;
+}
+
+#bb-bf-input,
+#bb-ooc-input {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--bb-bg-card);
+  border: 1px solid var(--bb-border-light);
+  color: var(--bb-text);
+  border-radius: var(--bb-radius-sm);
+  font-family: var(--bb-font-primary);
+  font-size: 14px;
+  outline: none;
+  transition: var(--bb-transition);
+}
+
+#bb-bf-input:focus,
+#bb-ooc-input:focus {
+  border-color: var(--bb-primary);
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
+
+#bb-bf-send,
+#bb-ooc-send {
+  padding: 10px 20px;
+  background: var(--bb-primary);
+  color: var(--bb-text-bright);
+  border: none;
+  border-radius: var(--bb-radius-sm);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: var(--bb-transition);
+}
+
+#bb-bf-send:hover,
+#bb-ooc-send:hover {
+  background: var(--bb-primary-light);
+  transform: scale(1.05);
+}
+
+#bb-bf-export {
+  padding: 10px 14px;
+  background: var(--bb-bg-card);
+  color: var(--bb-text);
+  border: 1px solid var(--bb-border-light);
+  border-radius: var(--bb-radius-sm);
+  cursor: pointer;
+  transition: var(--bb-transition);
+}
+
+#bb-bf-export:hover {
+  background: var(--bb-primary);
+  border-color: var(--bb-primary);
+  color: var(--bb-text-bright);
+}
+
+/* 气泡样式 */
+#bb-bf-chat > div,
+#bb-ooc-chat > div,
+#bb-ooc-preview > div {
+  animation: bb-bubble-in 0.3s ease;
+}
+
+@keyframes bb-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   消息按钮（🌟🦋）
+   ============================================ */
+
+.bb-msg-btns {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 6px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.bb-btn-star,
+.bb-btn-butterfly {
+  cursor: pointer;
+  transition: var(--bb-transition);
+  display: inline-block;
+  padding: 2px;
+}
+
+.bb-btn-star:hover {
+  transform: scale(1.3) rotate(15deg);
+  filter: brightness(1.5) drop-shadow(0 0 8px gold);
+}
+
+.bb-btn-butterfly:hover {
+  transform: scale(1.3);
+  filter: brightness(1.3) drop-shadow(0 0 8px purple);
+}
+
+/* ============================================
+   设置面板样式
+   ============================================ */
+
+#bb-extension-settings {
+  font-family: var(--bb-font-primary);
+}
+
+#bb-extension-settings .inline-drawer-content {
+  padding: 16px;
+  background: var(--bb-bg-main);
+  border-radius: var(--bb-radius-md);
+}
+
+#bb-extension-settings h4 {
+  color: var(--bb-primary);
+  font-family: var(--bb-font-title);
+  font-weight: 700;
+  margin: 12px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--bb-border);
+  letter-spacing: 0.5px;
+}
+
+#bb-extension-settings label {
+  color: var(--bb-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+#bb-extension-settings input[type="text"],
+#bb-extension-settings input[type="password"],
+#bb-extension-settings input[type="number"],
+#bb-extension-settings select,
+#bb-extension-settings textarea {
+  background: var(--bb-bg-card);
+  border: 1px solid var(--bb-border-light);
+  color: var(--bb-text);
+  border-radius: var(--bb-radius-sm);
+  padding: 8px 12px;
+  font-family: var(--bb-font-primary);
+  transition: var(--bb-transition);
+}
+
+#bb-extension-settings input:focus,
+#bb-extension-settings select:focus,
+#bb-extension-settings textarea:focus {
+  border-color: var(--bb-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
+
+#bb-extension-settings textarea {
+  font-family: var(--bb-font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+#bb-extension-settings .menu_button {
+  background: var(--bb-primary);
+  color: var(--bb-text-bright);
+  border: none;
+  border-radius: var(--bb-radius-sm);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--bb-transition);
+  font-family: var(--bb-font-primary);
+}
+
+#bb-extension-settings .menu_button:hover {
+  background: var(--bb-primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--bb-shadow-sm);
+}
+
+#bb-extension-settings .menu_button:active {
+  transform: translateY(0);
+}
+
+#bb-api-status {
+  padding: 8px 12px;
+  border-radius: var(--bb-radius-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+}
+
+#bb-extension-settings hr {
+  border: none;
+  border-top: 1px solid var(--bb-border);
+  margin: 16px 0;
+}
+
+#bb-extension-settings small {
+  color: var(--bb-text-muted);
+  font-size: 11px;
+  font-style: italic;
+}
+
+#bb-extension-settings code {
+  background: var(--bb-bg-dark);
+  color: var(--bb-primary-light);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--bb-font-mono);
+  font-size: 12px;
+}
+
+/* ============================================
+   响应式布局
+   ============================================ */
+
+@media (max-width: 768px) {
+  #bb-main-panel {
+    width: 95%;
+    height: 90%;
+    max-height: none;
+  }
+
+  .bb-header > div:first-child {
+    font-size: 16px;
+  }
+
+  .bb-tab {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .bb-content {
+    padding: 12px;
+  }
+
+  .bb-home-avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+  }
+
+  #bb-home-user-name,
+  #bb-home-char-name {
+    font-size: 15px;
+  }
+
+  #bb-home-link-emoji {
+    font-size: 36px;
+  }
+
+  #bb-home-msg-count,
+  #bb-home-time-count {
+    font-size: 24px;
+  }
+
+  #bb-home-radio-text {
+    font-size: 16px;
+  }
+
+  .bb-sm-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .bb-big-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  #bb-bf-win,
+  #bb-ooc-win {
+    width: 95%;
+    height: 85%;
+  }
+
+  .bb-achievement-popup {
+    width: 90%;
+    padding: 24px;
+  }
+
+  .bb-achievement-popup > div:first-child {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  #bb-float-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .bb-header {
+    padding: 10px 14px;
+  }
+
+  .bb-header > div:first-child {
+    font-size: 14px;
+  }
+
+  #bb-close-btn {
+    font-size: 18px;
+  }
+
+  .bb-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .bb-content {
+    padding: 10px;
+  }
+
+  .bb-home-card {
+    padding: 16px;
+  }
+
+  .bb-home-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  #bb-home-user-name,
+  #bb-home-char-name {
+    font-size: 14px;
+  }
+
+  #bb-home-link-emoji {
+    font-size: 32px;
+  }
+
+  #bb-home-user-bubble,
+  #bb-home-char-bubble {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .bb-record-item,
+  .bb-diary-item,
+  .bb-npc-card,
+  .bb-par-item {
+    padding: 12px;
+  }
+
+  .bb-sm-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .bb-big-btn {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  #bb-marquee {
+    font-size: 14px;
+  }
+
+  .bb-achievement-popup {
+    width: 92%;
+    padding: 20px;
+  }
+
+  .bb-achievement-popup > div:first-child {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+
+  .bb-achievement-popup > div:nth-child(2) {
+    font-size: 18px;
+  }
+
+  .bb-achievement-popup > div:nth-child(3) {
+    font-size: 16px;
+  }
+
+  .bb-achievement-popup > div:nth-child(4) {
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   特殊效果
+   ============================================ */
+
+/* 血滴效果（哥特风） */
+@keyframes bb-blood-drip {
+  0% {
+    transform: translateY(0) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px) scaleY(1.5);
+    opacity: 0;
+  }
+}
+
+.bb-header::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 10%;
+  width: 4px;
+  height: 6px;
+  background: var(--bb-primary);
+  border-radius: 0 0 50% 50%;
+  animation: bb-blood-drip 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+/* 悬浮粒子效果 */
+@keyframes bb-particle-float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.7;
+  }
+}
+
+#bb-main-panel::before {
+  content: '💀';
+  position: absolute;
+  top: 20%;
+  right: 5%;
+  font-size: 24px;
+  opacity: 0.1;
+  animation: bb-particle-float 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+#bb-main-panel::after {
+  content: '🦴';
+  position: absolute;
+  bottom: 15%;
+  left: 8%;
+  font-size: 20px;
+  opacity: 0.1;
+  animation: bb-particle-float 5s ease-in-out infinite;
+  animation-delay: 1s;
+  pointer-events: none;
+}
+
+/* 文字闪烁效果（命运盘） */
+@keyframes bb-text-glow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(139, 0, 0, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(139, 0, 0, 0.8), 0 0 30px rgba(139, 0, 0, 0.6);
+  }
+}
+
+#bb-fate-result .bb-fate-text {
+  animation: bb-text-glow 2s ease-in-out infinite;
+}
+
+/* 边框呼吸效果 */
+@keyframes bb-border-pulse {
+  0%, 100% {
+    border-color: var(--bb-primary);
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.3);
+  }
+  50% {
+    border-color: var(--bb-primary-light);
+    box-shadow: 0 0 20px rgba(139, 0, 0, 0.6);
+  }
+}
+
+#bb-main-panel,
+#bb-bf-win,
+#bb-ooc-win {
+  animation: bb-border-pulse 3s ease-in-out infinite;
+}
+
+/* 加载动画 */
+@keyframes bb-loading {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.bb-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--bb-border);
+  border-top-color: var(--bb-primary);
+  border-radius: 50%;
+  animation: bb-loading 0.8s linear infinite;
+}
+
+/* ============================================
+   导出栏样式
    ============================================ */
 
 .bb-export-bar {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
-}
-
-.bb-export-btn {
-  flex: 1;
-  padding: 6px 12px;
-  background: var(--bb-bg-card);
-  border: 1px solid var(--bb-border);
-  border-radius: 6px;
-  color: var(--bb-text-secondary);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.bb-export-btn:hover {
-  color: var(--bb-accent);
-  border-color: var(--bb-accent);
+  justify-content: flex-end;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--bb-border);
 }
 
 /* ============================================
-   响应式 - 手机适配
+   NPC 卡片增强
    ============================================ */
 
-@media (max-width: 600px) {
-  #bb-panel {
-    width: calc(100vw - 20px);
-    height: 70vh;
-    bottom: 80px;
-    right: 10px;
-    left: 10px;
-  }
+.bb-npc-card {
+  position: relative;
+  overflow: hidden;
+}
 
-  #bb-float-button {
-    bottom: 20px;
-    right: 15px;
+.bb-npc-card::before {
+  content: '👤';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 48px;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.bb-npc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.bb-npc-body {
+  color: var(--bb-text);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.bb-npc-time {
+  font-size: 11px;
+  color: var(--bb-text-dim);
+  font-style: italic;
+}
+
+/* ============================================
+   世界频段列表样式
+   ============================================ */
+
+#bb-world-feed-list > div {
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+  border-left: 4px solid var(--bb-primary);
+  border-radius: var(--bb-radius-sm);
+  padding: 14px;
+  margin-bottom: 12px;
+  transition: var(--bb-transition);
+}
+
+#bb-world-feed-list > div:hover {
+  border-left-width: 6px;
+  transform: translateX(2px);
+  box-shadow: var(--bb-shadow-sm);
+}
+
+/* ============================================
+   命运历史列表样式
+   ============================================ */
+
+#bb-fate-history-list > div {
+  position: relative;
+  padding-left: 16px;
+}
+
+#bb-fate-history-list > div::before {
+  content: '🎲';
+  position: absolute;
+  left: -8px;
+  top: 12px;
+  font-size: 18px;
+  opacity: 0.6;
+}
+
+/* ============================================
+   平行宇宙样式增强
+   ============================================ */
+
+.bb-par-item {
+  position: relative;
+  padding-left: 20px;
+  border-left: 4px solid var(--bb-primary);
+}
+
+.bb-par-item::before {
+  content: '🦋';
+  position: absolute;
+  left: -16px;
+  top: 16px;
+  font-size: 24px;
+  animation: bb-butterfly-fly 3s ease-in-out infinite;
+}
+
+@keyframes bb-butterfly-fly {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(5deg);
+  }
+  75% {
+    transform: translateY(5px) rotate(-5deg);
   }
 }
+
+.bb-par-origin {
+  background: var(--bb-bg-dark);
+  padding: 10px;
+  border-left: 3px solid var(--bb-primary);
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--bb-text-muted);
+  border-radius: var(--bb-radius-sm);
+  font-style: italic;
+}
+
+/* ============================================
+   OOC 预览样式
+   ============================================ */
+
+#bb-ooc-preview {
+  background: var(--bb-bg-secondary);
+  border: 2px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 16px;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  color: var(--bb-text);
+}
+
+#bb-ooc-preview::-webkit-scrollbar {
+  width: 8px;
+}
+
+#bb-ooc-preview::-webkit-scrollbar-track {
+  background: var(--bb-bg-dark);
+}
+
+#bb-ooc-preview::-webkit-scrollbar-thumb {
+  background: var(--bb-primary);
+  border-radius: 4px;
+}
+
+/* ============================================
+   日记本样式增强
+   ============================================ */
+
+.bb-diary-item {
+  position: relative;
+  background: linear-gradient(135deg, var(--bb-bg-secondary) 0%, var(--bb-bg-card) 100%);
+}
+
+.bb-diary-item::before {
+  content: '📖';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 36px;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.bb-diary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--bb-border);
+}
+
+.bb-diary-header span:first-child {
+  color: var(--bb-primary);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.bb-diary-body {
+  color: var(--bb-text);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+
+/* ============================================
+   唱片机（语录）样式增强
+   ============================================ */
+
+.bb-record-item {
+  position: relative;
+  background: var(--bb-bg-secondary);
+  border-left: 4px solid var(--bb-primary);
+  transition: var(--bb-transition);
+}
+
+.bb-record-item:hover {
+  border-left-width: 6px;
+  background: var(--bb-bg-card);
+}
+
+.bb-record-item::before {
+  content: '🌟';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 24px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* ============================================
+   成就计数器样式
+   ============================================ */
+
+#bb-ach-count {
+  color: var(--bb-primary);
+  font-weight: bold;
+  font-size: 18px;
+  font-family: var(--bb-font-title);
+}
+
+#bb-ach-total {
+  color: var(--bb-text-muted);
+  font-size: 16px;
+}
+
+/* ============================================
+   工具提示样式
+   ============================================ */
+
+[title] {
+  position: relative;
+  cursor: help;
+}
+
+/* ============================================
+   代码块样式（预设编辑器）
+   ============================================ */
+
+#bb-custom-css,
+#bb-extension-settings textarea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bb-primary) var(--bb-bg-dark);
+}
+
+#bb-custom-css::-webkit-scrollbar,
+#bb-extension-settings textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+#bb-custom-css::-webkit-scrollbar-track,
+#bb-extension-settings textarea::-webkit-scrollbar-track {
+  background: var(--bb-bg-dark);
+}
+
+#bb-custom-css::-webkit-scrollbar-thumb,
+#bb-extension-settings textarea::-webkit-scrollbar-thumb {
+  background: var(--bb-primary);
+  border-radius: 4px;
+}
+
+/* ============================================
+   选择框样式
+   ============================================ */
+
+#bb-extension-settings select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b0000' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+#bb-extension-settings select:hover {
+  border-color: var(--bb-primary);
+}
+
+/* ============================================
+   复选框样式
+   ============================================ */
+
+#bb-extension-settings input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--bb-primary);
+}
+
+.checkbox_label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox_label:hover {
+  color: var(--bb-primary-light);
+}
+
+/* ============================================
+   隐藏元素动画
+   ============================================ */
+
+.bb-hidden {
+  display: none;
+}
+
+.bb-fade-out {
+  animation: bb-fade-out 0.3s ease forwards;
+}
+
+@keyframes bb-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* ============================================
+   打印样式
+   ============================================ */
+
+@media print {
+  #bb-float-btn,
+  #bb-main-panel,
+  #bb-bf-win,
+  #bb-ooc-win {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   深色模式增强（如果酒馆有主题切换）
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bb-bg-main: #0d0d0d;
+    --bb-bg-secondary: #1a1a1a;
+    --bb-bg-dark: #000;
+  }
+}
+
+/* ============================================
+   高对比度模式支持
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  :root {
+    --bb-border: #666;
+    --bb-border-light: #777;
+    --bb-text: #fff;
+    --bb-text-muted: #aaa;
+  }
+}
+
+/* ============================================
+   减少动画（无障碍支持）
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   版权标记
+   ============================================ */
+
+#bb-main-panel::after {
+  content: '© 2026 SHADOW <安息之影>';
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  font-size: 10px;
+  color: var(--bb-text-dim);
+  opacity: 0.5;
+  pointer-events: none;
+  font-family: var(--bb-font-mono);
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   自定义主题类（供用户CSS覆盖）
+   ============================================ */
+
+/* 用户可以通过自定义CSS覆盖以下类 */
+.bb-custom-theme-primary {
+  color: var(--bb-primary) !important;
+}
+
+.bb-custom-theme-bg {
+  background: var(--bb-bg-main) !important;
+}
+
+.bb-custom-theme-border {
+  border-color: var(--bb-primary) !important;
+}
+
+/* ============================================
+   结束标记
+   ============================================ */
+
+/* 🦴 骨与血 v0.4.0 样式表结束 */
+
