@@ -1,5 +1,5 @@
 /* ============================================
-   🦴 骨与血 (Bone & Blood) v0.5.0 样式表
+   🦴 骨与血 (Bone & Blood) v0.6.0 样式表
    By SHADOW <安息之影> © 2026
    ============================================ */
 
@@ -1908,11 +1908,154 @@
   }
 }
 
-
-
 /* ============================================
-   结束标记
+   v6.0 画廊样式
    ============================================ */
 
-/* 🦴 骨与血 v0.4.0 样式表结束 */
+#bb-gallery-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+#bb-gallery-list > div {
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  overflow: hidden;
+  transition: var(--bb-transition);
+}
+
+#bb-gallery-list > div:hover {
+  border-color: var(--bb-primary);
+  box-shadow: var(--bb-shadow-md);
+  transform: translateY(-4px);
+}
+
+#bb-gallery-list img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  transition: transform0.3s ease;
+}
+
+#bb-gallery-list > div:hover img {
+  transform: scale(1.05);
+}
+
+@media (max-width: 480px) {
+  #bb-gallery-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
+  #bb-gallery-list img {
+    height: 140px;
+  }
+}
+
+/* ============================================
+   v6.0 情侣空间样式
+   ============================================ */
+
+#bb-tab-couple {
+  font-family: var(--bb-font-primary);
+}
+
+#bb-pet-display {
+  font-size: 48px;
+  animation: bb-pet-bounce 2s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes bb-pet-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+#bb-pet-display:hover {
+  animation: bb-pet-spin 0.5s ease;
+}
+
+@keyframes bb-pet-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(15deg) scale(1.2); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+/*心情按钮 */
+.bb-mood-btn {
+  transition: var(--bb-transition);
+}
+
+.bb-mood-btn:hover {
+  transform: scale(1.15) !important;
+}
+
+.bb-mood-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/*纪念日数字高亮 */
+#bb-anniversary-display span {
+  color: var(--bb-primary);
+  font-weight: bold;
+  font-size: 18px;
+  font-family: var(--bb-font-title);
+}
+
+/*小纸条列表 */
+#bb-love-notes-list > div {
+  transition: var(--bb-transition);
+}
+
+#bb-love-notes-list > div:hover {
+  border-left-color: var(--bb-primary-light);
+  transform: translateX(4px);
+}
+
+/* 心情日记标签 */
+#bb-mood-diary-list > div {
+  transition: var(--bb-transition);
+}
+
+#bb-mood-diary-list > div:hover {
+  background: var(--bb-bg-card);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   v6.0 时间线布局样式
+   ============================================ */
+
+#bb-tab-home .bb-timeline-node {
+  position: absolute;
+  left: -41px;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid var(--bb-bg-main);
+}
+
+/*============================================
+   v6.0卡片布局响应式
+   ============================================ */
+
+@media (max-width: 480px) {
+  #bb-tab-home [style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  #bb-tab-home [style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ============================================
+   v6.0 结束标记
+   ============================================ */
+
+/* 🦴 骨与血 v0.6.0 样式表结束 */
 
