@@ -3700,6 +3700,158 @@ body[data-theme="light"] #bb-main-panel {
   }
 }
 
+/* ── v0.7.0 平行宇宙增强样式 ── */
+
+.bb-parallel-item {
+  background: var(--bb-bg-card);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 14px;
+  margin-bottom: 10px;
+  transition: all var(--bb-transition);
+}
+
+.bb-parallel-item:hover {
+  border-color: var(--bb-border-focus);
+  box-shadow: var(--bb-shadow-sm);
+}
+
+.bb-parallel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bb-parallel-who {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bb-accent);
+}
+
+.bb-parallel-context {
+  font-size: 10px;
+  color: var(--bb-text-muted);
+  font-style: italic;
+}
+
+.bb-parallel-section {
+  margin-bottom: 8px;
+}
+
+.bb-parallel-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--bb-text-muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bb-parallel-original {
+  font-size: 12px;
+  color: var(--bb-text-dim);
+  line-height: 1.6;
+  padding: 8px 10px;
+  background: var(--bb-bg-deep);
+  border-radius: var(--bb-radius-sm);
+  border-left: 3px solid var(--bb-text-muted);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+/*原始内容内的HTML渲染 */
+.bb-parallel-original p,
+.bb-parallel-alt p {
+  margin: 00 6px 0;
+}
+
+.bb-parallel-original p:last-child,
+.bb-parallel-alt p:last-child {
+  margin-bottom: 0;
+}
+
+.bb-parallel-original em,
+.bb-parallel-alt em {
+  font-style: italic;
+  color: var(--bb-accent-light);
+}
+
+.bb-parallel-original strong,
+.bb-parallel-alt strong {
+  font-weight: 600;color: var(--bb-primary-light);
+}
+
+.bb-parallel-alt-section {
+  position: relative;
+}
+
+.bb-parallel-alt-section::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 12px;
+  right: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bb-primary), transparent);
+  opacity: 0.3;
+}
+
+.bb-parallel-alt {
+  font-size: 13px;
+  color: var(--bb-text);
+  line-height: 1.7;
+  padding: 10px 12px;
+  background: rgba(201, 160, 220, 0.05);
+  border-radius: var(--bb-radius-sm);
+  border-left: 3px solid var(--bb-primary);
+}
+
+.bb-parallel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bb-divider);
+}
+
+.bb-parallel-meta {
+  font-size: 10px;
+  color: var(--bb-text-muted);
+}
+
+.bb-parallel-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* 平行宇宙内的表情包 */
+.bb-parallel-original .bb-sticker-inline,
+.bb-parallel-alt .bb-sticker-inline {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+@media (max-width: 480px) {
+  .bb-parallel-item {
+    padding: 10px;
+  }
+
+  .bb-parallel-original {
+    font-size: 11px;
+    max-height: 80px;
+  }
+
+  .bb-parallel-alt {
+    font-size: 12px;
+  }
+
+  .bb-parallel-header {
+    flex-direction: column;
+    align-items: flex-start;gap: 2px;
+  }
+}
 
 /* ============================================================
    END OF style.css —骨与血(Bone & Blood) v0.6.0
