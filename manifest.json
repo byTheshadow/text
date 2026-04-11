@@ -1,12 +1,13 @@
 {
   "display_name": "骨与血 (Bone & Blood)",
-  "loading_order": 10,
+  "loading_order": 100,
   "requires": [],
   "optional": [],
   "js": "index.js",
   "css": "style.css",
   "author": "Shadow",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "homePage": "https://github.com/loud23for-ship-it/SillyTavern-BoneandBloodbyshadow",
   "auto_update": true
 }
+
