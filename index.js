@@ -1206,6 +1206,16 @@ function restoreSettings() {
     applyCustomCSS(s.custom_css);
   }
 }
+// ── 构建并绑定主面板（修复：原代码缺失此函数） ──
+function buildAndBindMainPanel() {
+  const panel = document.getElementById('bb-main-panel');
+  if (!panel) return;
+  panel.innerHTML = buildMainPanelHTML();
+  bindMainPanelEvents(panel);
+  renderAll();
+  // 初始化后隐藏
+  $('#bb-main-panel').hide();
+}
 
 function applyCustomCSS(css) {
   let styleEl = document.getElementById('bb-custom-css-style');
