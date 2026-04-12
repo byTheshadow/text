@@ -1232,14 +1232,39 @@ function buildMainPanelHTML() {
       </div>
 
 
-      <!-- 📖 日记本 -->
-      <div id="bb-pane-diary" class="bb-tab-pane bb-hidden">
-        <div class="bb-action-bar">
-          <button class="bb-sm-btn" id="bb-btn-gen-diary-tab">📖 生成日记</button>
-          <button class="bb-sm-btn" id="bb-btn-gen-diary-img">🎨 为最新日记配图</button>
+           <div id="bb-pane-diary" class="bb-tab-pane bb-hidden">
+        <!-- 自动总结状态栏 -->
+        <div class="bb-auto-summary-bar" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bb-bg-secondary);border:1px solid var(--bb-border-light);border-radius:var(--bb-radius-md);margin-bottom:12px;font-size:12px;">
+          <div>
+            <span class="bb-text-dim">自动记录：</span>
+            <span id="bb-auto-status" style="color:var(--bb-primary);">${getSettings().auto_diary_enabled ? '✅ 开启' : '❌ 关闭'}</span>
+            <span class="bb-text-muted" style="margin-left:8px;">进度:</span>
+            <span id="bb-msg-counter" style="color:var(--bb-accent);">${getSettings().message_counter || 0}/${getSettings().diary_trigger_count || 30}</span>
+          </div>
+          <button class="bb-sm-btn bb-btn-xs" id="bb-btn-toggle-auto" title="开关自动记录">${getSettings().auto_diary_enabled ? '⏸暂停' : '▶ 开启'}</button>
         </div>
-        <div id="bb-diary-empty" class="bb-empty">暂无日记<br/>点击上方按钮生成</div>
-        <div id="bb-diary-list"></div>
+        
+        <!-- 日记区域 -->
+        <div class="bb-section">
+          <h4 class="bb-section-title">📖 日记</h4>
+          <div class="bb-action-bar">
+            <button class="bb-sm-btn" id="bb-btn-gen-diary-tab">📖 生成日记</button>
+            <button class="bb-sm-btn" id="bb-btn-gen-diary-img">🎨 为最新日记配图</button>
+          </div>
+          <div id="bb-diary-empty" class="bb-empty">暂无日记<br/>点击上方按钮生成</div>
+          <div id="bb-diary-list"></div>
+        </div>
+        
+        <!-- 总结区域 -->
+        <div class="bb-section" style="margin-top:16px;">
+          <h4 class="bb-section-title">📜 阿卡夏记录（总结）</h4>
+          <div class="bb-action-bar">
+            <button class="bb-sm-btn" id="bb-btn-gen-summary-tab">📜 生成总结</button>
+            <button class="bb-sm-btn bb-btn-danger" id="bb-btn-clear-summaries">🗑️ 清空总结</button>
+          </div>
+          <div id="bb-summary-empty" class="bb-empty">暂无总结<br/>每${getSettings().diary_trigger_count || 30}条消息自动生成，或手动点击生成</div>
+          <div id="bb-summary-list"></div>
+        </div>
       </div>
 
       <!-- NPC动态 -->
