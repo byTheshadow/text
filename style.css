@@ -1726,6 +1726,57 @@
     justify-content: flex-end;
   }
 }
+/* ── OOC窗口内编辑面板 ── */
+.bb-ooc-edit-panel {
+  padding: 10px;
+  border-top: 1px solid var(--bb-border-light);
+  background: var(--bb-bg-card);
+  border-radius: 0 0 var(--bb-radius-md) var(--bb-radius-md);
+  margin-top: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.bb-ooc-edit-panel .bb-label {
+  font-size: 12px;
+  color: var(--bb-text-dim);
+  margin-bottom: 2px;
+}
+
+.bb-ooc-edit-panel .bb-input,
+.bb-ooc-edit-panel .bb-textarea {
+  font-size: 13px;
+}
+
+/* ── 音乐搜索结果项 ── */
+.bb-music-search-item:hover {
+  background: var(--bb-bg-card-hover) !important;
+  border-color: var(--bb-primary) !important;
+}
+
+/* ── 内联预设编辑器（设置面板） ── */
+.bb-preset-editor-inline {
+  animation: bb-slide-down 0.2s ease;
+}
+
+@keyframes bb-slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 移动端 OOC编辑面板适配 ── */
+@media screen and (max-width: 768px) {
+  .bb-ooc-edit-panel {
+    max-height: 250px;
+    padding: 8px;
+  }
+  
+  .bb-ooc-edit-panel .bb-input,
+  .bb-ooc-edit-panel .bb-textarea {
+    font-size: 16px !important;
+  }
+}
+
 
 /* ============================================================
    END OF 音乐播放器样式
