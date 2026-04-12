@@ -3760,7 +3760,14 @@ function bindSettingsPanelEvents() {
     const inp = $('#bb-api-key');
     inp.attr('type', inp.attr('type') === 'password' ? 'text' : 'password');
   });
-
+  // 恢复已缓存的模型列表
+  if (s().available_models && s().available_models.length > 0) {
+    const $sel = $('#bb-api-model');
+    $sel.empty();
+    $sel.append('<option value="" disabled>— 选择模型 —</option>');
+    s().available_models.forEach(id => {
+      $sel.append(`<option value="${id}">${id}</option>`);
+    });}
   // 模型下拉框 —恢复已保存的模型
   if (s().api_model) {
     const $sel = $('#bb-api-model');
