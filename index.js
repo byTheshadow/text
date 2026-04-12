@@ -1769,6 +1769,51 @@ async function generateSummary() {
     saveChatData(); toastr.success('📜 阿卡夏记录已更新！');
   }
 }
+function renderSummary() {
+  const list = $('#bb-summary-list');
+  const empty = $('#bb-summary-empty');
+  list.empty();
+  
+  if (!pluginData.summaries || pluginData.summaries.length === 0) {
+    empty.show();
+    return;
+  }
+  empty.hide();
+  
+  //倒序显示（最新的在上面）
+  [...pluginData.summaries].reverse().forEach((s, idx) => {
+    const realIdx = pluginData.summaries.length - 1 - idx;
+    list.append(`
+      <div class="bb-diary-item">
+        <div class="bb-diary-header">
+          <span>📜 #${realIdx + 1} — ${esc(s.date)}</span>
+          <span class="bb-record-actions">
+            <button class="bb-sm-btn bb-btn-xs bb-btn-danger bb-del-summary" data-idx="${realIdx}" title="删除">🗑️</button>
+          </span>
+        </div>
+        <div class="bb-diary-body">${formatText(s.content)}</div>
+      </div>
+    `);
+  });
+  
+  // 删除事件
+  list.find('.bb-del-summary').on('click', function () {
+    const idx = parseInt($(this).data('idx'));
+    if (confirm('确定删除这条总结？')) {
+      pluginData.summaries.splice(idx, 1);
+      saveChatData();
+      renderSummary();
+      toastr.info('总结已删除');
+    }
+  });
+}
+
+// 更新自动总结状态栏
+function updateAutoSummaryBar() {
+  const s = getSettings();
+  $('#bb-auto-status').text(s.auto_diary_enabled ? '✅ 开启' : '❌ 关闭');
+  $('#bb-msg-counter').text(`${s.message_counter || 0}/${s.diary_trigger_count || 30}`);$('#bb-btn-toggle-auto').text(s.auto_diary_enabled ? '⏸ 暂停' : '▶ 开启');
+}
 
 // ═══════════════ 区块 G 结束 ═══════════════
 
