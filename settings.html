@@ -208,7 +208,85 @@
           </label>
         </div>
       </div>
-
+<!-- ============================================
+     音乐播放器配置（新增 - MP3播放器）
+     ============================================ -->
+<div class="inline-drawer">
+  <div class="inline-drawer-toggle inline-drawer-header">
+    <b>🎵 音乐播放器</b>
+    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+  </div>
+  <div class="inline-drawer-content">
+    
+    <!-- 上传MP3 -->
+    <div class="bb-settings-group">
+      <label class="bb-label">📁 上传MP3文件：</label>
+      <input type="file" id="bb-music-upload" accept="audio/*" class="text_pole" />
+      <small class="bb-text-muted">支持MP3、WAV、OGG等格式，最大50MB</small>
+    </div>
+    
+    <!-- 添加URL -->
+    <div class="bb-settings-group">
+      <label class="bb-label">🔗 添加音频URL：</label>
+      <button id="bb-music-add-url-btn" class="menu_button">➕ 粘贴URL添加歌曲</button>
+      <small class="bb-text-muted">支持在线音频链接，可同时添加LRC歌词</small>
+    </div>
+    
+    <!-- 音量控制 -->
+    <div class="bb-settings-group">
+      <label class="bb-label">🔊 音量：<span id="bb-music-volume-val">70%</span></label>
+      <input type="range" id="bb-music-volume" min="0" max="1" step="0.01" value="0.7" class="text_pole" style="width: 100%;" />
+    </div>
+    
+    <!-- 歌单列表 -->
+    <div class="bb-settings-group">
+      <label class="bb-label">📋 歌单列表：</label>
+      <div id="bb-music-playlist-list" style="max-height: 300px; overflow-y: auto; margin-top: 8px;">
+        <!-- 歌曲列表将动态渲染到这里 -->
+      </div>
+    </div>
+    
+    <!-- 歌单管理按钮 -->
+    <div class="bb-settings-group">
+      <div class="bb-btn-group">
+        <button id="bb-music-export-playlist" class="menu_button">📤 导出歌单</button>
+        <button id="bb-music-import-playlist" class="menu_button">📥 导入歌单</button>
+        <button id="bb-music-clear-playlist" class="menu_button menu_button_icon">🗑️ 清空歌单</button>
+      </div>
+      <small class="bb-text-muted">歌单以JSON格式导入导出，包含歌曲信息和歌词</small>
+    </div>
+    
+    <!-- 使用说明 -->
+    <div class="bb-settings-group">
+      <details>
+        <summary class="bb-details-summary">📖 使用说明</summary>
+        <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-top: 8px;">
+          <p style="font-size: 12px; line-height: 1.6; color: var(--bb-text-dim);">
+            <strong>功能特性：</strong><br>
+            • 支持上传本地MP3文件或添加在线音频URL<br>
+            • 支持LRC格式歌词，实现逐行同步显示<br>
+            • 主面板顶栏显示迷你播放器，滚动显示歌词/歌名<br>
+            • 支持播放控制：上一首、下一首、播放/暂停<br>
+            • 点击进度条可跳转到指定位置<br>
+            <br>
+            <strong>LRC歌词格式：</strong><br>
+            [00:12.00]第一句歌词<br>
+            [00:17.50]第二句歌词<br>
+            [00:21.00]第三句歌词<br>
+            <br>
+            <strong>提示：</strong><br>
+            • 上传的文件会转为Base64存储在浏览器本地<br>
+            • 大量本地文件可能占用较多存储空间<br>
+            • 建议使用在线URL方式添加歌曲<br>
+            • 歌单可导出备份，切换浏览器时导入恢复
+          </p>
+        </div>
+      </details>
+    </div>
+    
+  </div>
+</div>
+  <!--── 歌单配置结束  ──-->
       <!--── 海报配置 ──-->
       <div class="bb-settings-section">
         <h4 class="bb-section-title">🖼 语录海报配置</h4>
