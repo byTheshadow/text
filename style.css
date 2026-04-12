@@ -1609,9 +1609,201 @@
   }
 }
 
+/* ============================================================
+   音乐播放器样式（新增 - MP3播放器）
+   ============================================================ */
+
+/* ── 音乐播放器条 ── */
+.bb-music-bar {
+  background: linear-gradient(135deg, rgba(201, 160, 220, 0.12), rgba(240, 168, 200, 0.08));
+  border-bottom: 1px solid var(--bb-border, rgba(201, 160, 220, 0.15));
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bb-music-bar-mini {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ── 歌词滚动区 ── */
+.bb-music-marquee {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.bb-music-marquee span {
+  display: inline-block;
+  white-space: nowrap;
+  animation: bb-music-scroll 15s linear infinite;
+  font-size: 13px;
+  color: var(--bb-text-bright, #f0e8ff);
+  font-weight: 500;
+  padding-right: 50px;
+}
+
+.bb-music-marquee:hover span {
+  animation-play-state: paused;
+}
+
+@keyframes bb-music-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ── 播放控制按钮 ── */
+.bb-music-mini-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.bb-music-ctrl-btn {
+  background: rgba(201, 160, 220, 0.2);
+  border: 1px solid rgba(201, 160, 220, 0.3);
+  border-radius: 6px;
+  width: 32px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: var(--bb-text, #d8cce8);
+}
+
+.bb-music-ctrl-btn:hover {
+  background: rgba(201, 160, 220, 0.35);
+  border-color: var(--bb-primary, #c9a0dc);
+  transform: scale(1.05);
+}
+
+.bb-music-ctrl-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── 进度条 ── */
+.bb-music-progress-mini {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.bb-music-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bb-primary, #c9a0dc), var(--bb-accent, #f0a8c8));
+  width: 0%;
+  transition: width 0.1s linear;
+  border-radius: 2px;
+}
+
+.bb-music-progress-mini:hover {
+  height: 6px;
+}
+
+.bb-music-progress-mini:hover .bb-music-progress-fill {
+  box-shadow: 0 0 8px rgba(201, 160, 220, 0.6);
+}
+
+/* ── 设置面板歌单列表 ── */
+.bb-music-playlist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: var(--bb-bg-card, #2e2240);
+  border: 1px solid var(--bb-border, rgba(201, 160, 220, 0.15));
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.bb-music-playlist-item:hover {
+  background: var(--bb-bg-card-hover, #3a2e50);
+  border-color: var(--bb-primary, #c9a0dc);
+}
+
+.bb-music-playlist-item.bb-music-item-active {
+  background: rgba(201, 160, 220, 0.15);
+  border-color: var(--bb-primary, #c9a0dc);
+  box-shadow: 0 0 12px rgba(201, 160, 220, 0.3);
+}
+
+.bb-music-item-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-music-item-name {
+  font-size: 13px;
+  color: var(--bb-text, #d8cce8);
+  font-weight: 500;
+}
+
+.bb-music-item-has-lrc {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.bb-music-item-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── 移动端适配 ── */
+@media screen and (max-width: 768px) {
+  .bb-music-bar {
+    padding: 6px 10px;
+  }
+  
+  .bb-music-marquee {
+    height: 20px;
+  }
+  
+  .bb-music-marquee span {
+    font-size: 12px;
+  }
+  
+  .bb-music-ctrl-btn {
+    width: 28px;
+    height: 24px;
+    font-size: 12px;
+  }
+  
+  .bb-music-playlist-item {
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .bb-music-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
 
 /* ============================================================
-   END OF style.css —骨与血(Bone & Blood) v0.7.0
+   END OF 音乐播放器样式
+   ============================================================ */
+
+
+/* ============================================================
+   END OF style.css — 骨与血(Bone & Blood) v7.1
    2026@SHADOW<安息之影>
    ============================================================ */
 
