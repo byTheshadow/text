@@ -1101,11 +1101,9 @@ function refreshFloatingUI() {
   renderAll();
   if (!wasVisible) {
     $('#bb-main-panel').hide();
-  } else if (window.innerWidth <= 768) {
-    // 移动端刷新后保持flex
-    $('#bb-main-panel').css('display', 'flex');
   }
 }
+
 
 function createMobileFloatingButton() {
   if (document.getElementById('bb-mobile-float')) return;
