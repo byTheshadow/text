@@ -4272,6 +4272,84 @@ function bindSettingsPanelEvents() {
     });
   });
   $('#bb-css-ai-prompt-preview').text(CSS_AI_PROMPT);
+    // 自定义字体
+  $('#bb-custom-font-url').val(s().custom_font_url || '').on('input', function () {
+    s().custom_font_url = this.value.trim(); saveSettingsDebounced();
+    updateFontPreview();
+  });
+  $('#bb-custom-font-name').val(s().custom_font_name || '').on('input', function () {
+    s().custom_font_name = this.value.trim(); saveSettingsDebounced();
+    updateFontPreview();
+  });
+
+  const fontApply = s().custom_font_apply || {};
+  $('#bb-font-apply-panel').prop('checked', !!fontApply.panel);
+  $('#bb-font-apply-title').prop('checked', !!fontApply.title);
+  $('#bb-font-apply-content').prop('checked', !!fontApply.content);
+  $('#bb-font-apply-ooc').prop('checked', !!fontApply.ooc);
+
+  // 快捷字体选择
+  $('.bbs-font-quick').on('click', function () {
+    const url = $(this).data('url');
+    const name = $(this).data('name');
+    $('#bb-custom-font-url').val(url).trigger('input');
+    $('#bb-custom-font-name').val(name).trigger('input');
+    toastr.info(`已选择字体: ${name}`);
+  });
+
+  // 应用字体
+  $('#bb-font-apply').on('click', function () {
+    s().custom_font_apply = {
+      panel: $('#bb-font-apply-panel').is(':checked'),
+      title: $('#bb-font-apply-title').is(':checked'),
+      content: $('#bb-font-apply-content').is(':checked'),
+      ooc: $('#bb-font-apply-ooc').is(':checked'),
+    };
+    saveSettingsDebounced();
+    applyCustomFont();
+    toastr.success(`字体已应用: ${s().custom_font_name || '默认'}`);
+  });
+
+  // 恢复默认字体
+  $('#bb-font-reset').on('click', function () {
+    s().custom_font_url = '';
+    s().custom_font_name = '';
+    s().custom_font_apply = { panel: false, title: false, content: false, ooc: false };
+    saveSettingsDebounced();
+    $('#bb-custom-font-url').val('');
+    $('#bb-custom-font-name').val('');
+    $('#bb-font-apply-panel').prop('checked', false);
+    $('#bb-font-apply-title').prop('checked', false);
+    $('#bb-font-apply-content').prop('checked', false);
+    $('#bb-font-apply-ooc').prop('checked', false);
+    $('#bb-custom-font-link').remove();
+    $('#bb-custom-font-style').remove();
+    $('#bb-font-preview').hide();
+    toastr.info('已恢复默认字体');
+  });
+
+  // 字体预览
+  function updateFontPreview() {
+    const url = $('#bb-custom-font-url').val();
+    const name = $('#bb-custom-font-name').val();
+    if (url && name) {
+      // 临时加载字体预览
+      let tempLink = document.getElementById('bb-font-preview-link');
+      if (!tempLink) {
+        tempLink = document.createElement('link');
+        tempLink.id = 'bb-font-preview-link';
+        tempLink.rel = 'stylesheet';
+        document.head.appendChild(tempLink);
+      }
+      tempLink.href = url;
+      $('#bb-font-preview-text').css('font-family', `'${name}', serif`);
+      $('#bb-font-preview').show();
+    } else {
+      $('#bb-font-preview').hide();
+    }
+  }
+  updateFontPreview();
+
   
     // 音乐搜索API配置
   $('#bb-music-search-api').val(s().music_search_api || '').on('input', function() {
