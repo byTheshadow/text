@@ -3667,21 +3667,78 @@ function bindSettingsPanelEvents() {
     s().diary_trigger_count = parseInt(this.value) || 10; saveSettingsDebounced();
   });
 
-  // 副API
+   // 副API
   $('#bb-api-base').val(s().api_base || '').on('input', function () { s().api_base = this.value.trim(); saveSettingsDebounced(); });
   $('#bb-api-key').val(s().api_key || '').on('input', function () { s().api_key = this.value.trim(); saveSettingsDebounced(); });
   $('#bb-toggle-key-vis').on('click', function () {
     const inp = $('#bb-api-key');
-    inp.attr('type', inp.attr('type') === 'password' ? 'text' : 'password');});
-  $('#bb-api-model').val(s().api_model || '').on('input', function () { s().api_model = this.value.trim(); saveSettingsDebounced(); });
+    inp.attr('type', inp.attr('type') === 'password' ? 'text' : 'password');
+  });
+
+  // 模型下拉框 —恢复已保存的模型
+  if (s().api_model) {
+    const $sel = $('#bb-api-model');
+    // 如果下拉框中没有已保存的模型，先添加一个option
+    if ($sel.find(`option[value="${s().api_model}"]`).length === 0) {
+      $sel.append(`<option value="${s().api_model}">${s().api_model}</option>`);
+    }
+    $sel.val(s().api_model);}
+
+  // 模型下拉框 — 切换模型
+  $('#bb-api-model').on('change', function () {
+    s().api_model = this.value;
+    saveSettingsDebounced();
+    if (this.value) {
+      toastr.info(`模型已切换: ${this.value}`);
+    }
+  });
+
+  // 连接并获取模型列表
+  $('#bb-fetch-models').on('click', async function () {
+    await fetchModelList();
+  });
+
+  //刷新模型列表
+  $('#bb-refresh-models').on('click', async function () {
+    await fetchModelList();
+  });
+
+  // 手动输入模型名— 切换显示
+  $('#bb-model-manual-toggle').on('click', function () {
+    $('#bb-model-manual-row').toggle();
+  });
+
+  // 手动输入模型名 — 应用
+  $('#bb-model-manual-apply').on('click', function () {
+    const manualModel = $('#bb-api-model-manual').val().trim();
+    if (!manualModel) { toastr.warning('请输入模型名称'); return; }
+    const $sel = $('#bb-api-model');
+    // 添加到下拉框（如果不存在）
+    if ($sel.find(`option[value="${manualModel}"]`).length === 0) {
+      $sel.append(`<option value="${manualModel}">${manualModel} (手动)</option>`);
+    }
+    $sel.val(manualModel);
+    s().api_model = manualModel;
+    saveSettingsDebounced();
+    $('#bb-model-manual-row').hide();
+    $('#bb-api-model-manual').val('');
+    toastr.success(`模型已设置: ${manualModel}`);
+  });
+
+  // 测试发送（用当前选中的模型）
   $('#bb-test-api').on('click', async function () {
     if (!s().api_base || !s().api_key) { toastr.warning('请先填写API地址和Key'); return; }
+    if (!s().api_model) { toastr.warning('请先选择模型'); return; }
     try {
       toastr.info('正在测试连接...');
-      const res = await callSubAPI([{ role: 'user', content: '回复"连接成功"两个字。' }],20);
-      toastr.success(`连接成功！回复: ${res.substring(0, 50)}`);
+      const res = await callSubAPI([{ role: 'user', content: '回复"连接成功"两个字。' }], 20);
+      if (res) {
+        toastr.success(`✅ 测试成功！回复: ${res.substring(0, 50)}`);
+        $('#bb-api-status').html(`<span class="bb-text-success">✅ 模型 ${s().api_model} 测试通过</span>`);
+      }
     } catch (e) { toastr.error(`连接失败: ${e.message}`); }
   });
+
 
   // 通用预设管理
   function refreshPresetSelect() {
