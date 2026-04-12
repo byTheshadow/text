@@ -1452,6 +1452,62 @@ function applyCustomCSS(css) {
   }
   styleEl.textContent = css || '';
 }
+function applyCustomFont() {
+  const s = getSettings();
+  const url = s.custom_font_url;
+  const name = s.custom_font_name;
+  const apply = s.custom_font_apply || {};
+
+  // 移除旧的字体样式
+  $('#bb-custom-font-link').remove();
+  $('#bb-custom-font-style').remove();
+
+  if (!url || !name) return;
+
+  // 加载字体
+  const link = document.createElement('link');
+  link.id = 'bb-custom-font-link';
+  link.rel = 'stylesheet';
+  link.href = url;
+  document.head.appendChild(link);
+
+  // 构建应用CSS
+  let css = '';
+  const fontStack = `'${name}','Noto Serif SC', system-ui, sans-serif`;
+
+  if (apply.panel) {
+    css += `#bb-main-panel { font-family: ${fontStack} !important; }\n`;
+  }
+  if (apply.title) {
+    css += `#bb-main-panel .bb-tab-btn,
+#bb-main-panel .bb-section-title,
+#bb-main-panel .bb-diary-header,
+#bb-main-panel .bb-npc-name,
+#bb-main-panel .bb-ach-title,
+#bb-main-panel h3, #bb-main-panel h4, #bb-main-panel h5{ font-family: ${fontStack} !important; }\n`;
+  }
+  if (apply.content) {
+    css += `#bb-main-panel .bb-diary-body,
+#bb-main-panel .bb-record-text,
+#bb-main-panel .bb-npc-desc,
+#bb-main-panel .bb-parallel-body,
+#bb-main-panel .bb-world-item,
+#bb-main-panel .bb-letter-body,
+#bb-summary-list .bb-diary-body { font-family: ${fontStack} !important; }\n`;
+  }
+  if (apply.ooc) {
+    css += `#bb-ooc-win .bb-ooc-msg-bubble,
+#bb-ooc-win .bb-ooc-input { font-family: ${fontStack} !important; }\n`;
+  }
+
+  if (css) {
+    const style = document.createElement('style');
+    style.id = 'bb-custom-font-style';
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+}
+
 
 // ═══════════════ 区块 D 结束 ═══════════════
 // ═══════════════════════════════════════════
