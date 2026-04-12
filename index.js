@@ -483,6 +483,334 @@ function getTabNames() {
   }
   return STYLE_PRESETS[preset] || STYLE_PRESETS.gothic;
 }
+// ────────────────────────────────────────────
+// 音乐播放器核心逻辑（新增 - MP3播放器功能）
+// ────────────────────────────────────────────
+
+// 播放器状态
+const bbPlayer = {
+  audio: null,
+  playlist: [],    // [{name, src, lrc?}, ...]
+  currentIndex: 0,
+  isPlaying: false,
+  lrcData: [],     // 当前歌曲的解析后歌词
+};
+
+// 初始化音频对象
+function bbPlayerInit() {
+  if (!bbPlayer.audio) {
+    bbPlayer.audio = new Audio();
+    bbPlayer.audio.addEventListener('ended', bbPlayerNext);
+    bbPlayer.audio.addEventListener('timeupdate', bbPlayerUpdateProgress);
+    bbPlayer.audio.addEventListener('error', (e) => {
+      console.error('[骨与血] 音频加载失败:', e);
+      toastr.error('音频加载失败');
+    });
+  }
+}
+
+// 播放指定歌曲
+function bbPlayerPlay(index) {
+  bbPlayerInit();
+  if (typeof index === 'number') {
+    bbPlayer.currentIndex = Math.max(0, Math.min(index, bbPlayer.playlist.length - 1));
+  }
+  const song = bbPlayer.playlist[bbPlayer.currentIndex];
+  if (!song) {
+    toastr.warning('歌单为空');
+    return;
+  }
+  bbPlayer.audio.src = song.src;
+  bbPlayer.audio.play().then(() => {
+    bbPlayer.isPlaying = true;
+    bbPlayerUpdateUI();
+    // 解析当前歌曲歌词
+    if (song.lrc) {
+      bbPlayer.lrcData = parseLRC(song.lrc);
+    } else {
+      bbPlayer.lrcData = [];
+    }
+  }).catch(err => {
+    console.error('[骨与血] 播放失败:', err);
+    toastr.error('播放失败');
+  });
+}
+
+// 暂停
+function bbPlayerPause() {
+  if (bbPlayer.audio) {
+    bbPlayer.audio.pause();
+    bbPlayer.isPlaying = false;
+    bbPlayerUpdateUI();
+  }
+}
+
+// 切换播放/暂停
+function bbPlayerToggle() {
+  if (!bbPlayer.audio || bbPlayer.playlist.length === 0) {
+    toastr.info('请先添加歌曲到歌单');
+    return;
+  }
+  if (bbPlayer.isPlaying) {
+    bbPlayerPause();
+  } else {
+    if (!bbPlayer.audio.src) {
+      bbPlayerPlay(0);
+    } else {
+      bbPlayer.audio.play();
+      bbPlayer.isPlaying = true;
+      bbPlayerUpdateUI();
+    }
+  }
+}
+
+// 下一首
+function bbPlayerNext() {
+  if (bbPlayer.playlist.length === 0) return;
+  bbPlayer.currentIndex = (bbPlayer.currentIndex + 1) % bbPlayer.playlist.length;
+  bbPlayerPlay();
+}
+
+// 上一首
+function bbPlayerPrev() {
+  if (bbPlayer.playlist.length === 0) return;
+  bbPlayer.currentIndex = (bbPlayer.currentIndex - 1 + bbPlayer.playlist.length) % bbPlayer.playlist.length;
+  bbPlayerPlay();
+}
+
+// 添加歌曲到歌单
+function bbPlayerAddSong(name, src, lrc) {
+  bbPlayer.playlist.push({ name, src, lrc: lrc || '' });
+  toastr.success(`已添加：${name}`);
+  bbPlayerSavePlaylist();
+  bbPlayerUpdateUI();
+}
+
+// 从歌单移除
+function bbPlayerRemoveSong(index) {
+  if (index < 0 || index >= bbPlayer.playlist.length) return;
+  const song = bbPlayer.playlist[index];
+  bbPlayer.playlist.splice(index, 1);
+  if (bbPlayer.currentIndex === index && bbPlayer.isPlaying) {
+    bbPlayerPause();
+  }
+  if (bbPlayer.currentIndex >= bbPlayer.playlist.length) {
+    bbPlayer.currentIndex = Math.max(0, bbPlayer.playlist.length - 1);
+  }
+  bbPlayerSavePlaylist();
+  bbPlayerUpdateUI();
+  toastr.info(`已删除：${song.name}`);
+}
+
+// 设置音量 (0-1)
+function bbPlayerSetVolume(vol) {
+  if (bbPlayer.audio) {
+    bbPlayer.audio.volume = Math.max(0, Math.min(1, vol));
+    const s = getSettings();
+    s.music_volume = vol;
+    saveSettings();
+  }
+}
+
+// 跳转到指定时间（秒）
+function bbPlayerSeek(time) {
+  if (bbPlayer.audio) {
+    bbPlayer.audio.currentTime = time;
+  }
+}
+
+// 解析LRC歌词
+function parseLRC(lrcText) {
+  if (!lrcText) return [];
+  const lines = lrcText.split('\n');
+  const result = [];
+  const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/g;
+  
+  for (const line of lines) {
+    const matches = [...line.matchAll(timeRegex)];
+    if (matches.length === 0) continue;
+    
+    const text = line.replace(timeRegex, '').trim();
+    if (!text) continue;
+    
+    for (const match of matches) {
+      const minutes = parseInt(match[1]);
+      const seconds = parseInt(match[2]);
+      const milliseconds = parseInt(match[3].padEnd(3, '0'));
+      const time = minutes * 60 + seconds + milliseconds / 1000;
+      result.push({ time, text });
+    }
+  }
+  
+  return result.sort((a, b) => a.time - b.time);
+}
+
+// 获取当前应显示的歌词
+function getCurrentLyric(currentTime) {
+  if (bbPlayer.lrcData.length === 0) return null;
+  
+  for (let i = bbPlayer.lrcData.length - 1; i >= 0; i--) {
+    if (currentTime >= bbPlayer.lrcData[i].time) {
+      return bbPlayer.lrcData[i].text;
+    }
+  }
+  return null;
+}
+
+// 更新进度条和歌词
+function bbPlayerUpdateProgress() {
+  if (!bbPlayer.audio) return;
+  
+  const current = bbPlayer.audio.currentTime;
+  const duration = bbPlayer.audio.duration || 1;
+  const percent = (current / duration) * 100;
+  
+  $('#bb-music-progress-fill').css('width', `${percent}%`);
+  
+  // 更新歌词显示
+  const lyric = getCurrentLyric(current);
+  const song = bbPlayer.playlist[bbPlayer.currentIndex];
+  if (lyric) {
+    $('#bb-music-title').text(lyric);
+  } else if (song) {
+    $('#bb-music-title').text(`🎵 ${song.name}`);
+  }
+}
+
+// 更新UI显示
+function bbPlayerUpdateUI() {
+  const song = bbPlayer.playlist[bbPlayer.currentIndex];
+  if (song) {
+    if (bbPlayer.lrcData.length === 0) {
+      $('#bb-music-title').text(`🎵 ${song.name}`);
+    }
+    $('#bb-music-toggle').text(bbPlayer.isPlaying ? '⏸' : '▶');
+  } else {
+    $('#bb-music-title').text('🎵 未播放');
+    $('#bb-music-toggle').text('⏯');
+  }
+  
+  // 更新设置面板中的歌单列表
+  if ($('#bb-music-playlist-list').length > 0) {
+    bbPlayerRenderPlaylist();
+  }
+}
+
+// 渲染歌单列表（设置面板）
+function bbPlayerRenderPlaylist() {
+  const $list = $('#bb-music-playlist-list');
+  if ($list.length === 0) return;
+  
+  if (bbPlayer.playlist.length === 0) {
+    $list.html('<div class="bb-empty bb-text-muted">歌单为空，请添加歌曲</div>');
+    return;
+  }
+  
+  let html = '';
+  bbPlayer.playlist.forEach((song, i) => {
+    const active = i === bbPlayer.currentIndex ? 'bb-music-item-active' : '';
+    html += `
+      <div class="bb-music-playlist-item ${active}" data-index="${i}">
+        <div class="bb-music-item-info">
+          <span class="bb-music-item-name">${esc(song.name)}</span>
+          <span class="bb-music-item-has-lrc">${song.lrc ? '📝' : ''}</span>
+        </div>
+        <div class="bb-music-item-actions">
+          <button class="bb-sm-btn bb-btn-xs bb-music-play-btn" data-index="${i}">▶</button>
+          <button class="bb-sm-btn bb-btn-xs bb-music-edit-btn" data-index="${i}">✏️</button>
+          <button class="bb-sm-btn bb-btn-xs bb-btn-secondary bb-music-del-btn" data-index="${i}">🗑️</button>
+        </div>
+      </div>`;
+  });
+  
+  $list.html(html);
+  
+  // 绑定事件
+  $list.find('.bb-music-play-btn').on('click', function() {
+    bbPlayerPlay(parseInt($(this).data('index')));
+  });
+  
+  $list.find('.bb-music-del-btn').on('click', function() {
+    if (confirm('确认删除这首歌？')) {
+      bbPlayerRemoveSong(parseInt($(this).data('index')));
+    }
+  });
+  
+  $list.find('.bb-music-edit-btn').on('click', function() {
+    const index = parseInt($(this).data('index'));
+    bbPlayerEditSong(index);
+  });
+}
+
+// 编辑歌曲（修改歌词）
+function bbPlayerEditSong(index) {
+  const song = bbPlayer.playlist[index];
+  if (!song) return;
+  
+  const modal = $(`
+    <div class="bb-modal-overlay">
+      <div class="bb-modal-content bb-modal-lg">
+        <h3 class="bb-modal-title">编辑歌曲：${esc(song.name)}</h3>
+        <div class="bb-form-col">
+          <label class="bb-label">歌曲名称：</label>
+          <input id="bb-edit-song-name" type="text" class="bb-input" value="${esc(song.name)}" />
+          
+          <label class="bb-label">音频URL：</label>
+          <input id="bb-edit-song-src" type="text" class="bb-input" value="${esc(song.src)}" />
+          
+          <label class="bb-label">LRC歌词（可选）：</label>
+          <textarea id="bb-edit-song-lrc" class="bb-textarea" rows="10" placeholder="[00:12.00]第一句歌词\n[00:17.50]第二句歌词">${esc(song.lrc || '')}</textarea>
+          <small class="bb-text-muted">格式：[分:秒.毫秒]歌词文本</small>
+        </div>
+        <div class="bb-btn-row bb-mt-md">
+          <button class="bb-big-btn bb-flex-1" id="bb-edit-song-save">💾 保存</button>
+          <button class="bb-sm-btn bb-btn-secondary" id="bb-edit-song-cancel">取消</button>
+        </div>
+      </div>
+    </div>`);
+  
+  $('body').append(modal);
+  
+  modal.find('#bb-edit-song-save').on('click', function() {
+    song.name = $('#bb-edit-song-name').val().trim() || song.name;
+    song.src = $('#bb-edit-song-src').val().trim() || song.src;
+    song.lrc = $('#bb-edit-song-lrc').val().trim();
+    bbPlayerSavePlaylist();
+    bbPlayerUpdateUI();
+    modal.remove();
+    toastr.success('歌曲信息已更新');
+  });
+  
+  modal.find('#bb-edit-song-cancel').on('click', () => modal.remove());
+  modal.on('click', function(e) {
+    if ($(e.target).hasClass('bb-modal-overlay')) modal.remove();
+  });
+}
+
+// 保存歌单到localStorage
+function bbPlayerSavePlaylist() {
+  try {
+    localStorage.setItem('bb_music_playlist', JSON.stringify(bbPlayer.playlist));
+  } catch (e) {
+    console.error('[骨与血] 保存歌单失败:', e);
+  }
+}
+
+// 加载歌单
+function bbPlayerLoadPlaylist() {
+  try {
+    const saved = localStorage.getItem('bb_music_playlist');
+    if (saved) {
+      bbPlayer.playlist = JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('[骨与血] 加载歌单失败:', e);
+  }
+}
+
+// ────────────────────────────────────────────
+// 音乐播放器核心逻辑结束
+// ────────────────────────────────────────────
 
 // ═══════════════ 区块 B 结束 ═══════════════
 
@@ -653,6 +981,21 @@ function buildMainPanelHTML() {
     <div class="bb-panel-header">
       <div class="bb-panel-title">🦴 骨与血</div>
       <button class="bb-panel-close-btn" id="bb-close-btn">✖</button>
+    </div>
+
+    <!-- 音乐播放器条（新增 - MP3播放器） -->
+    <div class="bb-music-bar" id="bb-music-bar">
+      <div class="bb-music-bar-mini">
+        <div class="bb-music-marquee"><span id="bb-music-title">🎵 未播放</span></div>
+        <div class="bb-music-mini-controls">
+          <button class="bb-music-ctrl-btn" id="bb-music-prev" title="上一首">⏮</button>
+          <button class="bb-music-ctrl-btn" id="bb-music-toggle" title="播放/暂停">⏯</button>
+          <button class="bb-music-ctrl-btn" id="bb-music-next" title="下一首">⏭</button>
+        </div>
+      </div>
+      <div class="bb-music-progress-mini">
+        <div class="bb-music-progress-fill" id="bb-music-progress-fill"></div>
+      </div>
     </div>
 
     <!-- Tab导航 -->
@@ -3147,6 +3490,124 @@ function bindSettingsPanelEvents() {
     });
   });
   $('#bb-css-ai-prompt-preview').text(CSS_AI_PROMPT);
+    // 音乐播放器设置（新增 - MP3播放器）
+  bbPlayerLoadPlaylist();
+  bbPlayerRenderPlaylist();
+  
+  $('#bb-music-upload').on('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('audio/')) {
+      toastr.error('请选择音频文件');
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      toastr.error('文件过大，请选择小于50MB的文件');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const name = file.name.replace(/\.[^/.]+$/, '');
+      bbPlayerAddSong(name, ev.target.result);
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+  
+  $('#bb-music-add-url-btn').on('click', function() {
+    const modal = $(`
+      <div class="bb-modal-overlay">
+        <div class="bb-modal-content">
+          <h3 class="bb-modal-title">添加音频URL</h3>
+          <div class="bb-form-col">
+            <label class="bb-label">歌曲名称：</label>
+            <input id="bb-music-url-name" type="text" class="bb-input" placeholder="输入歌曲名称" />
+            
+            <label class="bb-label">音频URL：</label>
+            <input id="bb-music-url-src" type="text" class="bb-input" placeholder="https://example.com/song.mp3" />
+            
+            <label class="bb-label">LRC歌词（可选）：</label>
+            <textarea id="bb-music-url-lrc" class="bb-textarea" rows="8" placeholder="[00:12.00]第一句歌词&#10;[00:17.50]第二句歌词"></textarea>
+            <small class="bb-text-muted">支持LRC格式歌词，时间轴格式：[分:秒.毫秒]</small>
+          </div>
+          <div class="bb-btn-row bb-mt-md">
+            <button class="bb-big-btn bb-flex-1" id="bb-music-url-add">✅ 添加</button>
+            <button class="bb-sm-btn bb-btn-secondary" id="bb-music-url-cancel">取消</button>
+          </div>
+        </div>
+      </div>`);
+    
+    $('body').append(modal);
+    
+    modal.find('#bb-music-url-add').on('click', function() {
+      const name = $('#bb-music-url-name').val().trim();
+      const src = $('#bb-music-url-src').val().trim();
+      const lrc = $('#bb-music-url-lrc').val().trim();
+      
+      if (!name || !src) {
+        toastr.warning('请填写歌曲名称和URL');
+        return;
+      }
+      
+      bbPlayerAddSong(name, src, lrc);
+      modal.remove();
+    });
+    
+    modal.find('#bb-music-url-cancel').on('click', () => modal.remove());
+    modal.on('click', function(e) {
+      if ($(e.target).hasClass('bb-modal-overlay')) modal.remove();
+    });
+  });
+  
+  $('#bb-music-volume').val(s().music_volume ?? 0.7).on('input', function() {
+    bbPlayerSetVolume(parseFloat(this.value));
+    $('#bb-music-volume-val').text(Math.round(this.value * 100) + '%');
+  });
+  $('#bb-music-volume-val').text(Math.round((s().music_volume ?? 0.7) * 100) + '%');
+  
+  $('#bb-music-clear-playlist').on('click', function() {
+    if (!confirm('确认清空整个歌单？')) return;
+    bbPlayer.playlist = [];
+    bbPlayer.currentIndex = 0;
+    bbPlayerPause();
+    bbPlayerSavePlaylist();
+    bbPlayerUpdateUI();
+    toastr.info('歌单已清空');
+  });
+  
+  $('#bb-music-export-playlist').on('click', function() {
+    if (bbPlayer.playlist.length === 0) {
+      toastr.warning('歌单为空');
+      return;
+    }
+    const data = JSON.stringify(bbPlayer.playlist, null, 2);
+    dl(`bb_playlist_${Date.now()}.json`, data, 'application/json');
+    toastr.success('歌单已导出');
+  });
+  
+  $('#bb-music-import-playlist').on('click', function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      try {
+        const text = await e.target.files[0].text();
+        const data = JSON.parse(text);
+        if (!Array.isArray(data)) throw new Error('无效的歌单文件');
+        bbPlayer.playlist = data;
+        bbPlayerSavePlaylist();
+        bbPlayerUpdateUI();
+        toastr.success(`已导入 ${data.length} 首歌曲`);
+      } catch (err) {
+        toastr.error(`导入失败: ${err.message}`);
+      }
+    };
+    input.click();
+  });
+
+  // 数据管理
+
 
   // 数据管理
   $('#bb-export-md').on('click', () => exportAsMarkdown());
