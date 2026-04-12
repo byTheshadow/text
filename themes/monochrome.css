@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════🦴骨与血 — 黑白 (Monochrome) 主题
+   ═══════════════════════════════════════════ */
+
+[data-bb-theme="monochrome"] {
+  /*──覆盖CSS变量 ── */
+  --bb-primary: #b0b0b0;
+  --bb-primary-dark: #808080;
+  --bb-primary-light: #d0d0d0;
+  --bb-accent: #c8c8c8;
+  --bb-accent-dark: #909090;
+  --bb-accent-light: #e0e0e0;
+  --bb-bg-deep: #0a0a0a;
+  --bb-bg-panel: #141414;
+  --bb-bg-card: #1e1e1e;
+  --bb-bg-card-hover: #2a2a2a;
+  --bb-bg-input: #181818;
+  --bb-bg-secondary: #111111;
+  --bb-text: #d4d4d4;
+  --bb-text-dim: #999999;
+  --bb-text-muted: #666666;
+  --bb-text-bright: #f0f0f0;
+  --bb-border: rgba(180, 180, 180, 0.12);
+  --bb-border-light: rgba(180, 180, 180, 0.06);
+  --bb-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* ── 悬浮球 ── */
+[data-bb-theme="monochrome"] .bb-trigger-btn,
+[data-bb-theme="monochrome"] #bb-trigger-btn,
+[data-bb-theme="monochrome"] .bb-mobile-float {
+  background: linear-gradient(135deg, #555, #333);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(180, 180, 180, 0.15);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Tab按钮 ── */
+[data-bb-theme="monochrome"] .bb-tab-btn.active {
+  background: linear-gradient(135deg, #666, #444);
+  color: #fff;
+}
+[data-bb-theme="monochrome"] .bb-tab-btn:hover {
+  background: #252525;
+}
+
+/* ── 主要按钮 ── */
+[data-bb-theme="monochrome"] .bb-btn-primary {
+  background: #606060;
+  border-color: #808080;
+  color: #fff;
+}
+[data-bb-theme="monochrome"] .bb-btn-primary:hover {
+  background: #707070;
+}
+[data-bb-theme="monochrome"] .bb-big-btn {
+  background: linear-gradient(135deg, #555, #333);
+  border-color: #666;
+}
+
+/* ── 发送按钮 ── */
+[data-bb-theme="monochrome"] .bb-ooc-send-btn {
+  background: linear-gradient(135deg, #555, #333);
+}
+
+/* ── 用户消息气泡 ── */
+[data-bb-theme="monochrome"] .bb-msg-user .bb-ooc-msg-bubble,
+[data-bb-theme="monochrome"] .bb-bubble-user {
+  background: linear-gradient(135deg, #505050, #383838);
+  color: #f0f0f0;
+}
+
+/* ── AI消息气泡 ── */
+[data-bb-theme="monochrome"] .bb-msg-ai .bb-ooc-msg-bubble,
+[data-bb-theme="monochrome"] .bb-bubble-ai {
+  background: #1a1a1a;
+  color: #d0d0d0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ── 卡片 ── */
+[data-bb-theme="monochrome"] .bb-card,
+[data-bb-theme="monochrome"] .bb-record-item,
+[data-bb-theme="monochrome"] .bb-diary-item,
+[data-bb-theme="monochrome"] .bb-npc-card,
+[data-bb-theme="monochrome"] .bb-ach-card,
+[data-bb-theme="monochrome"] .bb-letter-card,
+[data-bb-theme="monochrome"] .bb-anni-card,
+[data-bb-theme="monochrome"] .bb-home-card {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+[data-bb-theme="monochrome"] .bb-record-item:hover,
+[data-bb-theme="monochrome"] .bb-npc-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── 成就解锁 ── */
+[data-bb-theme="monochrome"] .bb-ach-unlocked {
+  border-color: #888;
+}
+
+/* ── 成就弹窗 ── */
+[data-bb-theme="monochrome"] .bb-achievement-popup {
+  border-color: #888;
+  box-shadow: 0 0 60px rgba(180, 180, 180, 0.15);
+}
+
+/* ── 输入框聚焦 ── */
+[data-bb-theme="monochrome"] .bb-input:focus,
+[data-bb-theme="monochrome"] .bb-select:focus,
+[data-bb-theme="monochrome"] .bb-ooc-input:focus {
+  border-color: #888;
+}
+
+/* ── 滚动条 ── */
+[data-bb-theme="monochrome"] .bb-tab-content::-webkit-scrollbar-thumb,
+[data-bb-theme="monochrome"] .bb-ooc-messages::-webkit-scrollbar-thumb {
+  background: #333;
+}
+[data-bb-theme="monochrome"] .bb-tab-content::-webkit-scrollbar-thumb:hover,
+[data-bb-theme="monochrome"] .bb-ooc-messages::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* ── 主页统计数字 ── */
+[data-bb-theme="monochrome"] .bb-stat-number,
+[data-bb-theme="monochrome"] .bb-dash-value {
+  color: #c0c0c0;
+}
+
+/* ── 区块标题 ── */
+[data-bb-theme="monochrome"] .bb-section-title,
+[data-bb-theme="monochrome"] .bb-diary-header,
+[data-bb-theme="monochrome"] .bb-npc-name,
+[data-bb-theme="monochrome"] .bb-anni-name {
+  color: #b0b0b0;
+}
+
+/* ── 跑马灯 ── */
+[data-bb-theme="monochrome"] #bb-marquee {
+  color: #999;
+}
+
+/* ── 情侣Tab ── */
+[data-bb-theme="monochrome"] .bb-couple-tab.active {
+  background: #555;
+  color: #fff;
+}
+
+/* ── 表情Tab ── */
+[data-bb-theme="monochrome"] .bb-sticker-tab.active {
+  background: #555;
+  color: #fff;
+}
+
+/* ── 信件回复边框 ── */
+[data-bb-theme="monochrome"] .bb-letter-reply {
+  border-left-color: #666;
+}
+
+/* ── 模态框 ── */
+[data-bb-theme="monochrome"] .bb-modal-title {
+  color: #c0c0c0;
+}
+
+/* ── 水印更淡 ── */
+[data-bb-theme="monochrome"] .bb-watermark {
+  color: rgba(255, 255, 255, 0.04);
+}
