@@ -4229,6 +4229,7 @@ function registerEventListeners() {
 function incrementMessageCounter() {
   const s = getSettings();
   s.message_counter = (s.message_counter || 0) + 1; saveSettings();
+  updateAutoSummaryBar();  // ← 新增：实时更新进度
   if (s.auto_diary_enabled && s.message_counter >= s.diary_trigger_count) {
     s.message_counter = 0; saveSettings(); autoGenerate();
   }
