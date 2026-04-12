@@ -913,6 +913,9 @@ function refreshFloatingUI() {
   renderAll();
   if (!wasVisible) {
     $('#bb-main-panel').hide();
+  } else if (window.innerWidth <= 768) {
+    // 移动端刷新后保持flex
+    $('#bb-main-panel').css('display', 'flex');
   }
 }
 
@@ -3960,6 +3963,15 @@ jQuery(async () => {
   $('#bb-main-panel').css('display', 'none');
   $('#bb-ooc-win').addClass('bb-hidden');
   $('#bb-bf-win').addClass('bb-hidden');
+
+  // 18. 移动端确保悬浮球可见
+  if (window.innerWidth <= 768) {
+    const s = extension_settings[EXTENSION_NAME];
+    if (s.enabled) {
+      createMobileFloatingButton();
+    }
+    console.log('[BB] 移动端模式已激活, 视口宽度:', window.innerWidth);
+  }
 
   console.log('[BB] 骨与血 v7.1 initialized ✓');
 });
