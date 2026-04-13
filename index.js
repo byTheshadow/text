@@ -4024,12 +4024,12 @@ function bindMainPanelEvents(panel) {
   // 关闭按钮
   $(panel).find('#bb-close-btn').on('click', () => $('#bb-main-panel').fadeOut(200));
 
-    // 生成总结按钮
+  // 生成总结按钮
   $(panel).find('#bb-btn-gen-summary-tab').on('click', async () => {
     await generateSummary();
     renderSummary();
   });
-  
+
   // 清空总结
   $(panel).find('#bb-btn-clear-summaries').on('click', () => {
     if (!confirm('确定清空所有总结？')) return;
@@ -4038,7 +4038,7 @@ function bindMainPanelEvents(panel) {
     renderSummary();
     toastr.info('总结已清空');
   });
-  
+
   // 自动记录开关
   $(panel).find('#bb-btn-toggle-auto').on('click', () => {
     const s = getSettings();
@@ -4046,24 +4046,28 @@ function bindMainPanelEvents(panel) {
     saveSettingsDebounced();
     updateAutoSummaryBar();
     toastr.info(s.auto_diary_enabled ? '✅ 自动记录已开启' : '⏸ 自动记录已暂停');
-     // 新增：记忆琥珀事件
-  bindAmberPanelEvents();
   });
-    $(panel).off('click.bbsubtab').on('click.bbsubtab', '.bb-sub-tab-btn', function () {
+
+  // 子Tab切换
+  $(panel).off('click.bbsubtab').on('click.bbsubtab', '.bb-sub-tab-btn', function () {
     const targetSubTab = $(this).data('subtab');
     const $parent = $(this).closest('.bb-tab-pane');
-    
+
     // 切换按钮高亮
     $parent.find('.bb-sub-tab-btn').removeClass('bb-sub-tab-active');
     $(this).addClass('bb-sub-tab-active');
-    
+
     // 切换面板
     $parent.find('.bb-sub-tab-pane').addClass('bb-hidden');
     $parent.find(`#bb-subtab-${targetSubTab}`).removeClass('bb-hidden');
   });
 
+  // 记忆琥珀事件绑定
+  bindAmberPanelEvents();
+
   // 编年史事件绑定
   bindChroniclePanelEvents();
+}
 
   
 
