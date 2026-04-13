@@ -1121,8 +1121,15 @@ function clearErrorLog() {
   updateErrorBadge();
 }
 
-//提示音（使用Web Audio API生成简短提示音，无需外部文件）
-function playNotificationSound() {
+//────────────────────────────────────────────
+// 提示音系统（使用 Web Audio API，无需外部音频文件）
+// ────────────────────────────────────────────
+
+/**
+ * 播放提示音
+ * @param {'success'|'info'|'warning'|'error'} type - 提示音类型
+ */
+function playNotificationSound(type = 'success') {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = audioCtx.createOscillator();
@@ -1131,15 +1138,53 @@ function playNotificationSound() {
     oscillator.connect(gainNode);
     gainNode.connect(audioCtx.destination);
     
-    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-    oscillator.frequency.setValueAtTime(1100, audioCtx.currentTime + 0.1); // 上升
-    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-    
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + 0.3);
+    const now = audioCtx.currentTime;
+    switch (type) {
+      case 'success':
+        // 上升双音 —叮咚♪
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(523, now);       // C5
+        oscillator.frequency.setValueAtTime(784, now + 0.12); // G5
+        gainNode.gain.setValueAtTime(0.12, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        oscillator.start(now);
+        oscillator.stop(now + 0.35);
+        break;
+      case 'info':
+        // 单音提示 — 叮
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, now); // A5
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        oscillator.start(now);
+        oscillator.stop(now + 0.2);
+        break;
+        
+      case 'warning':
+        // 下降音 — 嘟
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(660, now);
+        oscillator.frequency.setValueAtTime(440, now + 0.15);
+        gainNode.gain.setValueAtTime(0.12, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        oscillator.start(now);
+        oscillator.stop(now + 0.3);
+        break;
+        
+      case 'error':
+        // 急促双音 — 嘟嘟
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(330, now);
+        oscillator.frequency.setValueAtTime(220, now + 0.1);
+        oscillator.frequency.setValueAtTime(330, now + 0.2);
+        gainNode.gain.setValueAtTime(0.08, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        oscillator.start(now);
+        oscillator.stop(now + 0.35);
+        break;
+    }
   } catch (e) {
-    // 静默失败，不影响功能
+    // 静默失败 — 某些浏览器可能阻止自动播放
   }
 }
 // ═══════════════ 区块 B 结束 ═══════════════
@@ -4346,15 +4391,6 @@ function bindSettingsPanelEvents() {
     });
     
     $('#bb-pe-cancel').on('click', () => $('#bb-preset-editor-inline').remove());
-  });
-
-  $('#bb-pe-save').on('click', function () {
-    const idx = s().active_preset; const preset = s().prompt_presets?.[idx]; if (!preset) return;
-    preset.name = $('#bb-pe-name').val().trim() || preset.name;
-    preset.global = $('#bb-pe-global').val(); preset.blacklist = $('#bb-pe-blacklist').val();
-    preset.prompts = { diary: $('#bb-pe-diary').val(), summary: $('#bb-pe-summary').val(), weather: $('#bb-pe-weather').val(), vibe: $('#bb-pe-vibe').val(), npc: $('#bb-pe-npc').val(), chaos: $('#bb-pe-chaos').val(), parallel: $('#bb-pe-parallel').val(), world: $('#bb-pe-world').val(), couple: $('#bb-pe-couple').val() };
-    saveSettingsDebounced(); refreshPresetSelect(); $('#bb-preset-editor').slideUp(200);
-    toastr.success(`预设「${preset.name}」已保存`);
   });
   $('#bb-preset-import').on('click', function () {
     const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
