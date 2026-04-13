@@ -4996,12 +4996,25 @@ function registerEventListeners() {
     if (!getSettings().enabled) return;
     injectMessageButtons(msgId);
   });
-  eventSource.on(event_types.CHAT_CHANGED, () => {
+    eventSource.on(event_types.CHAT_CHANGED, () => {
     loadChatData();
     getSettings().message_counter = 0; saveSettings();
     updateCharInfo();
     setTimeout(() => injectButtonsToExistingMessages(), 500);
+
+    // 记忆琥珀：切换角色/聊天时刷新数据
+    amberMessageCounter = 0;
+    if (typeof refreshAmberCharacterFilter === 'function') {
+      refreshAmberCharacterFilter();renderAmberFacts();
+      updateAmberStats();
+    }
   });
+  
+  amberMessageCounter = 0;
+    if (typeof refreshAmberCharacterFilter === 'function') {
+      refreshAmberCharacterFilter();renderAmberFacts();
+      updateAmberStats();
+    }
 }
 
 function incrementMessageCounter() {
