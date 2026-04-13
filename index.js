@@ -5272,7 +5272,12 @@ jQuery(async () => {
   $('#bb-ooc-win').addClass('bb-hidden');
   $('#bb-bf-win').addClass('bb-hidden');
 
-  // 18. 移动端确保悬浮球可见
+  // 第18步：初始化记忆琥珀系统
+  initMemoryAmber();
+  
+  console.log(`[骨与血] v${VERSION} 全部初始化完成（含记忆琥珀）`);
+
+  // 19. 移动端确保悬浮球可见
   if (window.innerWidth <= 768) {
     const s = extension_settings[EXTENSION_NAME];
     if (s.enabled) {
