@@ -1976,6 +1976,429 @@
   }
 }
 
+/* ═══════════════════════════════════════════
+   📌 记忆琥珀(Memory Amber) 样式
+   ═══════════════════════════════════════════ */
+
+/* ──筛选栏 ── */
+.bb-amber-filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  flex-wrap: wrap;
+}
+.bb-amber-filter-bar .bb-input {
+  min-width: 100px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+/* ── 统计信息 ── */
+.bb-amber-stats {
+  display: flex;
+  gap: 16px;
+  padding: 6px 0 10px;
+  font-size: 12px;color: var(--bb-text-muted);
+  border-bottom: 1px solid var(--bb-border);
+  margin-bottom: 10px;flex-wrap: wrap;
+}
+.bb-amber-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── 待确认面板 ── */
+.bb-amber-pending {
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: var(--bb-radius-md);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.bb-amber-pending-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d4af37;
+}
+.bb-amber-pending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* ── 待确认卡片 ── */
+.bb-amber-pending-card {
+  background: var(--bb-bg-card);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: var(--bb-radius-md);
+  padding: 10px 12px;
+  transition: border-color var(--bb-transition);
+}
+.bb-amber-pending-card:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+}
+.bb-amber-pending-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+.bb-amber-pending-content {
+  margin: 6px 0;
+  font-size: 13px;
+  color: var(--bb-text);line-height: 1.5;
+}
+.bb-amber-pending-meta {
+  margin-bottom: 6px;
+}
+.bb-amber-pending-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* ── 事实卡片 ── */
+.bb-amber-fact-card {
+  background: var(--bb-bg-card);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  transition: all var(--bb-transition);position: relative;
+}
+.bb-amber-fact-card:hover {
+  background: var(--bb-bg-card-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ── 事实卡片头部 ── */
+.bb-amber-fact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.bb-amber-category {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.bb-amber-fact-actions {
+  display: flex;
+  gap: 6px;align-items: center;
+}
+.bb-amber-status {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── 事实操作按钮 ── */
+.bb-amber-fact-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all var(--bb-transition);
+}
+.bb-amber-fact-card:hover .bb-amber-fact-btn {
+  opacity: 0.7;
+}
+.bb-amber-fact-btn:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── 事实内容 ── */
+.bb-amber-fact-content {
+  font-size: 14px;
+  color: var(--bb-text);
+  line-height: 1.6;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+/* ── 事实元信息 ── */
+.bb-amber-fact-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+/* ── 置信度条 ── */
+.bb-amber-confidence-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 4px 0 2px;
+}
+.bb-amber-confidence-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4af37, #f0d060);
+  border-radius: 2px;
+  transition: width0.5s ease;
+}
+
+/* ── 标签 ── */
+.bb-amber-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.bb-amber-tag {
+  font-size: 10px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(212, 175, 55, 0.12);
+  color: #d4af37;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+/* ── 冲突提示 ── */
+.bb-amber-conflict-notice {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+  border-radius: var(--bb-radius-sm);
+  font-size: 12px;
+  color: #e87878;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ── 冲突解决模态框 ── */
+.bb-amber-conflict-comparison {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+.bb-amber-conflict-fact {
+  flex: 1;
+  background: var(--bb-bg-card);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 12px;
+}
+.bb-amber-conflict-fact h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--bb-primary);
+}
+.bb-amber-conflict-fact p {
+  font-size: 13px;
+  color: var(--bb-text);
+  line-height: 1.5;margin: 0 0 8px;
+}
+.bb-amber-conflict-vs {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--bb-accent);
+  padding: 0 4px;
+}
+.bb-amber-conflict-analysis {
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 14px;
+}
+.bb-amber-conflict-analysis h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #d4af37;
+}
+.bb-amber-conflict-analysis p {
+  font-size: 13px;
+  color: var(--bb-text);
+  margin: 4px 0;
+  line-height: 1.5;
+}
+
+/* ── 模态框通用样式（如果尚未定义） ── */
+.bb-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bb-fade-in 0.2s ease;
+}
+.bb-modal-content {
+  background: var(--bb-bg-panel);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-lg);
+  box-shadow: var(--bb-shadow);
+  width: 90%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: bb-slide-up 0.25s ease;
+}
+.bb-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--bb-border);
+}
+.bb-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--bb-text-bright);
+}
+.bb-modal-close {
+  background: none;
+  border: none;
+  color: var(--bb-text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all var(--bb-transition);
+}
+.bb-modal-close:hover {
+  color: var(--bb-text);
+  background: rgba(255, 255, 255, 0.08);
+}
+.bb-modal-body {
+  padding: 20px;
+}
+.bb-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--bb-border);
+}
+
+/* ── 表单组── */
+.bb-form-group {
+  margin-bottom: 14px;
+}
+.bb-form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bb-text-dim);
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+}
+
+/* ── 按钮变体 ── */
+.bb-btn {
+  padding: 6px 16px;
+  border-radius: var(--bb-radius-sm);
+  border: 1px solid var(--bb-border);
+  background: var(--bb-bg-card);
+  color: var(--bb-text);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all var(--bb-transition);
+}
+.bb-btn:hover {
+  background: var(--bb-bg-card-hover);
+  transform: translateY(-1px);
+}
+.bb-btn-primary {
+  background: linear-gradient(135deg, var(--bb-primary-dark), var(--bb-primary));
+  color: #fff;
+  border-color: var(--bb-primary);
+}
+.bb-btn-primary:hover {
+  box-shadow: 0 2px 12px rgba(201, 160, 220, 0.3);
+}
+.bb-btn-secondary {
+  background: var(--bb-bg-secondary);
+  border-color: var(--bb-border);
+}
+.bb-btn-success {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+}
+.bb-btn-success:hover {
+  background: rgba(76, 175, 80, 0.25);
+}
+.bb-btn-error {
+  background: rgba(231, 76, 60, 0.15);
+  border-color: rgba(231, 76, 60, 0.3);
+  color: #e87878;
+}
+.bb-btn-error:hover {
+  background: rgba(231, 76, 60, 0.25);
+}
+.bb-btn-xs {
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+/* ── 动画 ── */
+@keyframes bb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes bb-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 移动端适配 ── */
+@media screen and (max-width: 768px) {
+  .bb-amber-filter-bar {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bb-amber-filter-bar .bb-input {
+    width: 100%;
+  }
+  .bb-amber-stats {
+    gap: 8px;
+    font-size: 11px;
+  }
+  .bb-amber-conflict-comparison {
+    flex-direction: column;
+  }
+  .bb-amber-conflict-vs {
+    justify-content: center;
+    padding: 4px 0;
+  }
+  .bb-amber-fact-btn {
+    opacity: 0.7;
+  }
+  .bb-modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+}
+
+
 
 /* ============================================================
    END OF style.css — 骨与血(Bone & Blood) v7.1
