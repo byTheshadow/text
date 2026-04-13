@@ -5188,7 +5188,7 @@ function bindSettingsPanelEvents() {
 
     console.log('[骨与血] 记忆琥珀设置绑定完成');
   }
-    $(panel).off('click.bbsubtab').on('click.bbsubtab', '.bb-sub-tab-btn', function () {
+     $(document).off('click.bbsubtab').on('click.bbsubtab', '.bb-sub-tab-btn', function () {
     const targetSubTab = $(this).data('subtab');
     const $parent = $(this).closest('.bb-tab-pane');
     
