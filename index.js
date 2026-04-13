@@ -3900,7 +3900,11 @@ function renderAll() {
   applyCustomFont();
   renderErrorLog();
   renderNotifications();
-
+  // 新增：记忆琥珀
+  refreshAmberCharacterFilter();
+  refreshAmberCategoryFilter();
+  renderAmberFacts();
+  updateAmberStats();
 }
 
 // ── 主面板事件绑定 ──
