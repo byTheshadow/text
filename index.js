@@ -23,37 +23,37 @@ const STYLE_PRESETS = {
     world: '📻 世界频段', achievements: '🏆 成就殿堂',
     gallery: '🖼️ 画廊', couple: '💕 情侣空间',
     errorlog: '⚠️ 错误日志', notifications: '🔔 通知栏',
+    amber: '📌 记忆琥珀',
 },
-  ancient: {
+ancient: {
     home: '🏮 归处', scrapbook: '📜拾遗录', diary: '🖋️ 手札',
     npc: '👤 人物志', weather: '🌸 时节录', vibe: '💭 心境图',
     parallel: '🌀镜花水月', fate: '🎴卦象台', ooc: '💌 私语阁',
     world: '📰 江湖传闻', achievements: '🎖️ 功绩榜',
     gallery: '🎨 丹青阁', couple: '🌙鸳鸯谱',
-    errorlog: '⚠️ 异闻录', notifications: '🔔 飞鸽传书'
-  },
-
-  gothic: {
+    errorlog: '⚠️ 异闻录', notifications: '🔔 飞鸽传书',
+    amber: '💎 记忆琥珀',
+},
+gothic: {
     home: '🕯️ 庭院', scrapbook: '🦴骸骨之语', diary: '🩸 血迹手记',
     npc: '👻 幽影名录', weather: '⚰️ 天气', vibe: '🕷️ 血脉共鸣',
     parallel: '🌑暗面分支', fate: '🗡️ 命运之骰', ooc: '🚪 Burning Star',
     world: '📡亡者电台', achievements: '💀 死亡勋章',
     gallery: '🖤暗影画廊', couple: '🥀 血契空间',
     errorlog: '💀 死亡日志', notifications: '🦇暗影通报',
-  },
-  monochrome: {
+    amber: '🔮 灵魂碎片',
+},
+monochrome: {
     home: '🏠 主页', scrapbook: '📀唱片机', diary: '📓 日记本',
     npc: '👥 情报站', weather: '🌫️ 环境雷达', vibe: '🤍 氛围心电图',
     parallel: '🔲 平行宇宙', fate: '🎲 命运盘', ooc: '💬 Burning Star',
     world: '📡 世界频段', achievements: '🏅 成就殿堂',
     gallery: '🖼️ 画廊', couple: '🤍 情侣空间',
     errorlog: '⚠️ 错误日志', notifications: '🔔 通知栏',
-  },
-};
+    amber: '📌 记忆琥珀',
+},
 
-
-
-const TAB_KEYS = ['home','scrapbook','diary','npc','weather','vibe','parallel','fate','ooc','world','achievements','gallery','couple','errorlog','notifications'];
+const TAB_KEYS = ['home','scrapbook','diary','npc','weather','vibe','parallel','fate','ooc','world','achievements','gallery','couple','errorlog','notifications','amber'];
 
 const HOME_LAYOUTS = {
   together: { name: '🎧 一起听', desc: '仿音乐软件一起听界面' },
@@ -295,6 +295,20 @@ const DEFAULT_SETTINGS = {
   available_models: [],
   custom_font_name: '',
   custom_font_apply: { panel: false, title: false, content: false, ooc: false },
+  memory_amber: {
+    enabled: true,
+    auto_extract: true,
+    extract_interval: 15,           // 每N条消息触发提取
+    auto_confirm: false,             // 自动确认（不推荐）
+    max_facts_per_character: 100,   // 每个角色最多保存的事实数
+    priority_algorithm: 'weighted', // 'weighted' | 'simple'
+    show_confidence: true,           // 显示置信度
+    show_references: true,           // 显示引用次数
+    conflict_detection: true,        // 启用冲突检测
+    conflict_threshold: 0.7,         // 冲突检测阈值（0-1）
+    multi_character: true,           // 多角色支持
+    export_format: 'json',           // 'json' | 'markdown'
+  },
 
 };
 
@@ -309,6 +323,36 @@ const PET_TYPES = [
 // 运行时数据
 let pluginData = null;
 let butterflySession = { active: false, originFloor: null, originText: '', history: [] };
+// ═══════════════════════════════════════════
+// 记忆琥珀系统常量
+// ═══════════════════════════════════════════
+
+const FACT_CATEGORIES = {
+  personality: { name: '性格特质', icon: '🎭', color: '#c9a0dc', weight: 1.2 },
+  preference: { name: '喜好偏好', icon: '❤️', color: '#f0a8c8', weight: 1.0 },
+  relationship: { name: '关系网络', icon: '🤝', color: '#a8d8f0', weight: 1.3 },
+  background: { name: '背景经历', icon: '📜', color: '#d4af37', weight: 1.1 },
+  ability: { name: '能力技能', icon: '⚡', color: '#ffd700', weight: 1.0 },
+  appearance: { name: '外貌特征', icon: '👁️', color: '#e8b4f0', weight: 0.8 },
+  habit: { name: '习惯癖好', icon: '🔄', color: '#b8e0d2', weight: 0.9 },
+  memory: { name: '重要记忆', icon: '💭', color: '#d4a5a5', weight: 1.4 },
+  secret: { name: '秘密隐私', icon: '🔒', color: '#8b7d8b', weight: 1.5 },
+  goal: { name: '目标愿望', icon: '🎯', color: '#ff9a76', weight: 1.2 },
+  fear: { name: '恐惧弱点', icon: '😰', color: '#a8a8a8', weight: 1.1 },
+  custom: { name: '自定义', icon: '✨', color: '#c0c0c0', weight: 1.0 },
+};
+
+const FACT_STATUS = {
+  active: { name: '活跃', color: '#4caf50' },
+  outdated: { name: '过时', color: '#888' },
+  conflicted: { name: '冲突', color: '#e74c3c' },
+};
+
+// 记忆琥珀运行时数据
+let memoryAmberFacts = []; // 所有事实条目
+let amberPendingFacts = []; // 待确认的事实
+let amberMessageCounter = 0; // 消息计数器
+let amberExtracting = false; // 提取中标志
 let oocSession = { active: false, history: [] };
 // 错误日志和通知栏运行时数据
 let bbErrorLog = [];// [{timestamp, source, message, detail}]
