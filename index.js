@@ -3955,6 +3955,36 @@ function bindMainPanelEvents(panel) {
 
   // 情侣空间事件
   bindCoupleSpaceEvents();
+    });
+
+  // ──────────────────────────────────────────
+  // 【新增】错误日志 & 通知栏 按钮事件
+  // ──────────────────────────────────────────
+
+  // 错误日志 — 清空
+  $(panel).off('click.bbclearerrors').on('click.bbclearerrors', '#bb-btn-clear-errors', () => {
+    if (!confirm('确认清空所有错误日志？')) return;
+    clearErrorLog();
+    toastr.info('错误日志已清空');
+  });
+
+  // 通知栏 — 全部已读
+  $(panel).off('click.bbmarkread').on('click.bbmarkread', '#bb-btn-mark-all-read', () => {
+    markAllNotificationsRead();
+    toastr.info('已全部标为已读');
+  });
+
+  // 通知栏 — 清空
+  $(panel).off('click.bbclearnotifs').on('click.bbclearnotifs', '#bb-btn-clear-notifs', () => {
+    if (!confirm('确认清空所有通知？')) return;
+    clearAllNotifications();
+    toastr.info('通知已清空');
+  });
+
+  // ──────────────────────────────────────────
+  // 【新增结束】
+  // ──────────────────────────────────────────
+
 
   // 语录编辑
   $(panel).on('click', '.bb-record-edit-btn', function () {
