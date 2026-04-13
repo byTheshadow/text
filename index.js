@@ -4049,6 +4049,23 @@ function bindMainPanelEvents(panel) {
      // 新增：记忆琥珀事件
   bindAmberPanelEvents();
   });
+    $(panel).off('click.bbsubtab').on('click.bbsubtab', '.bb-sub-tab-btn', function () {
+    const targetSubTab = $(this).data('subtab');
+    const $parent = $(this).closest('.bb-tab-pane');
+    
+    // 切换按钮高亮
+    $parent.find('.bb-sub-tab-btn').removeClass('bb-sub-tab-active');
+    $(this).addClass('bb-sub-tab-active');
+    
+    // 切换面板
+    $parent.find('.bb-sub-tab-pane').addClass('bb-hidden');
+    $parent.find(`#bb-subtab-${targetSubTab}`).removeClass('bb-hidden');
+  });
+
+  // 编年史事件绑定
+  bindChroniclePanelEvents();
+
+  
 
 
   // ──────────────────────────────────────────
