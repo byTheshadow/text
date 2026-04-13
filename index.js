@@ -5293,6 +5293,12 @@ function registerEventListeners() {
       refreshAmberCharacterFilter();renderAmberFacts();
       updateAmberStats();
     }
+      //编年史//
+          chronicleMessageCounter = 0;
+    if (typeof renderChronicleTimeline === 'function') {
+      renderChronicleTimeline();
+      updateChronicleStats();
+    }
   });
   
   amberMessageCounter = 0;
