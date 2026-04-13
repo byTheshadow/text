@@ -4836,6 +4836,8 @@ function incrementMessageCounter() {
 async function autoGenerate() {
   console.log('[骨与血]🔄 触发自动生成...');
   toastr.info('🔄 自动生成日记和总结中...');
+  bbNotify('system', '自动生成触发', `已达到 ${getSettings().diary_trigger_count} 条消息，正在自动生成日记和总结...`);
+  playNotificationSound('info');
   await generateDiary();
   await generateSummary();
   renderDiary();      // ← 新增
