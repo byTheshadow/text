@@ -2398,6 +2398,283 @@
   }
 }
 
+/* ═══════════════════════════════════════════⭐ 编年史(Chronicle) 样式
+   ═══════════════════════════════════════════ */
+
+/* ── 子Tab导航栏 ── */
+.bb-sub-tab-bar {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bb-bg-secondary);
+  border-radius: var(--bb-radius-md);
+  margin-bottom: 12px;
+}
+.bb-sub-tab-btn {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--bb-text-dim);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--bb-radius-sm);
+  cursor: pointer;
+  transition: all var(--bb-transition);
+}
+.bb-sub-tab-btn:hover {
+  color: var(--bb-text);background: rgba(255, 255, 255, 0.05);
+}
+.bb-sub-tab-active {
+  color: var(--bb-text-bright) !important;
+  background: var(--bb-bg-card) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.bb-sub-tab-pane {
+  /* 子面板默认显示 */
+}
+
+/* ── 筛选栏 ── */
+.bb-chronicle-filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  flex-wrap: wrap;
+}
+.bb-chronicle-filter-bar .bb-input {
+  min-width: 100px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+/* ── 统计 ── */
+.bb-chronicle-stats {
+  display: flex;
+  gap: 16px;
+  padding: 4px 0 10px;
+  font-size: 12px;
+  color: var(--bb-text-muted);
+  border-bottom: 1px solid var(--bb-border);margin-bottom: 12px;
+}
+
+/* ── 时间轴容器 ── */
+.bb-chronicle-timeline {
+  position: relative;
+  padding: 20px 0;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* ── 中线 ── */
+.bb-chronicle-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--bb-primary) 10%,
+    var(--bb-primary) 90%,
+    transparent
+  );
+  transform: translateX(-50%);z-index: 0;
+}
+
+/* ── 事件节点 ── */
+.bb-chronicle-node {
+  position: relative;
+  width: 46%;
+  margin-bottom: 24px;
+  z-index: 1;
+}
+.bb-chronicle-left {
+  margin-left: 4%;
+}
+.bb-chronicle-right {
+  margin-left: 50%;
+}
+
+/* ── 时间轴圆点 ── */
+.bb-chronicle-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--bb-bg-panel);
+  z-index: 2;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+.bb-chronicle-left .bb-chronicle-dot {
+  right: -11%;
+  top: 20px;
+}
+.bb-chronicle-right .bb-chronicle-dot {
+  left: -11%;
+  top: 20px;
+}
+
+/* ── 事件卡片 ── */
+.bb-chronicle-card {
+  background: var(--bb-bg-card);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-md);
+  padding: 14px;
+  transition: all var(--bb-transition);
+}
+.bb-chronicle-card:hover {
+  background: var(--bb-bg-card-hover);
+  transform: translateY(-2px);box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ── 卡片头部 ── */
+.bb-chronicle-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.bb-chronicle-category {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.bb-chronicle-card-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.bb-chronicle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all var(--bb-transition);
+}
+.bb-chronicle-card:hover .bb-chronicle-btn {
+  opacity: 0.7;
+}
+.bb-chronicle-btn:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── 标题 ── */
+.bb-chronicle-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--bb-text-bright);
+  line-height: 1.4;
+}
+
+/* ── 内容 ── */
+.bb-chronicle-content {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--bb-text);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* ── 元信息 ── */
+.bb-chronicle-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+/* ── 角色标签 ── */
+.bb-chronicle-chars {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.bb-chronicle-char-tag {
+  font-size: 10px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(201, 160, 220, 0.12);
+  color: var(--bb-primary);
+  border: 1px solid rgba(201, 160, 220, 0.2);
+}
+
+/* ── 配图 ── */
+.bb-chronicle-image {
+  margin: 8px 0;
+  border-radius: var(--bb-radius-sm);
+  overflow: hidden;
+}
+.bb-chronicle-image img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--bb-radius-sm);
+}
+
+/* ── 章节标题 ── */
+.bb-chronicle-chapter-header {
+  text-align: center;
+  margin: 20px 0 16px;
+  position: relative;
+  z-index: 1;
+}
+.bb-chronicle-chapter-name {
+  display: inline-block;
+  padding: 6px 20px;
+  background: var(--bb-bg-panel);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffd700;
+  letter-spacing: 1px;
+}
+.bb-chronicle-chapter-rename {
+  margin-left: 6px;
+  color: var(--bb-text-muted);
+  opacity: 0;
+  transition: opacity var(--bb-transition);
+}
+.bb-chronicle-chapter-header:hover .bb-chronicle-chapter-rename {
+  opacity: 1;
+}
+
+/* ── 移动端适配 ── */
+@media screen and (max-width: 768px) {
+  .bb-chronicle-line {
+    left: 20px;
+  }
+  .bb-chronicle-node {
+    width: calc(100% - 50px);
+    margin-left: 40px !important;
+  }
+  .bb-chronicle-left .bb-chronicle-dot,
+  .bb-chronicle-right .bb-chronicle-dot {
+    left: -28px;
+    right: auto;
+  }
+  .bb-chronicle-btn {
+    opacity: 0.7;
+  }
+  .bb-sub-tab-bar {
+    flex-wrap: wrap;
+  }
+  .bb-sub-tab-btn {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+  .bb-chronicle-filter-bar {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
 
 
 /* ============================================================
