@@ -324,6 +324,7 @@ const PET_TYPES = [
 // 运行时数据
 let pluginData = null;
 let butterflySession = { active: false, originFloor: null, originText: '', history: [] };
+let chronicleMessageCounter = 0;
 // ═══════════════════════════════════════════
 // 记忆琥珀系统常量
 // ═══════════════════════════════════════════
