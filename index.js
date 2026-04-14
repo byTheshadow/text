@@ -5809,35 +5809,22 @@ jQuery(async () => {
   // 15. 启动世界频段
   startWorldFeed();
 
-  // 15.5初始化记忆琥珀系统
+   // 15.5 初始化记忆琥珀系统
   if (typeof initMemoryAmber === 'function') {
     initMemoryAmber();
   }
 
-
-  // 16. 检查成就
-  checkAchievements();
-
-  // 17. 确保弹窗初始隐藏
-  $('#bb-main-panel').css('display', 'none');
-  $('#bb-ooc-win').addClass('bb-hidden');
-  $('#bb-bf-win').addClass('bb-hidden');
-
-  // 第18步：初始化记忆琥珀系统
-  initMemoryAmber();
-  
-  console.log(`[骨与血] v${VERSION} 全部初始化完成（含记忆琥珀）`);
-
-  // 19. 移动端确保悬浮球可见
-  if (window.innerWidth <= 768) {
-    const s = extension_settings[EXTENSION_NAME];
-    if (s.enabled) {
-      createMobileFloatingButton();
-    }
-    console.log('[BB] 移动端模式已激活, 视口宽度:', window.innerWidth);
+  // 16. 初始化编年史系统
+  if (typeof initChronicle === 'function') {
+    initChronicle();
   }
 
-  console.log('[BB] 骨与血 v7.1 initialized ✓');
+  // 17. 初始化日历系统
+  if (typeof initCalendar === 'function') {
+    initCalendar();
+  }
+
+  console.log(`[骨与血] v${VERSION} 全部初始化完成（含记忆琥珀、编年史、日历）`);
 });
 
 // ═══════════════ 区块 O结束 ═══════════════
@@ -8230,6 +8217,653 @@ function initChronicle() {
 // ═══════════════════════════════════════════
 // 【区块P结束】
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// 【区块 T】日历系统 - Calendar System
+// T1  - 日历模板定义（获取模板）
+// T2  - 日历数据管理（CRUD）
+// T3  - 日历核心引擎（日期转换、计算）
+// T4  - 节日与季节系统
+// T5  - 渲染：月视图
+// T6  - 渲染：周视图 / 日视图
+// T7  - 每日聚合
+// T8  - 事件绑定
+// T9  - 模态框
+// T10 - 导出导入
+// T11 - 宏注入
+// T12 - 时间锚点系统
+// T13 - 初始化函数
+// ═══════════════════════════════════════════
+
+// ── 日历运行时状态 ──
+let calendarState = {
+  currentView: 'month',     // 当前视图
+  currentYear: 2026,        // 当前显示年份
+  currentMonth: 0,          // 当前显示月份（0-indexed）
+  currentDay: 1,            // 当前显示日（日视图用）
+  currentWeekStart: null,   // 当前周起始日期（周视图用）
+  selectedDate: null,       // 用户选中的日期 {year, month, day}
+  templateId: 'gregorian',  // 当前模板ID
+  mode: 'real',             // 'real' | 'rp'
+};
+
+// ═══════════════════════════════════════════
+// T1 - 日历模板管理
+// ═══════════════════════════════════════════
+
+/**
+ * 获取当前使用的日历模板
+ * @returns {Object} 模板对象
+ */
+function getCalendarTemplate(templateId) {
+  const id = templateId || calendarState.templateId;
+
+  // 先查内置模板
+  if (CALENDAR_TEMPLATES[id]) {
+    return CALENDAR_TEMPLATES[id];
+  }
+
+  // 再查自定义模板
+  const settings = getSettings();
+  const custom = (settings.calendar?.custom_templates || []).find(t => t.id === id);
+  if (custom) return custom;
+
+  // 回退到公历
+  console.warn(`[骨与血·日历] 模板 "${id}" 未找到，回退到公历`);
+  return CALENDAR_TEMPLATES.gregorian;
+}
+
+/**
+ * 获取所有可用模板列表
+ * @returns {Array} [{id, name, type}]
+ */
+function getAllCalendarTemplates() {
+  const list = [];
+
+  // 内置模板
+  for (const [id, tpl] of Object.entries(CALENDAR_TEMPLATES)) {
+    list.push({ id, name: tpl.name, type: tpl.type, editable: false });
+  }
+
+  // 自定义模板
+  const settings = getSettings();
+  for (const tpl of (settings.calendar?.custom_templates || [])) {
+    list.push({ id: tpl.id, name: tpl.name, type: tpl.type, editable: true });
+  }
+
+  return list;
+}
+
+/**
+ * 创建自定义模板
+ * @param {Object} templateData 模板数据
+ * @returns {string} 新模板ID
+ */
+function createCustomTemplate(templateData) {
+  const settings = getSettings();
+  if (!settings.calendar.custom_templates) {
+    settings.calendar.custom_templates = [];
+  }
+
+  const id = 'custom_' + Date.now();
+  const template = {
+    id,
+    name: templateData.name || '自定义历法',
+    type: 'rp',
+    editable: true,
+    months: templateData.months || [
+      { name: '第一月', days: 30 }, { name: '第二月', days: 30 },
+      { name: '第三月', days: 30 }, { name: '第四月', days: 30 },
+      { name: '第五月', days: 30 }, { name: '第六月', days: 30 },
+      { name: '第七月', days: 30 }, { name: '第八月', days: 30 },
+      { name: '第九月', days: 30 }, { name: '第十月', days: 30 },
+      { name: '第十一月', days: 30 }, { name: '第十二月', days: 30 },
+    ],
+    weekdays: templateData.weekdays || ['日', '一', '二', '三', '四', '五', '六'],
+    daysPerWeek: templateData.daysPerWeek || 7,
+    hasLeapYear: templateData.hasLeapYear || false,
+    leapYearRule: templateData.leapYearRule || null,
+    yearOffset: templateData.yearOffset || 0,
+    epoch: templateData.epoch || '纪元',
+    seasons: templateData.seasons || [],};
+
+  settings.calendar.custom_templates.push(template);
+  saveSettingsDebounced();
+  return id;
+}
+
+/**
+ * 更新自定义模板
+ */
+function updateCustomTemplate(templateId, updates) {
+  const settings = getSettings();
+  const idx = (settings.calendar.custom_templates || []).findIndex(t => t.id === templateId);
+  if (idx === -1) {
+    toastr.error('模板不存在或不可编辑');
+    return false;
+  }
+  Object.assign(settings.calendar.custom_templates[idx], updates);
+  saveSettingsDebounced();
+  return true;
+}
+
+/**
+ * 删除自定义模板
+ */
+function deleteCustomTemplate(templateId) {
+  const settings = getSettings();
+  const idx = (settings.calendar.custom_templates || []).findIndex(t => t.id === templateId);
+  if (idx === -1) return false;
+
+  settings.calendar.custom_templates.splice(idx, 1);
+
+  // 如果当前正在使用这个模板，切回公历
+  if (settings.calendar.template_id === templateId) {
+    settings.calendar.template_id = 'gregorian';
+    calendarState.templateId = 'gregorian';
+  }
+
+  saveSettingsDebounced();
+  return true;
+}
+
+// ═══════════════════════════════════════════
+// T2 - 日历数据管理（CRUD）
+// ═══════════════════════════════════════════
+
+/**
+ * 获取所有日历事件
+ */
+function getCalendarEvents() {
+  if (!pluginData) return [];
+  if (!pluginData.calendar_events) {
+    pluginData.calendar_events = [];
+  }
+  return pluginData.calendar_events;
+}
+
+/**
+ * 添加日历事件
+ * @param {Object} eventData {title, date:{year,month,day}, templateId, category, description, color, recurring}
+ * @returns {Object} 创建的事件
+ */
+function addCalendarEvent(eventData) {
+  const events = getCalendarEvents();
+  const newEvent = {
+    id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+    title: eventData.title || '未命名事件',
+    date: {
+      year: eventData.date?.year ?? calendarState.currentYear,
+      month: eventData.date?.month ?? calendarState.currentMonth,
+      day: eventData.date?.day ?? 1,
+    },
+    templateId: eventData.templateId || calendarState.templateId,
+    category: eventData.category || 'custom',
+    description: eventData.description || '',
+    color: eventData.color || '#c9a0dc',
+    recurring: eventData.recurring || false,  // 'yearly' | 'monthly' | false
+    createdAt: new Date().toISOString(),
+  };
+
+  events.push(newEvent);
+  saveChatData();
+  return newEvent;
+}
+
+/**
+ * 更新日历事件
+ */
+function updateCalendarEvent(eventId, updates) {
+  const events = getCalendarEvents();
+  const idx = events.findIndex(e => e.id === eventId);
+  if (idx === -1) return false;
+
+  Object.assign(events[idx], updates);
+  saveChatData();
+  return true;
+}
+
+/**
+ * 删除日历事件
+ */
+function deleteCalendarEvent(eventId) {
+  const events = getCalendarEvents();
+  const idx = events.findIndex(e => e.id === eventId);
+  if (idx === -1) return false;
+
+  events.splice(idx, 1);
+  saveChatData();
+  return true;
+}
+
+/**
+ * 获取指定日期的所有事件
+ * @param {number} year
+ * @param {number} month (0-indexed)
+ * @param {number} day
+ * @param {string} templateId
+ * @returns {Array} 事件列表
+ */
+function getEventsForDate(year, month, day, templateId) {
+  const events = getCalendarEvents();
+  return events.filter(e => {
+    if (e.templateId !== templateId) return false;
+
+    // 精确匹配
+    if (e.date.year === year && e.date.month === month && e.date.day === day) {
+      return true;
+    }
+
+    // 周年循环
+    if (e.recurring === 'yearly' && e.date.month === month && e.date.day === day) {
+      return true;
+    }
+
+    // 月循环
+    if (e.recurring === 'monthly' && e.date.day === day) {
+      return true;
+    }
+
+    return false;
+  });
+}
+
+/**
+ * 获取指定月份的所有事件
+ */
+function getEventsForMonth(year, month, templateId) {
+  const events = getCalendarEvents();
+  return events.filter(e => {
+    if (e.templateId !== templateId) return false;
+
+    if (e.date.year === year && e.date.month === month) return true;
+    if (e.recurring === 'yearly' && e.date.month === month) return true;
+    if (e.recurring === 'monthly') return true;
+
+    return false;
+  });
+}
+
+// ═══════════════════════════════════════════
+// T3 - 日历核心引擎
+// ═══════════════════════════════════════════
+
+/**
+ * 判断公历闰年
+ */
+function isGregorianLeapYear(year) {
+  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
+/**
+ * 获取指定模板中某月的天数
+ * @param {string} templateId
+ * @param {number} year
+ * @param {number} month (0-indexed)
+ * @returns {number}
+ */
+function getDaysInMonth(templateId, year, month) {
+  const tpl = getCalendarTemplate(templateId);
+  if (!tpl || !tpl.months || month < 0 || month >= tpl.months.length) return 30;
+
+  let days = tpl.months[month].days;
+
+  // 公历二月闰年处理
+  if (tpl.leapYearRule === 'gregorian' && month === 1) {
+    if (isGregorianLeapYear(year)) {
+      days = 29;
+    }
+  }
+
+  return days;
+}
+
+/**
+ * 获取模板的月份数量
+ */
+function getMonthCount(templateId) {
+  const tpl = getCalendarTemplate(templateId);
+  return tpl?.months?.length || 12;
+}
+
+/**
+ * 获取模板的月份名称
+ */
+function getMonthName(templateId, month) {
+  const tpl = getCalendarTemplate(templateId);
+  if (!tpl || !tpl.months || month < 0 || month >= tpl.months.length) return `第${month + 1}月`;
+  return tpl.months[month].name;
+}
+
+/**
+ * 获取星期名称列表
+ */
+function getWeekdayNames(templateId) {
+  const tpl = getCalendarTemplate(templateId);
+  return tpl?.weekdays || ['日', '一', '二', '三', '四', '五', '六'];
+}
+
+/**
+ * 获取每周天数
+ */
+function getDaysPerWeek(templateId) {
+  const tpl = getCalendarTemplate(templateId);
+  return tpl?.daysPerWeek || 7;
+}
+
+/**
+ * 计算某年某月1日是星期几（0-indexed）
+ *对于公历使用蔡勒公式，对于自定义历法使用简单模运算
+ */
+function getFirstDayOfMonth(templateId, year, month) {
+  const tpl = getCalendarTemplate(templateId);
+
+  if (tpl.leapYearRule === 'gregorian') {
+    // 公历：使用 JavaScript Date 对象
+    const date = new Date(year, month, 1);
+    const dayOfWeek = date.getDay(); // 0=Sunday
+
+    // 根据 week_start 设置调整
+    const settings = getSettings();
+    const weekStart = settings.calendar?.week_start || 0;
+    return (dayOfWeek - weekStart + 7) % 7;
+  }
+
+  // 自定义历法：计算从纪元开始的总天数，然后取模
+  const daysPerWeek = tpl.daysPerWeek || 7;
+  let totalDays = 0;
+
+  // 计算之前所有年份的天数（简化：假设每年天数固定）
+  const daysPerYear = tpl.months.reduce((sum, m) => sum + m.days, 0);
+  totalDays += year * daysPerYear;
+
+  // 加上当年之前月份的天数
+  for (let m = 0; m < month; m++) {
+    totalDays += tpl.months[m].days;
+  }
+
+  return totalDays % daysPerWeek;
+}
+
+/**
+ * 获取今天的日期（根据模式）
+ * @returns {{year: number, month: number, day: number}}
+ */
+function getCalendarToday() {
+  const settings = getSettings();
+
+  if (calendarState.mode === 'rp' && settings.calendar?.rp_current_date) {
+    return { ...settings.calendar.rp_current_date };
+  }
+
+  // 现实时间
+  const now = new Date();
+  return {
+    year: now.getFullYear(),
+    month: now.getMonth(),
+    day: now.getDate(),
+  };
+}
+
+/**
+ * 比较两个日期是否相同
+ */
+function isSameDate(d1, d2) {
+  if (!d1 || !d2) return false;
+  return d1.year === d2.year && d1.month === d2.month && d1.day === d2.day;
+}
+
+/**
+ * 获取指定年份的总天数
+ */
+function getTotalDaysInYear(templateId, year) {
+  const tpl = getCalendarTemplate(templateId);
+  let total = 0;
+  for (let m = 0; m < tpl.months.length; m++) {
+    total += getDaysInMonth(templateId, year, m);
+  }
+  return total;
+}
+
+/**
+ * 日期加减天数
+ * @param {Object} date {year, month, day}
+ * @param {number} deltaDays 正数=向后，负数=向前
+ * @param {string} templateId
+ * @returns {Object} 新日期 {year, month, day}
+ */
+function addDaysToDate(date, deltaDays, templateId) {
+  let { year, month, day } = { ...date };
+  const tpl = getCalendarTemplate(templateId);
+  const monthCount = tpl.months.length;
+
+  if (deltaDays > 0) {
+    // 向后推
+    for (let i = 0; i < deltaDays; i++) {
+      day++;
+      const maxDay = getDaysInMonth(templateId, year, month);
+      if (day > maxDay) {
+        day = 1;
+        month++;
+        if (month >= monthCount) {
+          month = 0;
+          year++;
+        }
+      }
+    }
+  } else if (deltaDays < 0) {
+    // 向前推
+    for (let i = 0; i < Math.abs(deltaDays); i++) {
+      day--;
+      if (day < 1) {
+        month--;
+        if (month < 0) {
+          month = monthCount - 1;
+          year--;
+        }
+        day = getDaysInMonth(templateId, year, month);
+      }
+    }
+  }
+
+  return { year, month, day };
+}
+
+/**
+ * 获取某日期所在周的起始日期
+ */
+function getWeekStartDate(date, templateId) {
+  const tpl = getCalendarTemplate(templateId);
+  const daysPerWeek = tpl.daysPerWeek || 7;
+
+  // 计算当前日期是星期几
+  let dayOfWeek;
+  if (tpl.leapYearRule === 'gregorian') {
+    const jsDate = new Date(date.year, date.month, date.day);
+    const settings = getSettings();
+    const weekStart = settings.calendar?.week_start || 0;
+    dayOfWeek = (jsDate.getDay() - weekStart + 7) % 7;
+  } else {
+    // 自定义历法
+    let totalDays = 0;
+    const daysPerYear = tpl.months.reduce((sum, m) => sum + m.days, 0);
+    totalDays += date.year * daysPerYear;
+    for (let m = 0; m < date.month; m++) {
+      totalDays += tpl.months[m].days;
+    }
+    totalDays += date.day - 1;
+    dayOfWeek = totalDays % daysPerWeek;
+  }
+
+  // 回退到周起始日
+  return addDaysToDate(date, -dayOfWeek, templateId);
+}
+
+// ═══════════════════════════════════════════
+// T4 - 节日与季节系统
+// ═══════════════════════════════════════════
+
+/**
+ * 获取指定日期的节日列表
+ * @param {string} templateId
+ * @param {number} month (0-indexed)
+ * @param {number} day
+ * @returns {Array} 节日列表
+ */
+function getHolidaysForDate(templateId, month, day) {
+  const settings = getSettings();
+  const result = [];
+
+  // 内置节日
+  if (settings.calendar?.show_holidays !== false) {
+    const builtinList = BUILTIN_HOLIDAYS[templateId] || [];
+    for (const h of builtinList) {
+      // 如果是节气且用户关闭了节气显示，跳过
+      if (h.type === 'solar_term' && !settings.calendar?.show_solar_terms) continue;
+
+      if (h.month === month && h.day === day) {
+        result.push({ ...h, source: 'builtin' });
+      }
+    }
+  }
+
+  // 用户自定义纪念日
+  const customHolidays = settings.calendar?.custom_holidays || [];
+  for (const h of customHolidays) {
+    if (h.templateId === templateId && h.month === month && h.day === day) {
+      result.push({ ...h, source: 'custom' });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * 获取指定月份的所有节日
+ */
+function getHolidaysForMonth(templateId, month) {
+  const settings = getSettings();
+  const result = [];
+
+  if (settings.calendar?.show_holidays !== false) {
+    const builtinList = BUILTIN_HOLIDAYS[templateId] || [];
+    for (const h of builtinList) {
+      if (h.type === 'solar_term' && !settings.calendar?.show_solar_terms) continue;
+      if (h.month === month) {
+        result.push({ ...h, source: 'builtin' });
+      }
+    }
+  }
+
+  const customHolidays = settings.calendar?.custom_holidays || [];
+  for (const h of customHolidays) {
+    if (h.templateId === templateId && h.month === month) {
+      result.push({ ...h, source: 'custom' });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * 获取当前季节
+ * @param {string} templateId
+ * @param {number} month (0-indexed)
+ * @param {number} day
+ * @returns {Object|null} {name, icon, context}
+ */
+function getCurrentSeason(templateId, month, day) {
+  const tpl = getCalendarTemplate(templateId);
+  if (!tpl.seasons || tpl.seasons.length === 0) return null;
+
+  const settings = getSettings();
+  if (!settings.calendar?.show_seasons) return null;
+
+  // 从后往前找，找到第一个 startMonth/startDay <=当前日期的季节
+  // 季节按顺序排列，最后一个匹配的就是当前季节
+  let currentSeason = tpl.seasons[tpl.seasons.length - 1]; // 默认最后一个（冬）
+
+  for (let i = 0; i < tpl.seasons.length; i++) {
+    const s = tpl.seasons[i];
+    const nextS = tpl.seasons[(i + 1) % tpl.seasons.length];
+
+    // 判断当前日期是否在这个季节范围内
+    if (month > s.startMonth || (month === s.startMonth && day >= s.startDay)) {
+      currentSeason = s;
+    }
+  }
+
+  return currentSeason;
+}
+
+/**
+ * 添加自定义纪念日
+ */
+function addCustomHoliday(holidayData) {
+  const settings = getSettings();
+  if (!settings.calendar.custom_holidays) {
+    settings.calendar.custom_holidays = [];
+  }
+
+  const holiday = {
+    id: 'hol_' + Date.now(),
+    name: holidayData.name || '纪念日',
+    month: holidayData.month ?? 0,
+    day: holidayData.day ?? 1,
+    icon: holidayData.icon || '🎉',
+    type: 'custom',
+    context: holidayData.context || '',
+    templateId: holidayData.templateId || calendarState.templateId,
+  };
+
+  settings.calendar.custom_holidays.push(holiday);
+  saveSettingsDebounced();return holiday;
+}
+
+/**
+ * 删除自定义纪念日
+ */
+function deleteCustomHoliday(holidayId) {
+  const settings = getSettings();
+  const idx = (settings.calendar.custom_holidays || []).findIndex(h => h.id === holidayId);
+  if (idx === -1) return false;
+
+  settings.calendar.custom_holidays.splice(idx, 1);
+  saveSettingsDebounced();
+  return true;
+}
+
+/**
+ * 生成今日节日+季节的上下文文本（用于宏注入）
+ */
+function generateSeasonContextText() {
+  const today = getCalendarToday();
+  const templateId = calendarState.templateId;
+  const tpl = getCalendarTemplate(templateId);
+
+  let parts = [];
+
+  // 季节
+  const season = getCurrentSeason(templateId, today.month, today.day);
+  if (season) {
+    parts.push(`【当前季节】${season.icon} ${season.name}：${season.context}`);
+  }
+
+  // 节日
+  const holidays = getHolidaysForDate(templateId, today.month, today.day);
+  if (holidays.length > 0) {
+    for (const h of holidays) {
+      parts.push(`【今日节日】${h.icon} ${h.name}：${h.context}`);
+    }
+  }
+
+  // 日期信息
+  const monthName = getMonthName(templateId, today.month);
+  const epoch = tpl.epoch || '';
+  parts.unshift(`【日期】${epoch}${today.year}年 ${monthName} ${today.day}日`);
+
+  return parts.join('\n');
+}
+
 
 
 
