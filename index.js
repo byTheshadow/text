@@ -11135,9 +11135,6 @@ function initCalendar() {
   calendarState.selectedDate = null;
   calendarState.currentWeekStart = null;
 
-  // 注册宏
-  registerCalendarMacros();
-
   // 刷新模板下拉框
   refreshCalendarTemplateDropdown();
 
