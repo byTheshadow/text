@@ -1773,6 +1773,89 @@
     </select>
   </div>
 </div>
+      
+      <!-- ═══════════════════════════════════════════
+     📅 日历系统设置
+     ═══════════════════════════════════════════ --><div class="bb-settings-section">
+  <h4 class="bb-settings-title">📅 日历系统</h4>
+  
+  <div class="bb-settings-row">
+    <label class="bb-toggle-label">
+      <input type="checkbox" id="bb-set-calendar-enabled" class="bb-toggle" checked>
+      <span>启用日历</span>
+    </label>
+    <span class="bb-text-xs bb-text-muted">管理RP世界的时间与事件</span>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label>默认历法模板</label>
+    <select id="bb-set-calendar-template" class="bb-input" style="width:180px;">
+      <option value="gregorian">🌍 公历（现实同步）</option>
+      <option value="xianxia">🏔️ 修仙历法</option>
+      <option value="middleearth">🧝 中土世界</option>
+    </select>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label>周起始日</label>
+    <select id="bb-set-calendar-week-start" class="bb-input" style="width:120px;">
+      <option value="0">周日</option>
+      <option value="1" selected>周一</option>
+      <option value="6">周六</option>
+    </select>
+    <span class="bb-text-xs bb-text-muted">影响周视图的起始日</span>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label class="bb-toggle-label">
+      <input type="checkbox" id="bb-set-calendar-show-holidays" class="bb-toggle" checked>
+      <span>显示节日</span>
+    </label>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label class="bb-toggle-label">
+      <input type="checkbox" id="bb-set-calendar-show-seasons" class="bb-toggle" checked>
+      <span>显示季节信息</span>
+    </label>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label class="bb-toggle-label">
+      <input type="checkbox" id="bb-set-calendar-inject-macros" class="bb-toggle" checked>
+      <span>启用日历宏</span>
+    </label>
+    <span class="bb-text-xs bb-text-muted">在prompt中使用 {{bb_calendar_today}} 等宏</span>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label>时间锚点</label>
+    <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-anchor-manage" style="width:120px;">⚓ 管理锚点</button>
+    <span class="bb-text-xs bb-text-muted">固定RP时间，手动推进</span>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label>数据管理</label>
+    <div style="display:flex;gap:6px;">
+      <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-export">💾 导出</button>
+      <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-import">📂 导入</button>
+    </div>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label class="bb-toggle-label">
+      <input type="checkbox" id="bb-set-calendar-aggregate-diary" class="bb-toggle" checked>
+      <span>聚合面板显示日记</span>
+    </label>
+  </div>
+  
+  <div class="bb-settings-row">
+    <label class="bb-toggle-label">
+      <input type="checkbox" id="bb-set-calendar-aggregate-chronicle" class="bb-toggle" checked>
+      <span>聚合面板显示编年史</span>
+    </label>
+  </div>
+</div>
 
 
       <!-- ═══ 版本信息 ═══ -->
