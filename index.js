@@ -610,6 +610,7 @@ function createDefaultPluginData() {
     sticker_packs: [{ id: 'default', name: '默认表情包', stickers: [] }],
     gallery: [],
     couple_space: { messages: [], love_letters: [], anniversaries: [], photo_wall: [] },
+    calendar_events: [],  // [{id, title, date:{year,month,day}, templateId, category, description, color, recurring, createdAt}]
   };
 }
 
