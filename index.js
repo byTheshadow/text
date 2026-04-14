@@ -5915,7 +5915,8 @@ function replaceBBMacros(text) {
   if (typeof replaceCalendarMacros === 'function') {
     text = replaceCalendarMacros(text);
   }
-  
+   // 添加日历宏替换（在 return 之前）
+  text = replaceBBCalendarMacros(text);
   return text;
 }
 
