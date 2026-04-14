@@ -1698,13 +1698,13 @@ function buildMainPanelHTML() {
           </div>
           <button class="bb-sm-btn bb-btn-xs" id="bb-btn-toggle-auto" title="开关自动记录">${getSettings().auto_diary_enabled ? '⏸暂停' : '▶ 开启'}</button>
         </div>
-      <!--📖 日记（含子Tab：日记/总结/编年史） -->
-
-        <!-- 子Tab导航 -->
+        
+      <!--📖 日记（含子Tab：日记/总结/编年史/日历） --><!-- 子Tab导航 -->
         <div class="bb-sub-tab-bar">
           <button class="bb-sub-tab-btn bb-sub-tab-active" data-subtab="diary-main">📖 日记</button>
           <button class="bb-sub-tab-btn" data-subtab="diary-summary">📜 总结</button>
           <button class="bb-sub-tab-btn" data-subtab="diary-chronicle">⭐ 编年史</button>
+          <button class="bb-sub-tab-btn" data-subtab="diary-calendar">📅 日历</button>
         </div>
 
         <!-- 子面板：日记 -->
@@ -1713,7 +1713,8 @@ function buildMainPanelHTML() {
             <button class="bb-sm-btn bb-btn-primary" id="bb-btn-gen-diary-tab">📖 生成日记</button>
           </div>
           <div id="bb-diary-box" class="bb-scroll-list">
-            <div class="bb-empty">暂无日记</div>
+            <div id="bb-diary-empty" class="bb-empty">暂无日记</div>
+            <div id="bb-diary-list"></div>
           </div>
         </div>
 
@@ -1723,7 +1724,8 @@ function buildMainPanelHTML() {
             <button class="bb-sm-btn bb-btn-primary" id="bb-btn-gen-summary-tab">📜 生成总结</button>
           </div>
           <div id="bb-summary-box" class="bb-scroll-list">
-            <div class="bb-empty">暂无总结</div>
+            <div id="bb-summary-empty" class="bb-empty">暂无总结</div>
+            <div id="bb-summary-list"></div>
           </div>
         </div>
 
@@ -1747,7 +1749,7 @@ function buildMainPanelHTML() {
               <option value="4">★★★★☆ 关键</option>
               <option value="3">★★★☆☆ 重要</option>
               <option value="2">★★☆☆☆ 普通</option>
-              <option value="1">★☆☆☆☆琐事</option>
+              <option value="1">★☆☆☆☆ 琐事</option>
             </select>
             <input type="text" id="bb-chronicle-search" class="bb-input" placeholder="🔍 搜索事件..." style="flex:2;">
           </div>
@@ -1765,8 +1767,65 @@ function buildMainPanelHTML() {
             </div>
           </div>
         </div>
-      </div>
 
+        <!-- 子面板：日历 -->
+        <div id="bb-subtab-diary-calendar" class="bb-sub-tab-pane bb-hidden">
+          <!-- 日历顶部导航 -->
+          <div class="bb-calendar-nav">
+            <button class="bb-sm-btn" id="bb-cal-prev" title="上一页">◀</button>
+            <span id="bb-cal-title" class="bb-calendar-title">—</span>
+            <button class="bb-sm-btn" id="bb-cal-next" title="下一页">▶</button>
+            <button class="bb-sm-btn" id="bb-cal-today" title="回到今天">📍今天</button>
+          </div>
+
+          <!-- 视图切换 + 模板选择 -->
+          <div class="bb-calendar-toolbar">
+            <div class="bb-calendar-view-switch">
+              <button class="bb-sm-btn bb-cal-view-btn bb-sub-tab-active" data-view="month">月</button>
+              <button class="bb-sm-btn bb-cal-view-btn" data-view="week">周</button>
+              <button class="bb-sm-btn bb-cal-view-btn" data-view="day">日</button>
+            </div>
+            <select id="bb-cal-template" class="bb-input" style="flex:1;" title="日历模板">
+              <option value="gregorian">🌍 公历</option>
+              <option value="xianxia">🏔️ 修仙历法</option>
+              <option value="middleearth">🧝 中土世界</option>
+            </select>
+            <span id="bb-cal-mode-badge" class="bb-badge bb-badge-info" title="日历模式">现实同步</span>
+          </div>
+
+          <!-- 季节/节日提示 -->
+          <div id="bb-cal-season-bar" class="bb-calendar-season-bar">
+            <span id="bb-cal-season-text">—</span>
+          </div>
+
+          <!-- 月视图 -->
+          <div id="bb-cal-month-view" class="bb-calendar-view">
+            <table class="bb-cal-table">
+              <thead id="bb-cal-weekday-header"></thead>
+              <tbody id="bb-cal-month-body"></tbody>
+            </table>
+          </div>
+
+          <!-- 周视图 -->
+          <div id="bb-cal-week-view" class="bb-calendar-view bb-hidden">
+            <div id="bb-cal-week-body" class="bb-cal-week-grid"></div>
+          </div>
+
+          <!-- 日视图 -->
+          <div id="bb-cal-day-view" class="bb-calendar-view bb-hidden">
+            <div id="bb-cal-day-body" class="bb-cal-day-detail"></div>
+          </div>
+
+          <!-- 每日聚合面板（点击某天后展开） -->
+          <div id="bb-cal-day-aggregate" class="bb-calendar-aggregate bb-hidden">
+            <div class="bb-calendar-aggregate-header">
+              <span id="bb-cal-agg-title">—</span>
+              <button class="bb-sm-btn" id="bb-cal-agg-close" title="关闭">✕</button>
+            </div>
+            <div id="bb-cal-agg-content" class="bb-calendar-aggregate-body"></div>
+          </div>
+        </div></div>
+        
       <!-- NPC动态 -->
       <div id="bb-pane-npc" class="bb-tab-pane bb-hidden">
         <div class="bb-action-bar">
