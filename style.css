@@ -2676,6 +2676,746 @@
   }
 }
 
+/* ═══════════════════════════════════════════
+   日历系统样式 - Calendar System Styles
+   ═══════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────
+   日历顶部导航
+   ──────────────────────────────────────────── */
+.bb-calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bb-surface);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.bb-calendar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--bb-text-primary);
+  min-width: 200px;
+  text-align: center;
+  user-select: none;
+}
+
+/* ────────────────────────────────────────────
+   工具栏（视图切换 + 模板选择）
+   ──────────────────────────────────────────── */
+.bb-calendar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bb-surface);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.bb-calendar-view-switch {
+  display: flex;
+  gap: 4px;
+}
+
+.bb-cal-view-btn {
+  min-width: 40px;
+  padding: 4px 12px;
+}
+
+/* ────────────────────────────────────────────
+   季节栏
+   ──────────────────────────────────────────── */
+.bb-calendar-season-bar {
+  padding: 8px 12px;
+  background: linear-gradient(135deg, var(--bb-primary-dim) 0%, var(--bb-surface) 100%);
+  border-left: 3px solid var(--bb-primary);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--bb-text-secondary);
+}
+
+#bb-cal-season-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bb-cal-season-desc {
+  opacity: 0.8;
+}
+
+.bb-cal-holidays {
+  color: var(--bb-accent);
+  font-weight: 500;
+}
+
+.bb-cal-holidays-more {
+  opacity: 0.6;
+  font-size: 12px;
+}
+
+/* ────────────────────────────────────────────
+   月视图 - 日历表格
+   ──────────────────────────────────────────── */
+.bb-calendar-view {
+  background: var(--bb-surface);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.bb-cal-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.bb-cal-table thead th {
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bb-text-secondary);
+  border-bottom: 2px solid var(--bb-border);
+}
+
+.bb-cal-cell {
+  height: 80px;
+  vertical-align: top;
+  padding: 4px;
+  border: 1px solid var(--bb-border);
+  background: var(--bb-bg);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.bb-cal-cell:hover {
+  background: var(--bb-surface-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.bb-cal-empty {
+  background: var(--bb-surface-dim);
+  pointer-events: none;
+}
+
+/* 日期数字 */
+.bb-cal-day-num {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bb-text-primary);
+  text-align: right;
+  padding: 2px 4px;
+  user-select: none;
+}
+
+/* 今天高亮 */
+.bb-cal-today .bb-cal-day-num {
+  background: var(--bb-primary);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.bb-cal-today {
+  background: var(--bb-primary-dim) !important;
+  border-color: var(--bb-primary) !important;
+}
+
+/* 选中日期 */
+.bb-cal-selected {
+  background: var(--bb-accent-dim) !important;
+  border: 2px solid var(--bb-accent) !important;
+  box-shadow: 0 0 0 2px var(--bb-accent-dim);
+}
+
+/* 节日标签栏 */
+.bb-cal-holiday-bar {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  padding: 0 2px;
+}
+
+.bb-cal-holiday-tag {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.bb-cal-holiday-more {
+  font-size: 10px;
+  color: var(--bb-text-secondary);
+  background: var(--bb-surface);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+/* 事件圆点栏 */
+.bb-cal-event-bar {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.bb-cal-event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bb-primary);
+  display: inline-block;
+}
+
+.bb-cal-event-more {
+  font-size: 10px;
+  color: var(--bb-text-secondary);
+  margin-left: 2px;
+}
+
+/* 聚合数据徽章 */
+.bb-cal-aggregate-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: var(--bb-accent);
+  color: white;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 10px;
+  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ────────────────────────────────────────────
+   周视图
+   ──────────────────────────────────────────── */
+.bb-cal-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.bb-cal-week-col {
+  background: var(--bb-bg);
+  border: 1px solid var(--bb-border);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.bb-cal-week-col:hover {
+  border-color: var(--bb-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.bb-cal-week-header {
+  background: var(--bb-surface);
+  padding: 8px;
+  text-align: center;
+  border-bottom: 2px solid var(--bb-border);
+}
+
+.bb-cal-week-header.bb-cal-today {
+  background: var(--bb-primary);
+  color: white;
+  border-bottom-color: var(--bb-primary);
+}
+
+.bb-cal-week-weekday {
+  font-size: 11px;
+  color: var(--bb-text-secondary);
+  font-weight: 500;
+}
+
+.bb-cal-week-header.bb-cal-today .bb-cal-week-weekday {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bb-cal-week-date {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--bb-text-primary);
+  margin-top: 2px;
+}
+
+.bb-cal-week-header.bb-cal-today .bb-cal-week-date {
+  color: white;
+}
+
+.bb-cal-week-events {
+  padding: 8px;
+  min-height: 100px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.bb-cal-week-event {
+  font-size: 12px;
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background: var(--bb-surface);
+  border-left: 3px solid var(--bb-primary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bb-cal-week-event:hover {
+  background: var(--bb-surface-hover);
+  transform: translateX(2px);
+}
+
+.bb-cal-holiday-event {
+  border-left-color: var(--bb-accent);
+  background: var(--bb-accent-dim);
+}
+
+.bb-cal-week-aggregate {
+  font-size: 11px;
+  color: var(--bb-text-secondary);
+  padding: 4px 6px;
+  text-align: center;
+  background: var(--bb-primary-dim);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bb-cal-week-aggregate:hover {
+  background: var(--bb-primary);
+  color: white;
+}
+
+/* ────────────────────────────────────────────
+   日视图
+   ──────────────────────────────────────────── */
+.bb-cal-day-detail {
+  padding: 16px;
+}
+
+.bb-cal-day-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--bb-primary-dim) 0%, var(--bb-surface) 100%);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.bb-cal-day-big-num {
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--bb-primary);
+  line-height: 1;
+  min-width: 80px;
+  text-align: center;
+}
+
+.bb-cal-day-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--bb-text-secondary);
+}
+
+.bb-cal-today-badge {
+  display: inline-block;
+  background: var(--bb-primary);
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.bb-cal-day-season {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bb-surface);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.bb-cal-season-icon {
+  font-size: 24px;
+}
+
+.bb-cal-season-name {
+  font-weight: 600;
+  color: var(--bb-text-primary);
+}
+
+.bb-cal-season-context {
+  color: var(--bb-text-secondary);
+  margin-left: 8px;
+}
+
+.bb-cal-day-section {
+  margin-bottom: 20px;
+}
+
+.bb-cal-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bb-text-primary);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--bb-border);
+}
+
+.bb-cal-day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bb-cal-day-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bb-bg);
+  border: 1px solid var(--bb-border);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.bb-cal-day-item:hover {
+  border-color: var(--bb-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.bb-cal-holiday-item {
+  border-left: 3px solid var(--bb-accent);
+  background: var(--bb-accent-dim);
+}
+
+.bb-cal-event-item {
+  border-left: 3px solid var(--bb-primary);
+}
+
+.bb-cal-item-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bb-cal-item-content {
+  flex: 1;
+}
+
+.bb-cal-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bb-text-primary);
+  margin-bottom: 4px;
+}
+
+.bb-cal-item-desc {
+  font-size: 13px;
+  color: var(--bb-text-secondary);
+  line-height: 1.5;
+}
+
+.bb-cal-add-event-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* ────────────────────────────────────────────
+   每日聚合面板（弹出式）
+   ──────────────────────────────────────────── */
+.bb-calendar-aggregate {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 60vh;
+  background: var(--bb-surface);
+  border-top: 2px solid var(--bb-primary);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-calendar-aggregate.bb-cal-aggregate-show {
+  transform: translateY(0);
+}
+
+.bb-calendar-aggregate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bb-primary-dim);
+  border-bottom: 1px solid var(--bb-border);
+}
+
+#bb-cal-agg-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--bb-text-primary);
+}
+
+.bb-calendar-aggregate-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.bb-cal-agg-section {
+  margin-bottom: 24px;
+}
+
+.bb-cal-agg-section:last-child {
+  margin-bottom: 0;
+}
+
+.bb-cal-agg-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bb-text-primary);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--bb-border);
+}
+
+.bb-cal-agg-item {
+  background: var(--bb-bg);
+  border: 1px solid var(--bb-border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.bb-cal-agg-item:last-child {
+  margin-bottom: 0;
+}
+
+.bb-cal-agg-item-meta {
+  font-size: 11px;
+  color: var(--bb-text-secondary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-cal-agg-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bb-text-primary);
+  margin-bottom: 6px;
+}
+
+.bb-cal-agg-item-content {
+  font-size: 13px;
+  color: var(--bb-text-secondary);
+  line-height: 1.6;
+}
+
+.bb-cal-chronicle-item {
+  border-left: 3px solid var(--bb-accent);
+}
+
+.bb-chronicle-importance {
+  color: var(--bb-accent);
+  font-size: 12px;
+}
+
+.bb-chronicle-category {
+  background: var(--bb-primary-dim);
+  color: var(--bb-primary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ────────────────────────────────────────────
+   事件编辑模态框
+   ──────────────────────────────────────────── */
+.bb-cal-event-modal {
+  max-width: 500px;
+}
+
+.bb-form-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* ────────────────────────────────────────────
+   模板编辑模态框
+   ──────────────────────────────────────────── */
+.bb-cal-template-modal {
+  max-width: 600px;
+  max-height: 85vh;
+}
+
+.bb-modal-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.bb-cal-tpl-list {
+  border: 1px solid var(--bb-border);
+  border-radius: 6px;
+  padding: 8px;
+  background: var(--bb-bg);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.bb-cal-tpl-list-header {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bb-text-secondary);
+  border-bottom: 1px solid var(--bb-border);
+  margin-bottom: 4px;
+}
+
+.bb-cal-tpl-month-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.bb-cal-tpl-weekday-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.bb-cal-tpl-leap-config {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--bb-surface-dim);
+  border-radius: 6px;
+  border-left: 3px solid var(--bb-primary);
+}
+
+/* ────────────────────────────────────────────
+   时间锚点面板
+   ──────────────────────────────────────────── */
+.bb-anchor-modal {
+  max-width: 450px;
+}
+
+.bb-anchor-status {
+  padding: 12px;
+  background: var(--bb-surface);
+  border-radius: 6px;
+  border-left: 3px solid var(--bb-primary);
+}
+
+.bb-anchor-date {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--bb-primary);
+  margin-top: 8px;
+}
+
+.bb-anchor-advance {
+  flex: 1;
+}
+
+/* ────────────────────────────────────────────
+   响应式设计
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* 月视图：减少单元格高度 */
+  .bb-cal-cell {
+    height: 60px;
+    font-size: 12px;
+  }
+
+  .bb-cal-day-num {
+    font-size: 12px;
+  }
+
+  .bb-cal-today .bb-cal-day-num {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* 周视图：堆叠显示 */
+  .bb-cal-week-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 日视图：缩小头部 */
+  .bb-cal-day-big-num {
+    font-size: 40px;
+    min-width: 60px;
+  }
+
+  /* 聚合面板：扩大到80vh */
+  .bb-calendar-aggregate {
+    max-height: 80vh;
+  }
+
+  /* 模态框：全屏 */
+  .bb-cal-event-modal,
+  .bb-cal-template-modal,
+  .bb-anchor-modal {
+    width: 95%;
+    max-width: 95%;
+  }
+}
+
+/* ────────────────────────────────────────────
+   深色模式增强（如果你的主题有深色模式变量）
+   ──────────────────────────────────────────── */
+[data-theme="dark"] .bb-cal-cell {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .bb-cal-cell:hover {
+  background: #252525;
+}
+
+[data-theme="dark"] .bb-cal-today {
+  background: rgba(201, 160, 220, 0.15) !important;
+}
+
+[data-theme="dark"] .bb-calendar-season-bar {
+  background: linear-gradient(135deg, rgba(201, 160, 220, 0.1) 0%, #1a1a1a 100%);
+}
+
+/* ═══════════════ 日历样式结束 ═══════════════ */
+
 
 /* ============================================================
    END OF style.css — 骨与血(Bone & Blood) v7.1
