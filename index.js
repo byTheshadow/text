@@ -4284,6 +4284,13 @@ function renderAll() {
     // 编年史
   renderChronicleTimeline();
   updateChronicleStats();
+    // 渲染日历（如果当前在日历子Tab）
+  if (typeof renderCalendarCurrentView === 'function') {
+    const activeSubTab = $('.bb-sub-tab-btn.bb-sub-tab-active[data-subtab]').data('subtab');
+    if (activeSubTab === 'diary-calendar') {
+      renderCalendarCurrentView();
+    }
+  }
 }
 
 // ── 主面板事件绑定 ──
