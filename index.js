@@ -8688,27 +8688,6 @@ function getFirstDayOfMonth(templateId, year, month) {
 
   return totalDays % daysPerWeek;
 }
-
-/**
- * 获取今天的日期（根据模式）
- * @returns {{year: number, month: number, day: number}}
- */
-function getCalendarToday() {
-  const settings = getSettings();
-
-  if (calendarState.mode === 'rp' && settings.calendar?.rp_current_date) {
-    return { ...settings.calendar.rp_current_date };
-  }
-
-  // 现实时间
-  const now = new Date();
-  return {
-    year: now.getFullYear(),
-    month: now.getMonth(),
-    day: now.getDate(),
-  };
-}
-
 /**
  * 比较两个日期是否相同
  */
