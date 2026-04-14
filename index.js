@@ -2148,6 +2148,18 @@ function applyCustomFont() {
     style.textContent = css;
     document.head.appendChild(style);
   }
+    // 恢复日历设置
+  if (s.calendar) {
+    $('#bb-set-calendar-enabled').prop('checked', s.calendar.enabled !== false);
+    $('#bb-set-calendar-template').val(s.calendar.template_id || 'gregorian');
+    $('#bb-set-calendar-week-start').val(s.calendar.week_start || 1);
+    $('#bb-set-calendar-show-holidays').prop('checked', s.calendar.show_holidays !== false);
+    $('#bb-set-calendar-show-seasons').prop('checked', s.calendar.show_seasons !== false);
+    $('#bb-set-calendar-inject-macros').prop('checked', s.calendar.inject_macros !== false);
+    $('#bb-set-calendar-aggregate-diary').prop('checked', s.calendar.aggregate_show_diary !== false);
+    $('#bb-set-calendar-aggregate-chronicle').prop('checked', s.calendar.aggregate_show_chronicle !== false);
+  }
+
 }
 
 
