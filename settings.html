@@ -1,15 +1,1195 @@
-<!--═══════════════════════════════════════════🦴骨与血 (Bone & Blood) v7.1— 设置面板暗黑风格 · 支持主题切换═══════════════════════════════════════════ -->
-<link rel="stylesheet" href="settings-styles.css">
+<!-- ═══════════════════════════════════════════
+🦴骨与血 (Bone & Blood) v7.1
+— 设置面板暗黑风格 · 支持主题切换
+═══════════════════════════════════════════ -->
+
+<!-- ✅ 修复：CSS已内联，移除了外链<link>标签（SillyTavern不支持外链CSS，MIME类型会报错） -->
+<style>
+/*── Settings面板暗黑主题 ── */
+/* 引入字体 — 哥特 + 衬线 + 等宽 */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=MedievalSharp&family=UnifrakturMaguntia&family=Noto+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+#bb-settings-panel {
+  --bbs-bg: #08080c;
+  --bbs-bg-section: #0e0e14;
+  --bbs-bg-input: #12121a;
+  --bbs-bg-hover: #1a1a24;
+  --bbs-border: rgba(120,100,160,0.08);
+  --bbs-border-focus: rgba(180,140,220,0.25);
+  --bbs-text: #b8b0c8;
+  --bbs-text-dim: #706888;
+  --bbs-text-bright: #e0d8f0;
+  --bbs-accent: #9b6dff;
+  --bbs-accent-dark: #7b4dd0;
+  --bbs-accent-glow: rgba(155,109,255,0.15);
+  --bbs-danger: #ff5c6a;
+  --bbs-success: #3dd68c;
+  --bbs-radius: 10px;
+  --bbs-section-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --bbs-header-gradient: linear-gradient(135deg, #0c0a18 0%, #14101e 50%, #0a0812 100%);
+  --bbs-glow-line: linear-gradient(90deg, transparent, var(--bbs-accent) 30%, var(--bbs-accent) 70%, transparent);
+}
+
+#bb-settings-panel .inline-drawer-content {
+  background: var(--bbs-bg) !important;
+  color: var(--bbs-text) !important;
+  padding: 0 !important;
+}
+
+#bb-settings-panel .inline-drawer-header {
+  background: var(--bbs-header-gradient) !important;
+  border-bottom: 1px solid var(--bbs-border) !important;
+  padding: 14px 18px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 顶部标题栏装饰光线 */
+#bb-settings-panel .inline-drawer-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--bbs-glow-line);
+  opacity: 0.5;
+}
+
+#bb-settings-panel .inline-drawer-header b {
+  color: var(--bbs-accent) !important;
+  font-size: 15px !important;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 20px var(--bbs-accent-glow);
+}
+
+/* ═══ 区块样式 ═══ */
+.bbs-section {
+  background: var(--bbs-bg-section);
+  border: 1px solid var(--bbs-border);
+  border-radius: var(--bbs-radius);
+  margin: 8px 10px;
+  overflow: hidden;
+  box-shadow: var(--bbs-section-shadow);
+  position: relative;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.bbs-section:hover {
+  border-color: rgba(155,109,255,0.12);
+}
+
+/* 区块左侧装饰线 */
+.bbs-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--bbs-accent), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.bbs-section.open::before {
+  opacity: 0.6;
+}
+
+.bbs-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.bbs-section-header:hover {
+  background: var(--bbs-bg-hover);
+}
+
+.bbs-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bbs-text-bright);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Noto Serif SC', serif;
+  letter-spacing: 0.5px;
+}
+
+.bbs-section-arrow {
+  font-size: 10px;
+  color: var(--bbs-text-dim);
+  transition: transform 0.25s ease, color 0.25s;
+}
+
+.bbs-section.open .bbs-section-arrow {
+  transform: rotate(180deg);
+  color: var(--bbs-accent);
+}
+
+.bbs-section-body {
+  display: none;
+  padding: 14px 16px;
+  border-top: 1px solid var(--bbs-border);
+  animation: bbs-body-reveal 0.25s ease;
+}
+
+@keyframes bbs-body-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bbs-section.open .bbs-section-body {
+  display: block;
+}
+
+/* ═══ 表单元素 ═══ */
+.bbs-field {
+  margin-bottom: 12px;
+}
+
+.bbs-label {
+  display: block;
+  font-size: 12px;
+  color: var(--bbs-text-dim);
+  margin-bottom: 5px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.bbs-hint {
+  font-size: 11px;
+  color: var(--bbs-text-dim);
+  margin-top: 3px;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+#bb-settings-panel input[type="text"],
+#bb-settings-panel input[type="password"],
+#bb-settings-panel input[type="number"],
+#bb-settings-panel input[type="url"],
+#bb-settings-panel select,
+#bb-settings-panel textarea {
+  width: 100%;
+  background: var(--bbs-bg-input) !important;
+  border: 1px solid var(--bbs-border) !important;
+  border-radius: 8px !important;
+  color: var(--bbs-text) !important;
+  padding: 9px 12px !important;
+  font-size: 13px !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+  box-sizing: border-box;
+}
+
+#bb-settings-panel input:focus,
+#bb-settings-panel select:focus,
+#bb-settings-panel textarea:focus {
+  border-color: var(--bbs-accent) !important;
+  box-shadow: 0 0 0 2px var(--bbs-accent-glow) !important;
+  outline: none !important;
+}
+
+#bb-settings-panel textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* ═══ 按钮 ═══ */
+.bbs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--bbs-border);
+  background: var(--bbs-bg-input);
+  color: var(--bbs-text);
+  transition: all 0.2s;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.bbs-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent);
+  pointer-events: none;
+}
+
+.bbs-btn:hover {
+  background: var(--bbs-bg-hover);
+  border-color: var(--bbs-border-focus);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+}
+
+.bbs-btn:active {
+  transform: translateY(0);
+}
+
+.bbs-btn-primary {
+  background: linear-gradient(135deg, var(--bbs-accent-dark), var(--bbs-accent));
+  border-color: var(--bbs-accent);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.bbs-btn-primary:hover {
+  background: linear-gradient(135deg, var(--bbs-accent), var(--bbs-accent-dark));
+  box-shadow: 0 4px 16px var(--bbs-accent-glow);
+}
+
+.bbs-btn-danger {
+  border-color: rgba(255,92,106,0.25);
+  color: var(--bbs-danger);
+}
+
+.bbs-btn-danger:hover {
+  background: rgba(255,92,106,0.08);
+  border-color: rgba(255,92,106,0.4);
+  box-shadow: 0 4px 16px rgba(255,92,106,0.1);
+}
+
+.bbs-btn-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.bbs-btn-sm {
+  padding: 5px 10px;
+  font-size: 11px;
+}
+
+/* ═══ 复选框 ═══ */
+.bbs-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--bbs-text);
+  padding: 5px 0;
+  transition: color 0.15s;
+}
+
+.bbs-checkbox:hover {
+  color: var(--bbs-text-bright);
+}
+
+.bbs-checkbox input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: var(--bbs-accent);
+  cursor: pointer;
+}
+
+/* ═══ 行内两列 ═══ */
+.bbs-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.bbs-row > * {
+  flex: 1;
+}
+
+/* ═══ 分割线 ═══ */
+.bbs-divider {
+  border: none;
+  border-top: 1px solid var(--bbs-border);
+  margin: 14px 0;
+}
+
+/* ═══ 版本信息 ═══ */
+.bbs-version {
+  text-align: center;
+  padding: 10px;
+  font-size: 11px;
+  color: var(--bbs-text-dim);
+  border-top: 1px solid var(--bbs-border);
+  margin: 8px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* ═══ 预设编辑器 ═══ */
+#bb-preset-editor,
+#bb-ooc-preset-editor {
+  display: none;
+  padding: 14px;
+  border-top: 1px solid var(--bbs-border);
+  background: rgba(0,0,0,0.25);
+  border-radius: 0 0 var(--bbs-radius) var(--bbs-radius);
+}
+
+/* ═══ 布局选项卡 ═══ */
+.bb-layout-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border: 1px solid var(--bbs-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--bbs-text-dim);
+  background: var(--bbs-bg-input);
+  transition: all 0.2s;
+}
+
+.bb-layout-option:hover {
+  border-color: var(--bbs-border-focus);
+  color: var(--bbs-text);
+}
+
+.bb-layout-option.active {
+  border-color: var(--bbs-accent);
+  color: var(--bbs-accent);
+  background: var(--bbs-accent-glow);
+  box-shadow: 0 0 12px var(--bbs-accent-glow);
+}
+
+/* ═══ CSS模板按钮 ═══ */
+.bb-css-tpl-btn {
+  display: inline-flex;
+  padding: 5px 10px;
+  border: 1px solid var(--bbs-border);
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  background: var(--bbs-bg-input);
+  color: var(--bbs-text-dim);
+  transition: all 0.2s;
+}
+
+.bb-css-tpl-btn:hover {
+  border-color: var(--bbs-accent);
+  color: var(--bbs-accent);
+  box-shadow: 0 0 8px var(--bbs-accent-glow);
+}
+
+/* ═══ 歌单列表 ═══ */
+#bb-music-playlist-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--bbs-border);
+  border-radius: 8px;
+  background: var(--bbs-bg-input);
+}
+
+/* ═══ 滚动条 ═══ */
+/* ✅ 修复：移除了非法的 ::-webkit-scrollbar-track:focus-visible 伪类链式写法 */
+#bb-settings-panel ::-webkit-scrollbar {
+  width: 4px;
+}
+#bb-settings-panel ::-webkit-scrollbar-track {
+  background: transparent;
+}
+#bb-settings-panel ::-webkit-scrollbar-thumb {
+  background: rgba(155,109,255,0.2);
+  border-radius: 2px;
+}
+#bb-settings-panel ::-webkit-scrollbar-thumb:hover {
+  background: rgba(155,109,255,0.35);
+}
+
+/* ═══ 主题切换动画 ═══ */
+#bb-settings-panel {
+  transition: all 0.4s ease;
+}
+
+/* ═══ 主题切换按钮栏 ═══ */
+.bbs-theme-bar {
+  display: flex;
+  gap: 4px;
+  padding: 10px 12px;
+  justify-content: center;
+  border-bottom: 1px solid var(--bbs-border);
+  background: rgba(0,0,0,0.2);
+}
+
+.bbs-settings-theme {
+  position: relative;
+}
+
+.bbs-settings-theme.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  background: var(--bbs-accent);
+  border-radius: 1px;
+}
+
+/* ══════════════════════════════════════════
+   主题变体 — 每个主题有显著视觉差异
+══════════════════════════════════════════ */
+
+/* 🩸 哥特 — 深红血色，暗黑教堂感 */
+#bb-settings-panel.bbs-theme-gothic {
+  --bbs-bg: #080404;
+  --bbs-bg-section: #120808;
+  --bbs-bg-input: #180c0c;
+  --bbs-bg-hover: #241212;
+  --bbs-border: rgba(180,40,40,0.1);
+  --bbs-border-focus: rgba(200,60,60,0.3);
+  --bbs-text: #c8a8a8;
+  --bbs-text-dim: #885858;
+  --bbs-text-bright: #f0d0d0;
+  --bbs-accent: #c83030;
+  --bbs-accent-dark: #901818;
+  --bbs-accent-glow: rgba(200,48,48,0.15);
+  --bbs-danger: #ff4040;
+  --bbs-success: #40a060;
+  --bbs-header-gradient: linear-gradient(135deg, #100404 0%, #180808 50%, #0c0202 100%);
+  --bbs-glow-line: linear-gradient(90deg, transparent, #c83030 30%, #c83030 70%, transparent);
+}
+
+/* 💜 紫调 — 深紫星空，神秘魔法感 */
+#bb-settings-panel.bbs-theme-purple {
+  --bbs-bg: #06040e;
+  --bbs-bg-section: #0e0818;
+  --bbs-bg-input: #140c22;
+  --bbs-bg-hover: #1e1430;
+  --bbs-border: rgba(160,100,240,0.1);
+  --bbs-border-focus: rgba(180,120,255,0.3);
+  --bbs-text: #c0b0e0;
+  --bbs-text-dim: #7860a8;
+  --bbs-text-bright: #e8d8ff;
+  --bbs-accent: #a855f7;
+  --bbs-accent-dark: #7c3aed;
+  --bbs-accent-glow: rgba(168,85,247,0.15);
+  --bbs-danger: #f472b6;
+  --bbs-success: #34d399;
+  --bbs-header-gradient: linear-gradient(135deg, #08041a 0%, #120828 50%, #060214 100%);
+  --bbs-glow-line: linear-gradient(90deg, transparent, #a855f7 20%, #7c3aed 50%, #a855f7 80%, transparent);
+}
+
+/* 🌊 海洋 — 深海蓝绿，赛博科技感 */
+#bb-settings-panel.bbs-theme-ocean {
+  --bbs-bg: #020a0e;
+  --bbs-bg-section: #061218;
+  --bbs-bg-input: #081a24;
+  --bbs-bg-hover: #0c2430;
+  --bbs-border: rgba(0,200,220,0.08);
+  --bbs-border-focus: rgba(0,220,240,0.25);
+  --bbs-text: #90c8d8;
+  --bbs-text-dim: #4888a0;
+  --bbs-text-bright: #c0f0ff;
+  --bbs-accent: #06b6d4;
+  --bbs-accent-dark: #0891b2;
+  --bbs-accent-glow: rgba(6,182,212,0.12);
+  --bbs-danger: #f97316;
+  --bbs-success: #10b981;
+  --bbs-header-gradient: linear-gradient(135deg, #020c14 0%, #041420 50%, #020810 100%);
+  --bbs-glow-line: linear-gradient(90deg, transparent, #06b6d4 20%, #22d3ee 50%, #06b6d4 80%, transparent);
+}
+
+/* ⬜ 黑白 — 纯粹灰阶，极简克制 */
+#bb-settings-panel.bbs-theme-monochrome {
+  --bbs-bg: #080808;
+  --bbs-bg-section: #101010;
+  --bbs-bg-input: #161616;
+  --bbs-bg-hover: #1e1e1e;
+  --bbs-border: rgba(255,255,255,0.06);
+  --bbs-border-focus: rgba(255,255,255,0.18);
+  --bbs-text: #a0a0a0;
+  --bbs-text-dim: #606060;
+  --bbs-text-bright: #d0d0d0;
+  --bbs-accent: #888;
+  --bbs-accent-dark: #555;
+  --bbs-accent-glow: rgba(255,255,255,0.05);
+  --bbs-danger: #c06060;
+  --bbs-success: #60a060;
+  --bbs-header-gradient: linear-gradient(135deg, #0a0a0a 0%, #121212 50%, #080808 100%);
+  --bbs-glow-line: linear-gradient(90deg, transparent, #666 30%, #666 70%, transparent);
+}
+
+/* ═══════════════════════════════════════════
+  作者的话 — 样式
+═══════════════════════════════════════════ */
+
+.bbs-author-section {
+  border: 1px solid rgba(155, 109, 255, 0.1) !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.bbs-author-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--bbs-glow-line);
+  opacity: 0.7;
+}
+
+.bbs-author-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--bbs-glow-line);
+  opacity: 0.3;
+}
+
+.bbs-author-section .bbs-section-header {
+  background: linear-gradient(135deg,
+    rgba(155, 109, 255, 0.06),
+    rgba(240, 168, 200, 0.03)
+  );
+}
+
+.bbs-author-icon {
+  font-size: 18px;
+  animation: bb-bone-pulse 3s ease-in-out infinite;
+}
+
+@keyframes bb-bone-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); }
+}
+
+.bbs-author-title-text {
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--bbs-accent, #9b6dff), #f0a8c8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bbs-version-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--bbs-accent-glow);
+  color: var(--bbs-accent, #9b6dff);
+  border: 1px solid rgba(155, 109, 255, 0.2);
+  margin-left: 6px;
+  letter-spacing: 0.5px;
+}
+
+.bbs-author-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: linear-gradient(135deg,
+    rgba(155, 109, 255, 0.06),
+    rgba(0, 0, 0, 0.3)
+  );
+  border-bottom: 1px solid var(--bbs-border);
+  position: relative;
+}
+
+.bbs-author-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, var(--bbs-accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.bbs-author-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--bbs-accent-dark, #7b4dd0), #d87ea8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #fff;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(155, 109, 255, 0.25);
+  position: relative;
+}
+
+.bbs-author-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 16px;
+  border: 1px solid rgba(155, 109, 255, 0.25);
+  animation: bb-avatar-glow 4s ease-in-out infinite;
+}
+
+@keyframes bb-avatar-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(155, 109, 255, 0); }
+  50% { box-shadow: 0 0 16px 3px rgba(155, 109, 255, 0.2); }
+}
+
+.bbs-author-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bbs-author-name {
+  font-family: 'Cinzel', 'Noto Serif SC', serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--bbs-text-bright, #e0d8f0);
+  letter-spacing: 2px;
+}
+
+.bbs-author-sub {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 11px;
+  color: var(--bbs-text-dim, #706888);
+  margin-left: 6px;
+  font-weight: 400;
+}
+
+.bbs-author-tagline {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: var(--bbs-text-dim, #706888);
+  margin-top: 5px;
+  letter-spacing: 3px;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+/* ═══ 快捷链接按钮 ═══ */
+.bbs-author-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 12px;
+  border-bottom: 1px solid var(--bbs-border);
+}
+
+.bbs-author-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--bbs-bg-input, #12121a);
+  border: 1px solid var(--bbs-border);
+  color: var(--bbs-text, #b8b0c8);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-decoration: none;
+  font-family: 'Cinzel', 'JetBrains Mono', serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.bbs-author-link-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.02), transparent);
+  pointer-events: none;
+}
+
+.bbs-author-link-btn:hover {
+  background: var(--bbs-bg-hover, #1a1a24);
+  border-color: var(--bbs-accent, #9b6dff);
+  color: var(--bbs-accent, #9b6dff);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.bbs-link-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ═══ 弹出信息区 ═══ */
+.bbs-author-msg-area {
+  padding: 0 12px;
+  overflow: hidden;
+}
+
+.bbs-author-msg-content {
+  padding: 14px 16px;
+  margin: 8px 0;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+  font-family: 'Noto Serif SC', serif;
+  animation: bbs-msg-appear 0.3s ease;
+  position: relative;
+}
+
+@keyframes bbs-msg-appear {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bbs-author-msg-content.bbs-msg-bug {
+  background: rgba(255, 64, 64, 0.06);
+  border: 1px solid rgba(255, 64, 64, 0.15);
+  color: #f0a0a0;
+}
+
+.bbs-author-msg-content.bbs-msg-group {
+  background: rgba(6, 182, 212, 0.06);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+  color: #90c8e8;
+}
+
+.bbs-author-msg-content.bbs-msg-support {
+  background: rgba(155, 109, 255, 0.06);
+  border: 1px solid rgba(155, 109, 255, 0.15);
+  color: var(--bbs-accent, #9b6dff);
+}
+
+.bbs-author-msg-content .bbs-msg-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  cursor: pointer;
+  opacity: 0.4;
+  font-size: 14px;
+  transition: opacity 0.15s;
+}
+
+.bbs-author-msg-content .bbs-msg-close:hover {
+  opacity: 1;
+}
+
+/* ═══ 更新日志 ═══ */
+.bbs-author-changelog {
+  padding: 14px;
+}
+
+.bbs-changelog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bbs-text-bright, #e0d8f0);
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.bbs-changelog-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bbs-accent, #9b6dff);
+  box-shadow: 0 0 10px var(--bbs-accent, #9b6dff);
+  animation: bb-dot-blink 2s ease-in-out infinite;
+}
+
+@keyframes bb-dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.bbs-changelog-date {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--bbs-text-dim, #706888);
+  font-weight: 400;
+}
+
+.bbs-changelog-body {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.bbs-changelog-body::-webkit-scrollbar {
+  width: 3px;
+}
+
+.bbs-changelog-body::-webkit-scrollbar-thumb {
+  background: rgba(155, 109, 255, 0.2);
+  border-radius: 2px;
+}
+
+.bbs-changelog-entry {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--bbs-border);
+}
+
+.bbs-changelog-entry:last-of-type {
+  border-bottom: none;
+}
+
+.bbs-changelog-ver {
+  font-family: 'Cinzel', 'JetBrains Mono', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bbs-accent, #9b6dff);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bbs-changelog-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.bbs-tag-new {
+  background: rgba(61, 214, 140, 0.15);
+  color: #3dd68c;
+  border: 1px solid rgba(61, 214, 140, 0.25);
+}
+
+.bbs-tag-fix {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.25);
+}
+
+.bbs-tag-breaking {
+  background: rgba(255, 92, 106, 0.15);
+  color: #ff5c6a;
+  border: 1px solid rgba(255, 92, 106, 0.25);
+}
+
+.bbs-changelog-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bbs-changelog-list li {
+  font-size: 12px;
+  color: var(--bbs-text, #b8b0c8);
+  padding: 3px 0 3px 18px;
+  position: relative;
+  line-height: 1.6;
+  font-family: 'Noto Serif SC', system-ui, sans-serif;
+}
+
+.bbs-changelog-list li::before {
+  content: '›';
+  position: absolute;
+  left: 4px;
+  color: var(--bbs-accent, #9b6dff);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* ═══ 碎碎念 ═══ */
+.bbs-author-murmur {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,
+    rgba(155, 109, 255, 0.04),
+    rgba(240, 168, 200, 0.02)
+  );
+  border: 1px solid rgba(155, 109, 255, 0.08);
+  position: relative;
+}
+
+.bbs-author-murmur::before {
+  content: '"';
+  position: absolute;
+  top: 4px;
+  left: 10px;
+  font-size: 40px;
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--bbs-accent, #9b6dff);
+  opacity: 0.12;
+  line-height: 1;
+}
+
+.bbs-murmur-title {
+  font-family: 'Cinzel', 'Noto Serif SC', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bbs-text-bright, #e0d8f0);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.bbs-author-murmur p {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: var(--bbs-text-dim, #706888);
+  line-height: 1.8;
+  margin: 0 0 6px 0;
+  text-indent: 2em;
+}
+
+.bbs-murmur-sign {
+  text-align: right;
+  font-style: italic;
+  color: var(--bbs-text-dim, #706888) !important;
+  font-size: 11px !important;
+  text-indent: 0 !important;
+  margin-top: 10px !important;
+}
+
+/* ═══ 作品展示 ═══ */
+.bbs-author-works {
+  padding: 14px;
+  border-bottom: 1px solid var(--bbs-border);
+}
+
+.bbs-works-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bbs-text-dim, #706888);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.bbs-works-cross {
+  color: var(--bbs-accent, #9b6dff);
+  opacity: 0.5;
+  font-size: 10px;
+}
+
+.bbs-works-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bbs-work-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--bbs-bg-input, #12121a);
+  border: 1px solid var(--bbs-border);
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.bbs-work-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 3px 0 0 3px;
+  transition: all 0.25s;
+}
+
+.bbs-work-gemini::before { background: linear-gradient(180deg, #7b68ee, #4169e1); }
+.bbs-work-claude::before { background: linear-gradient(180deg, #d4a574, #c87533); }
+.bbs-work-fire::before   { background: linear-gradient(180deg, #e85050, #c03030); }
+
+.bbs-work-card:hover {
+  border-color: rgba(255,255,255,0.1);
+  transform: translateX(6px);
+  background: var(--bbs-bg-hover, #1a1a24);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.bbs-work-card:hover::before { width: 4px; }
+.bbs-work-gemini:hover::before { box-shadow: 0 0 14px rgba(123,104,238,0.4); }
+.bbs-work-claude:hover::before { box-shadow: 0 0 14px rgba(212,165,116,0.4); }
+.bbs-work-fire:hover::before   { box-shadow: 0 0 14px rgba(232,80,80,0.4); }
+
+.bbs-work-icon {
+  font-size: 22px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  flex-shrink: 0;
+}
+
+.bbs-work-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bbs-work-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bbs-text-bright, #e0d8f0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.5px;
+}
+
+.bbs-work-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--bbs-text-dim, #706888);
+  margin-top: 3px;
+  letter-spacing: 0.5px;
+}
+
+.bbs-work-gemini .bbs-work-tag { color: #7b68ee; }
+.bbs-work-claude .bbs-work-tag { color: #d4a574; }
+.bbs-work-fire .bbs-work-tag   { color: #e87878; }
+
+.bbs-work-arrow {
+  font-size: 18px;
+  color: var(--bbs-text-dim, #706888);
+  flex-shrink: 0;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.bbs-work-card:hover .bbs-work-arrow {
+  transform: translateX(4px);
+  color: var(--bbs-text-bright, #e0d8f0);
+}
+
+/* ═══ 自定义字体预览 ═══ */
+.bbs-font-preview {
+  padding: 16px;
+  margin: 10px 0;
+  border: 1px solid var(--bbs-border);
+  border-radius: 10px;
+  background: var(--bbs-bg-input);
+  text-align: center;
+}
+
+#bb-font-preview-text {
+  font-size: 18px;
+  color: var(--bbs-text-bright);
+  line-height: 1.6;
+  letter-spacing: 1px;
+}
+
+.bbs-font-quick {
+  transition: all 0.2s !important;
+}
+
+.bbs-font-quick:hover {
+  border-color: var(--bbs-accent) !important;
+  color: var(--bbs-accent) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--bbs-accent-glow) !important;
+}
+
+/* ═══ bb-settings-section (记忆琥珀 / 编年史 / 日历) ═══ */
+.bb-settings-section {
+  background: var(--bbs-bg-section);
+  border: 1px solid var(--bbs-border);
+  border-radius: var(--bbs-radius);
+  margin: 8px 10px;
+  padding: 14px 16px;
+  box-shadow: var(--bbs-section-shadow);
+}
+
+.bb-settings-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bbs-text-bright);
+  margin: 0 0 12px 0;
+  letter-spacing: 0.5px;
+}
+
+.bb-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--bbs-text);
+}
+
+.bb-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.bb-toggle {
+  accent-color: var(--bbs-accent);
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.bb-input {
+  background: var(--bbs-bg-input) !important;
+  border: 1px solid var(--bbs-border) !important;
+  border-radius: 6px !important;
+  color: var(--bbs-text) !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+}
+
+.bb-text-xs {
+  font-size: 11px;
+}
+
+.bb-text-muted {
+  color: var(--bbs-text-dim);
+  opacity: 0.7;
+}
+
+.bb-text-warning {
+  color: #f59e0b;
+}
+</style>
 
 <div id="bb-settings-panel">
   <div class="inline-drawer">
     <div class="inline-drawer-toggle inline-drawer-header">
-      <b>🦴骨与血Bone & Blood</b>
+      <b>🦴骨与血Bone &amp; Blood</b>
       <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
     </div>
     <div class="inline-drawer-content">
 
-      <!--═══ 设置面板主题切换 ═══ -->
+      <!-- ═══ 设置面板主题切换 ═══ -->
       <div class="bbs-theme-bar">
         <button class="bbs-btn bbs-btn-sm bbs-settings-theme" data-theme="">🖤暗黑</button>
         <button class="bbs-btn bbs-btn-sm bbs-settings-theme" data-theme="purple">💜 紫调</button>
@@ -18,7 +1198,7 @@
         <button class="bbs-btn bbs-btn-sm bbs-settings-theme" data-theme="monochrome">⬜ 黑白</button>
       </div>
 
-      <!--═══ 0. 作者的话 ═══ -->
+      <!-- ═══ 0. 作者的话 ═══ -->
       <div class="bbs-section bbs-author-section">
         <div class="bbs-section-header" onclick="$(this).parent().toggleClass('open')">
           <span class="bbs-section-title">
@@ -30,7 +1210,7 @@
         </div>
         <div class="bbs-section-body" style="padding:0;">
 
-          <!--作者卡片头部 -->
+          <!-- 作者卡片头部 -->
           <div class="bbs-author-header">
             <div class="bbs-author-avatar">影</div>
             <div class="bbs-author-info">
@@ -71,16 +1251,15 @@
               <span>SHADOW's Works</span>
               <span class="bbs-works-cross">✦</span>
             </div>
-
             <div class="bbs-works-grid">
               <div class="bbs-work-card bbs-work-gemini" onclick="window.open('','_blank')">
                 <div class="bbs-work-icon">🌙</div>
                 <div class="bbs-work-info">
                   <div class="bbs-work-name">安息日的个人演出show!</div>
                   <div class="bbs-work-tag">Gemini 预设</div>
-                </div><div class="bbs-work-arrow">›</div>
+                </div>
+                <div class="bbs-work-arrow">›</div>
               </div>
-
               <div class="bbs-work-card bbs-work-claude" onclick="window.open('','_blank')">
                 <div class="bbs-work-icon">⚡</div>
                 <div class="bbs-work-info">
@@ -89,7 +1268,6 @@
                 </div>
                 <div class="bbs-work-arrow">›</div>
               </div>
-
               <div class="bbs-work-card bbs-work-fire" onclick="window.open('','_blank')">
                 <div class="bbs-work-icon">📻</div>
                 <div class="bbs-work-info">
@@ -101,17 +1279,14 @@
             </div>
           </div>
 
-          <!-- 更新日志 /碎碎念 -->
+          <!-- 更新日志 / 碎碎念 -->
           <div class="bbs-author-changelog">
             <div class="bbs-changelog-title">
               <span class="bbs-changelog-dot"></span>
-              <span>更新日志 & 碎碎念</span>
+              <span>更新日志 &amp; 碎碎念</span>
               <span class="bbs-changelog-date">2026.04.12</span>
             </div>
             <div class="bbs-changelog-body">
-
-              <!--═══════════════════════════════════✏️ 每次更新只需要修改这里面的内容！═══════════════════════════════════ -->
-
               <div class="bbs-changelog-entry">
                 <div class="bbs-changelog-ver">v7.1<span class="bbs-changelog-tag bbs-tag-new">NEW</span></div>
                 <ul class="bbs-changelog-list">
@@ -125,7 +1300,6 @@
                   <li>🔧 宏注册系统重写，改用事件监听方式</li>
                 </ul>
               </div>
-
               <div class="bbs-changelog-entry">
                 <div class="bbs-changelog-ver">v7.0</div>
                 <ul class="bbs-changelog-list">
@@ -134,25 +1308,20 @@
                   <li>🎵 内置音乐播放器</li>
                 </ul>
               </div>
-
-              <!--碎碎念 -->
+              <!-- 碎碎念 -->
               <div class="bbs-author-murmur">
                 <div class="bbs-murmur-title">💭 碎碎念</div>
-                <p>
-                  修改了之前API必须要手填的问题，现在可以直接使用下拉栏了！因为改代码来来回回改了很多次，所以总是丢三落四的呜呜
-                </p>
+                <p>修改了之前API必须要手填的问题，现在可以直接使用下拉栏了！因为改代码来来回回改了很多次，所以总是丢三落四的呜呜</p>
                 <p>希望你玩的开心！</p>
                 <p class="bbs-murmur-sign">—— SHADOW ·凌晨三点的碎碎念</p>
               </div>
-
-              <!-- ═══════════════════════════════════✏️ 修改到这里结束
-                   ═══════════════════════════════════ -->
-
             </div>
           </div>
 
         </div>
-      </div><!-- ═══ 1. 基础设置 ═══ -->
+      </div>
+
+      <!-- ═══ 1. 基础设置 ═══ -->
       <div class="bbs-section open">
         <div class="bbs-section-header" onclick="$(this).parent().toggleClass('open')">
           <span class="bbs-section-title">⚙️ 基础设置</span>
@@ -167,18 +1336,20 @@
             <input type="checkbox" id="bb-show-float" />
             <span>显示悬浮球🦴</span>
           </label>
-          <span class="bbs-hint">关闭后可通过设置面板底部的「打开主面板」按钮进入</span><hr class="bbs-divider">
-
+          <span class="bbs-hint">关闭后可通过设置面板底部的「打开主面板」按钮进入</span>
+          <hr class="bbs-divider">
           <label class="bbs-checkbox">
             <input type="checkbox" id="bb-auto-diary" />
-            <span>自动生成日记& 总结</span>
+            <span>自动生成日记&amp; 总结</span>
           </label>
-
           <div class="bbs-field">
             <label class="bbs-label">触发条数（每N条消息自动生成）</label>
             <input type="number" id="bb-diary-trigger" min="5" max="200" />
-          </div></div>
-      </div><!--═══ 2. 副API配置 ═══ -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 2. 副API配置 ═══ -->
       <div class="bbs-section">
         <div class="bbs-section-header" onclick="$(this).parent().toggleClass('open')">
           <span class="bbs-section-title">🔌 副API配置</span>
@@ -196,14 +1367,11 @@
               <button class="bbs-btn bbs-btn-sm" id="bb-toggle-key-vis" style="flex:0 0 auto;">👁</button>
             </div>
           </div>
-
-          <!-- 连接按钮 + 状态 -->
           <div class="bbs-btn-row" style="margin-bottom:8px;">
             <button class="bbs-btn bbs-btn-primary" id="bb-fetch-models">🔗 连接并获取模型</button>
             <button class="bbs-btn" id="bb-test-api">🧪 测试发送</button>
-          </div><div id="bb-api-status" style="font-size:12px;min-height:20px;"></div>
-
-          <!-- 模型选择（下拉框） -->
+          </div>
+          <div id="bb-api-status" style="font-size:12px;min-height:20px;"></div>
           <div class="bbs-field" style="margin-top:8px;">
             <label class="bbs-label">模型</label>
             <div class="bbs-row">
@@ -213,7 +1381,6 @@
               <button class="bbs-btn bbs-btn-sm" id="bb-refresh-models" style="flex:0 0 auto;" title="刷新模型列表">🔄</button>
             </div>
             <span class="bbs-hint">连接API后自动获取可用模型，也可手动输入</span>
-            <!-- 手动输入备用-->
             <div id="bb-model-manual-row" style="margin-top:6px;display:none;">
               <div class="bbs-row">
                 <input type="text" id="bb-api-model-manual" placeholder="手动输入模型名称，如 gpt-4o-mini" />
@@ -242,10 +1409,9 @@
             <button class="bbs-btn" id="bb-preset-import">📥 导入</button>
             <button class="bbs-btn" id="bb-preset-export">📤 导出</button>
           </div>
-
-          <!-- 预设编辑器（展开区域） -->
+          <!-- 预设编辑器 -->
           <div id="bb-preset-editor">
-            <h5id="bb-preset-editor-title" style="color:var(--bbs-accent);margin:0 0 10px;">编辑预设</h5>
+            <h5 id="bb-preset-editor-title" style="color:var(--bbs-accent);margin:0 0 10px;">编辑预设</h5>
             <div class="bbs-field">
               <label class="bbs-label">预设名称</label>
               <input type="text" id="bb-pe-name" />
@@ -264,7 +1430,7 @@
             <div class="bbs-field"><label class="bbs-label">🦋 平行宇宙</label><textarea id="bb-pe-parallel" rows="2"></textarea></div>
             <div class="bbs-field"><label class="bbs-label">📻 世界频段</label><textarea id="bb-pe-world" rows="2"></textarea></div>
             <div class="bbs-field"><label class="bbs-label">💕 情侣空间</label><textarea id="bb-pe-couple" rows="2"></textarea></div>
-            <div class="bbs-field"><label class="bbs-label">🚫屏蔽词（逗号分隔）</label><input type="text" id="bb-pe-blacklist" placeholder="词1,词2" /></div>
+            <div class="bbs-field"><label class="bbs-label">🚫 屏蔽词（逗号分隔）</label><input type="text" id="bb-pe-blacklist" placeholder="词1,词2" /></div>
             <div class="bbs-btn-row">
               <button class="bbs-btn bbs-btn-primary" id="bb-pe-save">💾 保存</button>
               <button class="bbs-btn" id="bb-pe-cancel">取消</button>
@@ -273,7 +1439,7 @@
         </div>
       </div>
 
-      <!-- ═══ 4. OOC预设（独立破墙） ═══ -->
+      <!-- ═══ 4. OOC预设 ═══ -->
       <div class="bbs-section">
         <div class="bbs-section-header" onclick="$(this).parent().toggleClass('open')">
           <span class="bbs-section-title">💬 OOC预设（Burning Star）</span>
@@ -290,8 +1456,7 @@
             <button class="bbs-btn" id="bb-ooc-preset-import">📥 导入</button>
             <button class="bbs-btn" id="bb-ooc-preset-export">📤 导出</button>
           </div>
-
-          <!-- OOC预设编辑器-->
+          <!-- OOC预设编辑器 -->
           <div id="bb-ooc-preset-editor">
             <h5 id="bb-ooc-pe-title" style="color:var(--bbs-accent);margin:8px 0;">编辑OOC预设</h5>
             <div class="bbs-field"><label class="bbs-label">预设名称</label><input type="text" id="bb-ooc-pe-name" /></div>
@@ -359,7 +1524,8 @@
             <div class="bb-layout-option" data-layout="together">🎧 一起听</div>
             <div class="bb-layout-option" data-layout="dashboard">📊 仪表盘</div>
             <div class="bb-layout-option" data-layout="minimalist">✨ 极简</div>
-          </div></div>
+          </div>
+        </div>
       </div>
 
       <!-- ═══ 8. 风格主题（主面板） ═══ -->
@@ -375,9 +1541,10 @@
               <option value="modern">🏠 现代</option>
               <option value="ancient">🏮 古风</option>
               <option value="gothic">🕯️ 哥特</option>
-              <option value="monochrome">🖤黑白</option>
+              <option value="monochrome">🖤 黑白</option>
             </select>
-          </div></div>
+          </div>
+        </div>
       </div>
 
       <!-- ═══ 9. 自定义字体 ═══ -->
@@ -401,11 +1568,11 @@
             <label class="bbs-label">应用范围</label>
             <div style="display:flex;flex-direction:column;gap:4px;">
               <label class="bbs-checkbox"><input type="checkbox" id="bb-font-apply-panel" /><span>主面板全局</span></label>
-              <label class="bbs-checkbox"><input type="checkbox" id="bb-font-apply-title" /><span>标题 & Tab按钮</span></label>
-              <label class="bbs-checkbox"><input type="checkbox" id="bb-font-apply-content" /><span>内容 & 日记& 总结</span></label>
-              <label class="bbs-checkbox"><input type="checkbox" id="bb-font-apply-ooc" /><span>OOC聊天窗口</span></label></div>
+              <label class="bbs-checkbox"><input type="checkbox" id="bb-font-apply-title" /><span>标题 &amp; Tab按钮</span></label>
+              <label class="bbs-checkbox"><input type="checkbox" id="bb-font-apply-content" /><span>内容 &amp; 日记 &amp; 总结</span></label>
+              <label class="bbs-checkbox"><input type="checkbox" id="bb-font-apply-ooc" /><span>OOC聊天窗口</span></label>
+            </div>
           </div>
-
           <!-- 预设字体快捷选择 -->
           <div class="bbs-field">
             <label class="bbs-label">快捷选择</label>
@@ -419,10 +1586,10 @@
               <button class="bbs-btn bbs-btn-sm bbs-font-quick" data-url="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" data-name="MedievalSharp" style="font-family:'MedievalSharp',cursive;">Medieval</button>
               <button class="bbs-btn bbs-btn-sm bbs-font-quick" data-url="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&display=swap" data-name="Cinzel Decorative" style="font-family:'Cinzel Decorative',serif;">Cinzel</button>
             </div>
-          </div><div id="bb-font-preview" class="bbs-font-preview" style="display:none;">
-            <div id="bb-font-preview-text">骨承载记忆 · 血书写故事 — Bone & Blood</div>
           </div>
-
+          <div id="bb-font-preview" class="bbs-font-preview" style="display:none;">
+            <div id="bb-font-preview-text">骨承载记忆 · 血书写故事 — Bone &amp; Blood</div>
+          </div>
           <div class="bbs-btn-row">
             <button class="bbs-btn bbs-btn-primary" id="bb-font-apply">✅ 应用字体</button>
             <button class="bbs-btn bbs-btn-danger" id="bb-font-reset">🗑️ 恢复默认</button>
@@ -441,10 +1608,12 @@
             <button class="bb-css-tpl-btn" data-tpl="glow">✨ 发光</button>
             <button class="bb-css-tpl-btn" data-tpl="round">🔵 圆润</button>
             <button class="bb-css-tpl-btn" data-tpl="sharp">🔷 锐利</button>
-            <button class="bb-css-tpl-btn" data-tpl="neon">💡 霓虹</button></div>
+            <button class="bb-css-tpl-btn" data-tpl="neon">💡 霓虹</button>
+          </div>
           <div class="bbs-field">
             <textarea id="bb-custom-css" rows="8" placeholder="/* 在这里输入自定义CSS */"></textarea>
-          </div><div class="bbs-btn-row">
+          </div>
+          <div class="bbs-btn-row">
             <button class="bbs-btn bbs-btn-primary" id="bb-css-apply">✅ 应用CSS</button>
             <button class="bbs-btn bbs-btn-danger" id="bb-css-reset">🗑️ 清空</button>
             <button class="bbs-btn" id="bb-css-copy-prompt">📋 复制AI提示词</button>
@@ -470,7 +1639,6 @@
           </div>
           <button class="bbs-btn" id="bb-music-test-search-api" style="margin-bottom:10px;">🔗 测试搜索API</button>
           <hr class="bbs-divider">
-
           <div class="bbs-field">
             <label class="bbs-label">添加歌曲</label>
             <div class="bbs-btn-row">
@@ -480,7 +1648,6 @@
               <button class="bbs-btn" id="bb-music-add-url-btn">🔗 添加URL</button>
             </div>
           </div>
-
           <div class="bbs-field">
             <label class="bbs-label">音量</label>
             <div class="bbs-row">
@@ -488,12 +1655,10 @@
               <span id="bb-music-volume-val" style="font-size:12px;color:var(--bbs-text-dim);min-width:35px;text-align:right;">70%</span>
             </div>
           </div>
-
           <div class="bbs-field">
             <label class="bbs-label">歌单</label>
             <div id="bb-music-playlist-list"></div>
           </div>
-
           <div class="bbs-btn-row">
             <button class="bbs-btn" id="bb-music-export-playlist">📤 导出歌单</button>
             <button class="bbs-btn" id="bb-music-import-playlist">📥 导入歌单</button>
@@ -511,246 +1676,218 @@
         <div class="bbs-section-body">
           <div class="bbs-btn-row">
             <button class="bbs-btn" id="bb-export-md">📄 导出Markdown</button>
-            <button class="bbs-btn" id="bb-export-json">📦 导出JSON</button></div>
+            <button class="bbs-btn" id="bb-export-json">📦 导出JSON</button>
+          </div>
           <hr class="bbs-divider">
           <button class="bbs-btn bbs-btn-danger" id="bb-clear-data" style="width:100%;">⚠️ 清空当前聊天的所有骨与血数据</button>
         </div>
       </div>
-      <!-- ═══════════════════════════════════════════
-     📌 记忆琥珀设置
-     ═══════════════════════════════════════════ -->
-<div class="bb-settings-section">
-  <h4class="bb-settings-title">📌 记忆琥珀 · 关键事实库</h4>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-amber-enabled" class="bb-toggle">
-      <span>启用记忆琥珀</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted">自动提取和管理角色关键事实</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-amber-auto-extract" class="bb-toggle">
-      <span>自动提取事实</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted">每N条消息自动分析对话</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>提取间隔（消息数）</label>
-    <input type="number" id="bb-set-amber-interval" class="bb-input" min="5" max="100" step="5" value="15" style="width:80px;">
-    <span class="bb-text-xs bb-text-muted">每隔多少条消息触发一次提取</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-amber-auto-confirm" class="bb-toggle">
-      <span>自动确认事实</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted bb-text-warning">⚠️ 不推荐：跳过人工审核直接添加</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>每角色最大事实数</label>
-    <input type="number" id="bb-set-amber-max-facts" class="bb-input" min="20" max="500" step="10" value="100" style="width:80px;"></div>
-  
-  <div class="bb-settings-row">
-    <label>优先级算法</label>
-    <select id="bb-set-amber-priority" class="bb-input" style="width:150px;">
-      <option value="weighted">加权算法（推荐）</option>
-      <option value="simple">简单算法</option>
-    </select>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-amber-show-confidence" class="bb-toggle" checked>
-      <span>显示置信度</span>
-    </label></div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-amber-show-refs" class="bb-toggle" checked>
-      <span>显示引用次数</span>
-    </label>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-amber-conflict" class="bb-toggle" checked>
-      <span>启用冲突检测</span>
-    </label>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>冲突检测阈值</label>
-    <input type="range" id="bb-set-amber-threshold" min="0.3" max="0.95" step="0.05" value="0.7" style="flex:1;">
-    <span id="bb-set-amber-threshold-val" class="bb-text-xs">0.7</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-amber-multi-char" class="bb-toggle" checked>
-      <span>多角色支持</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted">适配多人卡，分角色管理事实</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>导出格式</label>
-    <select id="bb-set-amber-export-format" class="bb-input" style="width:150px;">
-      <option value="json">JSON</option>
-      <option value="markdown">Markdown</option>
-    </select>
-  </div>
-</div>
 
-      <!-- ═══════════════════════════════════════════
-     ⭐ 编年史设置
-     ═══════════════════════════════════════════ -->
-<div class="bb-settings-section">
-  <h4class="bb-settings-title">⭐ 时间线编年史</h4>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-chronicle-enabled" class="bb-toggle" checked>
-      <span>启用编年史</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted">自动记录故事中的关键事件</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-chronicle-auto" class="bb-toggle" checked>
-      <span>自动提取事件</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted">每N条消息自动分析对话</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>提取间隔（消息数）</label>
-    <input type="number" id="bb-set-chronicle-interval" class="bb-input" min="5" max="100" step="5" value="20" style="width:80px;">
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-chronicle-auto-chapter" class="bb-toggle" checked>
-      <span>自动章节分组</span>
-    </label></div>
-  
-  <div class="bb-settings-row">
-    <label>每章事件数阈值</label>
-    <input type="number" id="bb-set-chronicle-chapter-threshold" class="bb-input" min="3" max="20" step="1" value="5" style="width:80px;">
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>导出格式</label>
-    <select id="bb-set-chronicle-export-format" class="bb-input" style="width:150px;">
-      <option value="markdown">Markdown</option>
-      <option value="json">JSON</option>
-    </select>
-  </div>
-</div>
-      
-      <!-- ═══════════════════════════════════════════
-     📅 日历系统设置
-     ═══════════════════════════════════════════ --><div class="bb-settings-section">
-  <h4 class="bb-settings-title">📅 日历系统</h4>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-calendar-enabled" class="bb-toggle" checked>
-      <span>启用日历</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted">管理RP世界的时间与事件</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>默认历法模板</label>
-    <select id="bb-set-calendar-template" class="bb-input" style="width:180px;">
-      <option value="gregorian">🌍 公历（现实同步）</option>
-      <option value="xianxia">🏔️ 修仙历法</option>
-      <option value="middleearth">🧝 中土世界</option>
-    </select>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>周起始日</label>
-    <select id="bb-set-calendar-week-start" class="bb-input" style="width:120px;">
-      <option value="0">周日</option>
-      <option value="1" selected>周一</option>
-      <option value="6">周六</option>
-    </select>
-    <span class="bb-text-xs bb-text-muted">影响周视图的起始日</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-calendar-show-holidays" class="bb-toggle" checked>
-      <span>显示节日</span>
-    </label>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-calendar-show-seasons" class="bb-toggle" checked>
-      <span>显示季节信息</span>
-    </label>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-calendar-inject-macros" class="bb-toggle" checked>
-      <span>启用日历宏</span>
-    </label>
-    <span class="bb-text-xs bb-text-muted">在prompt中使用 {{bb_calendar_today}} 等宏</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>时间锚点</label>
-    <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-anchor-manage" style="width:120px;">⚓ 管理锚点</button>
-    <span class="bb-text-xs bb-text-muted">固定RP时间，手动推进</span>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label>数据管理</label>
-    <div style="display:flex;gap:6px;">
-      <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-export">💾 导出</button>
-      <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-import">📂 导入</button>
-    </div>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-calendar-aggregate-diary" class="bb-toggle" checked>
-      <span>聚合面板显示日记</span>
-    </label>
-  </div>
-  
-  <div class="bb-settings-row">
-    <label class="bb-toggle-label">
-      <input type="checkbox" id="bb-set-calendar-aggregate-chronicle" class="bb-toggle" checked>
-      <span>聚合面板显示编年史</span>
-    </label>
-  </div>
-</div>
+      <!-- ═══ 记忆琥珀设置 ═══ -->
+      <div class="bb-settings-section">
+        <h4 class="bb-settings-title">📌 记忆琥珀 · 关键事实库</h4>
 
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-amber-enabled" class="bb-toggle">
+            <span>启用记忆琥珀</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted">自动提取和管理角色关键事实</span>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-amber-auto-extract" class="bb-toggle">
+            <span>自动提取事实</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted">每N条消息自动分析对话</span>
+        </div>
+        <div class="bb-settings-row">
+          <label>提取间隔（消息数）</label>
+          <input type="number" id="bb-set-amber-interval" class="bb-input" min="5" max="100" step="5" value="15" style="width:80px;">
+          <span class="bb-text-xs bb-text-muted">每隔多少条消息触发一次提取</span>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-amber-auto-confirm" class="bb-toggle">
+            <span>自动确认事实</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted bb-text-warning">⚠️ 不推荐：跳过人工审核直接添加</span>
+        </div>
+        <div class="bb-settings-row">
+          <label>每角色最大事实数</label>
+          <input type="number" id="bb-set-amber-max-facts" class="bb-input" min="20" max="500" step="10" value="100" style="width:80px;">
+        </div>
+        <div class="bb-settings-row">
+          <label>优先级算法</label>
+          <select id="bb-set-amber-priority" class="bb-input" style="width:150px;">
+            <option value="weighted">加权算法（推荐）</option>
+            <option value="simple">简单算法</option>
+          </select>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-amber-show-confidence" class="bb-toggle" checked>
+            <span>显示置信度</span>
+          </label>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-amber-show-refs" class="bb-toggle" checked>
+            <span>显示引用次数</span>
+          </label>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-amber-conflict" class="bb-toggle" checked>
+            <span>启用冲突检测</span>
+          </label>
+        </div>
+        <div class="bb-settings-row">
+          <label>冲突检测阈值</label>
+          <input type="range" id="bb-set-amber-threshold" min="0.3" max="0.95" step="0.05" value="0.7" style="flex:1;">
+          <span id="bb-set-amber-threshold-val" class="bb-text-xs">0.7</span>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-amber-multi-char" class="bb-toggle" checked>
+            <span>多角色支持</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted">适配多人卡，分角色管理事实</span>
+        </div>
+        <div class="bb-settings-row">
+          <label>导出格式</label>
+          <select id="bb-set-amber-export-format" class="bb-input" style="width:150px;">
+            <option value="json">JSON</option>
+            <option value="markdown">Markdown</option>
+          </select>
+        </div>
+      </div>
 
-      <!-- ═══ 版本信息 ═══ -->
-      <!--无悬浮球时的备用入口 -->
+      <!-- ═══ 编年史设置 ═══ -->
+      <div class="bb-settings-section">
+        <h4 class="bb-settings-title">⭐ 时间线编年史</h4>
+
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-chronicle-enabled" class="bb-toggle" checked>
+            <span>启用编年史</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted">自动记录故事中的关键事件</span>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-chronicle-auto" class="bb-toggle" checked>
+            <span>自动提取事件</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted">每N条消息自动分析对话</span>
+        </div>
+        <div class="bb-settings-row">
+          <label>提取间隔（消息数）</label>
+          <input type="number" id="bb-set-chronicle-interval" class="bb-input" min="5" max="100" step="5" value="20" style="width:80px;">
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-chronicle-auto-chapter" class="bb-toggle" checked>
+            <span>自动章节分组</span>
+          </label>
+        </div>
+        <div class="bb-settings-row">
+          <label>每章事件数阈值</label>
+          <input type="number" id="bb-set-chronicle-chapter-threshold" class="bb-input" min="3" max="20" step="1" value="5" style="width:80px;">
+        </div>
+        <div class="bb-settings-row">
+          <label>导出格式</label>
+          <select id="bb-set-chronicle-export-format" class="bb-input" style="width:150px;">
+            <option value="markdown">Markdown</option>
+            <option value="json">JSON</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ═══ 日历系统设置 ═══ -->
+      <div class="bb-settings-section">
+        <h4 class="bb-settings-title">📅 日历系统</h4>
+
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-calendar-enabled" class="bb-toggle" checked>
+            <span>启用日历</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted">管理RP世界的时间与事件</span>
+        </div>
+        <div class="bb-settings-row">
+          <label>默认历法模板</label>
+          <select id="bb-set-calendar-template" class="bb-input" style="width:180px;">
+            <option value="gregorian">🌍 公历（现实同步）</option>
+            <option value="xianxia">🏔️ 修仙历法</option>
+            <option value="middleearth">🧝 中土世界</option>
+          </select>
+        </div>
+        <div class="bb-settings-row">
+          <label>周起始日</label>
+          <select id="bb-set-calendar-week-start" class="bb-input" style="width:120px;">
+            <option value="0">周日</option>
+            <option value="1" selected>周一</option>
+            <option value="6">周六</option>
+          </select>
+          <span class="bb-text-xs bb-text-muted">影响周视图的起始日</span>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-calendar-show-holidays" class="bb-toggle" checked>
+            <span>显示节日</span>
+          </label>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-calendar-show-seasons" class="bb-toggle" checked>
+            <span>显示季节信息</span>
+          </label>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-calendar-inject-macros" class="bb-toggle" checked>
+            <span>启用日历宏</span>
+          </label>
+          <span class="bb-text-xs bb-text-muted">在prompt中使用 {{bb_calendar_today}} 等宏</span>
+        </div>
+        <div class="bb-settings-row">
+          <label>时间锚点</label>
+          <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-anchor-manage" style="width:120px;">⚓ 管理锚点</button>
+          <span class="bb-text-xs bb-text-muted">固定RP时间，手动推进</span>
+        </div>
+        <div class="bb-settings-row">
+          <label>数据管理</label>
+          <div style="display:flex;gap:6px;">
+            <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-export">💾 导出</button>
+            <button class="bbs-btn bbs-btn-sm" id="bb-set-calendar-import">📂 导入</button>
+          </div>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-calendar-aggregate-diary" class="bb-toggle" checked>
+            <span>聚合面板显示日记</span>
+          </label>
+        </div>
+        <div class="bb-settings-row">
+          <label class="bb-toggle-label">
+            <input type="checkbox" id="bb-set-calendar-aggregate-chronicle" class="bb-toggle" checked>
+            <span>聚合面板显示编年史</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- ═══ 底部按钮 ═══ -->
       <div style="padding:0 10px 8px;">
         <button class="bbs-btn bbs-btn-primary" id="bb-open-panel-btn" style="width:100%;">🦴 打开主面板</button>
       </div>
 
-      <div class="bbs-version">🦴骨与血 v7.1· By SHADOW&lt;安息之影&gt; © 2026
-      </div>
+      <div class="bbs-version">🦴骨与血 v7.1 · By SHADOW&lt;安息之影&gt; © 2026</div>
     </div>
   </div>
 </div>
 
-<!--═══ 设置面板主题切换脚本 ═══ -->
+<!-- ═══ 设置面板主题切换脚本 ═══ -->
 <script>
 (function() {
   // 设置面板主题切换
@@ -758,18 +1895,18 @@
     const theme = $(this).data('theme');
     const panel = document.getElementById('bb-settings-panel');
     if (!panel) return;
-    
+
     // 移除所有主题class
     panel.className = panel.className.replace(/bbs-theme-\w+/g, '').trim();
-    
+
     // 添加新主题
     if (theme) {
       panel.classList.add('bbs-theme-' + theme);
     }
-    
+
     // 高亮当前按钮
     $('.bbs-settings-theme').css({ 'border-color': '', 'color': '' }).removeClass('active');
-    $(this).css({ 'border-color':'var(--bbs-accent)', 'color': 'var(--bbs-accent)' }).addClass('active');
+    $(this).css({ 'border-color': 'var(--bbs-accent)', 'color': 'var(--bbs-accent)' }).addClass('active');
 
     // 保存到localStorage
     localStorage.setItem('bb-settings-theme', theme);
@@ -779,19 +1916,20 @@
   const savedTheme = localStorage.getItem('bb-settings-theme');
   if (savedTheme) {
     const panel = document.getElementById('bb-settings-panel');
-    if (panel) panel.classList.add('bbs-theme-' + savedTheme);$(`.bbs-settings-theme[data-theme="${savedTheme}"]`).css({ 
-      'border-color': 'var(--bbs-accent)', 
-      'color': 'var(--bbs-accent)' 
+    if (panel) panel.classList.add('bbs-theme-' + savedTheme);
+    $(`.bbs-settings-theme[data-theme="${savedTheme}"]`).css({
+      'border-color': 'var(--bbs-accent)',
+      'color': 'var(--bbs-accent)'
     }).addClass('active');
   } else {
     // 默认高亮暗黑按钮
-    $('.bbs-settings-theme[data-theme=""]').css({ 
-      'border-color': 'var(--bbs-accent)', 
-      'color': 'var(--bbs-accent)' 
+    $('.bbs-settings-theme[data-theme=""]').css({
+      'border-color': 'var(--bbs-accent)',
+      'color': 'var(--bbs-accent)'
     }).addClass('active');
   }
 
-  // 作者的话—弹出信息
+  // 作者的话 — 弹出信息
   const authorMessages = {
     bug: {
       cls: 'bbs-msg-bug',
@@ -815,7 +1953,6 @@
     const msg = authorMessages[type];
     if (!msg) return;
 
-    // 如果点击同一个按钮，关闭
     if (currentAuthorMsg === type) {
       $area.slideUp(200);
       currentAuthorMsg = null;
@@ -828,8 +1965,8 @@
     currentAuthorMsg = type;
   }
 
-  $(document).on('click', '#bb-author-bug', () => showAuthorMsg('bug'));
-  $(document).on('click', '#bb-author-group', () => showAuthorMsg('group'));
+  $(document).on('click', '#bb-author-bug',     () => showAuthorMsg('bug'));
+  $(document).on('click', '#bb-author-group',   () => showAuthorMsg('group'));
   $(document).on('click', '#bb-author-support', () => showAuthorMsg('support'));
 })();
 </script>
