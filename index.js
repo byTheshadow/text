@@ -8923,6 +8923,2093 @@ function generateSeasonContextText() {
   return parts.join('\n');
 }
 
+// ═══════════════════════════════════════════
+// T5 - 月视图渲染
+// ═══════════════════════════════════════════
+
+/**
+ * 渲染月视图
+ */
+function renderCalendarMonthView() {
+  const templateId = calendarState.templateId;
+  const year = calendarState.currentYear;
+  const month = calendarState.currentMonth;
+  const tpl = getCalendarTemplate(templateId);
+
+  // 更新标题
+  const monthName = getMonthName(templateId, month);
+  const epoch = tpl.epoch || '';
+  $('#bb-cal-title').text(`${epoch}${year}年 ${monthName}`);
+
+  // 渲染星期表头
+  renderCalendarWeekdayHeader(templateId);
+
+  // 渲染日期格子
+  const tbody = $('#bb-cal-month-body');
+  tbody.empty();
+
+  const daysInMonth = getDaysInMonth(templateId, year, month);
+  const firstDayOfWeek = getFirstDayOfMonth(templateId, year, month);
+  const daysPerWeek = getDaysPerWeek(templateId);
+
+  let dayCounter = 1;
+  let weekRow = $('<tr></tr>');
+
+  // 填充第一周的空白格
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    weekRow.append('<td class="bb-cal-cell bb-cal-empty"></td>');
+  }
+
+  // 填充日期
+  for (let i = firstDayOfWeek; dayCounter <= daysInMonth; i++) {
+    if (i > 0 && i % daysPerWeek === 0) {
+      tbody.append(weekRow);
+      weekRow = $('<tr></tr>');
+    }
+
+    const cell = createCalendarDayCell(templateId, year, month, dayCounter);
+    weekRow.append(cell);
+    dayCounter++;
+  }
+
+  // 填充最后一周的空白格
+  const remainingCells = daysPerWeek - (weekRow.children().length % daysPerWeek);
+  if (remainingCells < daysPerWeek) {
+    for (let i = 0; i < remainingCells; i++) {
+      weekRow.append('<td class="bb-cal-cell bb-cal-empty"></td>');
+    }
+  }
+
+  tbody.append(weekRow);
+
+  // 更新季节栏
+  updateCalendarSeasonBar(templateId, year, month);
+}
+
+/**
+ * 渲染星期表头
+ */
+function renderCalendarWeekdayHeader(templateId) {
+  const weekdays = getWeekdayNames(templateId);
+  const thead = $('#bb-cal-weekday-header');
+  thead.empty();
+
+  const row = $('<tr></tr>');
+  for (const day of weekdays) {
+    row.append(`<th class="bb-cal-weekday">${esc(day)}</th>`);
+  }
+  thead.append(row);
+}
+
+/**
+ * 创建单个日期格子
+ * @returns {jQuery} <td> 元素
+ */
+function createCalendarDayCell(templateId, year, month, day) {
+  const cell = $('<td class="bb-cal-cell bb-cal-day"></td>');
+  const dateObj = { year, month, day };
+
+  // 日期数字
+  const dayNum = $(`<div class="bb-cal-day-num">${day}</div>`);
+  cell.append(dayNum);
+
+  // 判断是否是今天
+  const today = getCalendarToday();
+  if (isSameDate(dateObj, today) && templateId === calendarState.templateId) {
+    cell.addClass('bb-cal-today');
+  }
+
+  // 判断是否被选中
+  if (calendarState.selectedDate && isSameDate(dateObj, calendarState.selectedDate)) {
+    cell.addClass('bb-cal-selected');
+  }
+
+  // 获取节日
+  const holidays = getHolidaysForDate(templateId, month, day);
+  if (holidays.length > 0) {
+    const holidayBar = $('<div class="bb-cal-holiday-bar"></div>');
+    for (const h of holidays.slice(0, 2)) { // 最多显示2个
+      holidayBar.append(`<span class="bb-cal-holiday-tag" title="${esc(h.name)}">${h.icon}</span>`);
+    }
+    if (holidays.length > 2) {
+      holidayBar.append(`<span class="bb-cal-holiday-more">+${holidays.length - 2}</span>`);
+    }
+    cell.append(holidayBar);
+  }
+
+  // 获取事件
+  const events = getEventsForDate(year, month, day, templateId);
+  if (events.length > 0) {
+    const eventBar = $('<div class="bb-cal-event-bar"></div>');
+    for (const evt of events.slice(0, 2)) { // 最多显示2个
+      const dot = $(`<span class="bb-cal-event-dot" title="${esc(evt.title)}"></span>`);
+      dot.css('background-color', evt.color || '#c9a0dc');
+      eventBar.append(dot);
+    }
+    if (events.length > 2) {
+      eventBar.append(`<span class="bb-cal-event-more">+${events.length - 2}</span>`);
+    }
+    cell.append(eventBar);
+  }
+
+  // 获取当天的日记/总结/编年史数量（用于显示小徽章）
+  const aggregateCount = getCalendarDayAggregateCount(year, month, day);
+  if (aggregateCount > 0) {
+    const badge = $(`<span class="bb-cal-aggregate-badge" title="有${aggregateCount}条记录">${aggregateCount}</span>`);
+    cell.append(badge);
+  }
+
+  // 点击事件
+  cell.on('click', function() {
+    calendarState.selectedDate = { year, month, day };
+    renderCalendarMonthView(); // 重新渲染以更新选中状态
+    showCalendarDayAggregate(year, month, day, templateId);
+  });
+
+  // 存储日期数据
+  cell.data('date', dateObj);
+
+  return cell;
+}
+
+/**
+ * 获取某天的聚合数据数量（日记+总结+编年史）
+ */
+function getCalendarDayAggregateCount(year, month, day) {
+  let count = 0;
+
+  // 日记
+  const diaries = pluginData.diary_blood || [];
+  for (const d of diaries) {
+    const dDate = parseDateString(d.date);
+    if (dDate && dDate.year === year && dDate.month === month && dDate.day === day) {
+      count++;
+    }
+  }
+
+  // 总结
+  const summaries = pluginData.summaries || [];
+  for (const s of summaries) {
+    const sDate = parseDateString(s.date);
+    if (sDate && sDate.year === year && sDate.month === month && sDate.day === day) {
+      count++;
+    }
+  }
+
+  // 编年史
+  const chronicles = pluginData.chronicle_events || [];
+  for (const c of chronicles) {
+    const cDate = parseDateString(c.timestamp);
+    if (cDate && cDate.year === year && cDate.month === month && cDate.day === day) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+/**
+ * 解析日期字符串（支持多种格式）
+ * @param {string} dateStr - 如 "2026/4/14 下午10:30:45" 或 "2026-04-14"
+ * @returns {Object|null} {year, month, day}
+ */
+function parseDateString(dateStr) {
+  if (!dateStr) return null;
+
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return null;
+
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth(),
+      day: date.getDate(),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * 更新季节提示栏
+ */
+function updateCalendarSeasonBar(templateId, year, month) {
+  const seasonBar = $('#bb-cal-season-bar');
+  const seasonText = $('#bb-cal-season-text');
+
+  // 使用当月15日作为代表日期
+  const season = getCurrentSeason(templateId, month, 15);
+  const holidays = getHolidaysForMonth(templateId, month);
+
+  const parts = [];
+
+  if (season) {
+    parts.push(`${season.icon} ${season.name}`);
+    if (season.context) {
+      parts.push(`<span class="bb-cal-season-desc">${esc(season.context)}</span>`);
+    }
+  }
+
+  if (holidays.length > 0) {
+    const holidayNames = holidays.slice(0, 3).map(h => `${h.icon}${h.name}`).join('、');
+    parts.push(`<span class="bb-cal-holidays">本月节日：${holidayNames}</span>`);
+    if (holidays.length > 3) {
+      parts.push(`<span class="bb-cal-holidays-more">等${holidays.length}个</span>`);
+    }
+  }
+
+  if (parts.length > 0) {
+    seasonText.html(parts.join(' · '));
+    seasonBar.show();
+  } else {
+    seasonBar.hide();
+  }
+}
+
+// ═══════════════════════════════════════════
+// T6 - 周视图 / 日视图渲染
+// ═══════════════════════════════════════════
+
+/**
+ * 渲染周视图
+ */
+function renderCalendarWeekView() {
+  const templateId = calendarState.templateId;
+  const tpl = getCalendarTemplate(templateId);
+  
+  // 如果没有设置周起始日期，使用今天所在周
+  if (!calendarState.currentWeekStart) {
+    const today = getCalendarToday();
+    calendarState.currentWeekStart = getWeekStartDate(today, templateId);
+  }
+
+  const weekStart = calendarState.currentWeekStart;
+  const daysPerWeek = getDaysPerWeek(templateId);
+  const weekdays = getWeekdayNames(templateId);
+
+  // 更新标题
+  const weekEnd = addDaysToDate(weekStart, daysPerWeek - 1, templateId);
+  const startMonthName = getMonthName(templateId, weekStart.month);
+  const endMonthName = getMonthName(templateId, weekEnd.month);
+  const epoch = tpl.epoch || '';
+  
+  let titleText;
+  if (weekStart.year === weekEnd.year && weekStart.month === weekEnd.month) {
+    titleText = `${epoch}${weekStart.year}年 ${startMonthName} ${weekStart.day}-${weekEnd.day}日`;
+  } else if (weekStart.year === weekEnd.year) {
+    titleText = `${epoch}${weekStart.year}年 ${startMonthName}${weekStart.day}日 - ${endMonthName}${weekEnd.day}日`;
+  } else {
+    titleText = `${epoch}${weekStart.year}年${startMonthName}${weekStart.day}日 - ${weekEnd.year}年${endMonthName}${weekEnd.day}日`;
+  }
+  $('#bb-cal-title').text(titleText);
+
+  // 渲染周视图网格
+  const container = $('#bb-cal-week-body');
+  container.empty();
+
+  for (let i = 0; i < daysPerWeek; i++) {
+    const date = addDaysToDate(weekStart, i, templateId);
+    const dayCol = createCalendarWeekDayColumn(templateId, date, weekdays[i]);
+    container.append(dayCol);
+  }
+
+  // 更新季节栏
+  updateCalendarSeasonBar(templateId, weekStart.year, weekStart.month);
+}
+
+/**
+ * 创建周视图的单日列
+ */
+function createCalendarWeekDayColumn(templateId, date, weekdayName) {
+  const col = $('<div class="bb-cal-week-col"></div>');
+  const { year, month, day } = date;
+
+  // 表头：星期 + 日期
+  const header = $('<div class="bb-cal-week-header"></div>');
+  header.append(`<div class="bb-cal-week-weekday">${esc(weekdayName)}</div>`);
+  header.append(`<div class="bb-cal-week-date">${day}</div>`);
+
+  // 判断是否是今天
+  const today = getCalendarToday();
+  if (isSameDate(date, today) && templateId === calendarState.templateId) {
+    header.addClass('bb-cal-today');
+  }
+
+  col.append(header);
+
+  // 事件列表
+  const eventList = $('<div class="bb-cal-week-events"></div>');
+  
+  // 节日
+  const holidays = getHolidaysForDate(templateId, month, day);
+  for (const h of holidays) {
+    const item = $(`<div class="bb-cal-week-event bb-cal-holiday-event" title="${esc(h.name)}">
+      ${h.icon} ${esc(h.name)}
+    </div>`);
+    eventList.append(item);
+  }
+
+  // 用户事件
+  const events = getEventsForDate(year, month, day, templateId);
+  for (const evt of events) {
+    const item = $(`<div class="bb-cal-week-event" title="${esc(evt.description || evt.title)}">
+      <span class="bb-cal-event-dot" style="background-color:${evt.color}"></span>
+      ${esc(evt.title)}
+    </div>`);
+    item.on('click', function(e) {
+      e.stopPropagation();
+      openCalendarEventModal(evt);
+    });
+    eventList.append(item);
+  }
+
+  // 聚合数据提示
+  const aggregateCount = getCalendarDayAggregateCount(year, month, day);
+  if (aggregateCount > 0) {
+    const aggItem = $(`<div class="bb-cal-week-aggregate">
+      📝 ${aggregateCount}条记录
+    </div>`);
+    aggItem.on('click', function(e) {
+      e.stopPropagation();
+      showCalendarDayAggregate(year, month, day, templateId);
+    });
+    eventList.append(aggItem);
+  }
+
+  col.append(eventList);
+
+  // 点击整列展开聚合面板
+  col.on('click', function() {
+    calendarState.selectedDate = date;
+    showCalendarDayAggregate(year, month, day, templateId);
+  });
+
+  return col;
+}
+
+/**
+ * 渲染日视图
+ */
+function renderCalendarDayView() {
+  const templateId = calendarState.templateId;
+  const year = calendarState.currentYear;
+  const month = calendarState.currentMonth;
+  const day = calendarState.currentDay;
+  const tpl = getCalendarTemplate(templateId);
+
+  // 更新标题
+  const monthName = getMonthName(templateId, month);
+  const weekdays = getWeekdayNames(templateId);
+  const daysPerWeek = getDaysPerWeek(templateId);
+  
+  // 计算星期几
+  let weekdayIndex;
+  if (tpl.leapYearRule === 'gregorian') {
+    const jsDate = new Date(year, month, day);
+    const settings = getSettings();
+    const weekStart = settings.calendar?.week_start || 0;
+    weekdayIndex = (jsDate.getDay() - weekStart + 7) % 7;
+  } else {
+    let totalDays = 0;
+    const daysPerYear = tpl.months.reduce((sum, m) => sum + m.days, 0);
+    totalDays += year * daysPerYear;
+    for (let m = 0; m < month; m++) {
+      totalDays += tpl.months[m].days;
+    }
+    totalDays += day - 1;
+    weekdayIndex = totalDays % daysPerWeek;
+  }
+
+  const weekdayName = weekdays[weekdayIndex];
+  const epoch = tpl.epoch || '';
+  $('#bb-cal-title').text(`${epoch}${year}年 ${monthName} ${day}日 星期${weekdayName}`);
+
+  // 渲染日视图内容
+  const container = $('#bb-cal-day-body');
+  container.empty();
+
+  const date = { year, month, day };
+
+  // 判断是否是今天
+  const today = getCalendarToday();
+  const isToday = isSameDate(date, today) && templateId === calendarState.templateId;
+
+  // 日期大标题
+  const dateHeader = $(`<div class="bb-cal-day-header">
+    <div class="bb-cal-day-big-num">${day}</div>
+    <div class="bb-cal-day-meta">
+      <div>${monthName} ${year}年</div>
+      <div>星期${weekdayName}</div>
+      ${isToday ? '<div class="bb-cal-today-badge">今天</div>' : ''}
+    </div>
+  </div>`);
+  container.append(dateHeader);
+
+  // 季节信息
+  const season = getCurrentSeason(templateId, month, day);
+  if (season) {
+    const seasonCard = $(`<div class="bb-cal-day-season">
+      <span class="bb-cal-season-icon">${season.icon}</span>
+      <span class="bb-cal-season-name">${esc(season.name)}</span>
+      ${season.context ? `<span class="bb-cal-season-context">${esc(season.context)}</span>` : ''}
+    </div>`);
+    container.append(seasonCard);
+  }
+
+  // 节日列表
+  const holidays = getHolidaysForDate(templateId, month, day);
+  if (holidays.length > 0) {
+    const holidaySection = $('<div class="bb-cal-day-section"></div>');
+    holidaySection.append('<h4 class="bb-cal-section-title">🎉 节日</h4>');
+    const holidayList = $('<div class="bb-cal-day-list"></div>');
+    for (const h of holidays) {
+      const item = $(`<div class="bb-cal-day-item bb-cal-holiday-item">
+        <span class="bb-cal-item-icon">${h.icon}</span>
+        <div class="bb-cal-item-content">
+          <div class="bb-cal-item-title">${esc(h.name)}</div>
+          ${h.context ? `<div class="bb-cal-item-desc">${esc(h.context)}</div>` : ''}
+        </div>
+      </div>`);
+      holidayList.append(item);
+    }
+    holidaySection.append(holidayList);
+    container.append(holidaySection);
+  }
+
+  // 用户事件
+  const events = getEventsForDate(year, month, day, templateId);
+  if (events.length > 0) {
+    const eventSection = $('<div class="bb-cal-day-section"></div>');
+    eventSection.append('<h4 class="bb-cal-section-title">📌 事件</h4>');
+    const eventList = $('<div class="bb-cal-day-list"></div>');
+    for (const evt of events) {
+      const item = $(`<div class="bb-cal-day-item bb-cal-event-item">
+        <span class="bb-cal-event-dot" style="background-color:${evt.color}"></span>
+        <div class="bb-cal-item-content">
+          <div class="bb-cal-item-title">${esc(evt.title)}</div>
+          ${evt.description ? `<div class="bb-cal-item-desc">${esc(evt.description)}</div>` : ''}
+        </div>
+        <button class="bb-sm-btn bb-btn-xs" data-event-id="${evt.id}">编辑</button>
+      </div>`);
+      
+      item.find('button').on('click', function() {
+        openCalendarEventModal(evt);
+      });
+      
+      eventList.append(item);
+    }
+    eventSection.append(eventList);
+    container.append(eventSection);
+  }
+
+  // 添加事件按钮
+  const addBtn = $(`<button class="bb-btn bb-btn-primary bb-cal-add-event-btn">
+    ➕ 添加事件
+  </button>`);
+  addBtn.on('click', function() {
+    openCalendarEventModal(null, { year, month, day });
+  });
+  container.append(addBtn);
+
+  // 聚合数据（日记/总结/编年史）
+  renderCalendarDayAggregateInline(year, month, day, container);
+
+  // 更新季节栏
+  updateCalendarSeasonBar(templateId, year, month);
+}
+
+/**
+ * 在日视图中内联显示聚合数据
+ */
+function renderCalendarDayAggregateInline(year, month, day, container) {
+  const aggregateSection = $('<div class="bb-cal-day-section bb-cal-aggregate-section"></div>');
+  aggregateSection.append('<h4 class="bb-cal-section-title">📝 记录</h4>');
+
+  const content = generateCalendarDayAggregateContent(year, month, day);
+  
+  if (content.trim() === '') {
+    aggregateSection.append('<div class="bb-empty">当天暂无日记、总结或编年史记录</div>');
+  } else {
+    aggregateSection.append(content);
+  }
+
+  container.append(aggregateSection);
+}
+
+// ═══════════════════════════════════════════
+// T7 - 每日聚合面板
+// ═══════════════════════════════════════════
+
+/**
+ * 显示每日聚合面板（弹出式）
+ */
+function showCalendarDayAggregate(year, month, day, templateId) {
+  const panel = $('#bb-cal-day-aggregate');
+  const title = $('#bb-cal-agg-title');
+  const content = $('#bb-cal-agg-content');
+
+  // 设置标题
+  const tpl = getCalendarTemplate(templateId);
+  const monthName = getMonthName(templateId, month);
+  const epoch = tpl.epoch || '';
+  title.text(`${epoch}${year}年 ${monthName} ${day}日`);
+
+  // 生成内容
+  const html = generateCalendarDayAggregateContent(year, month, day);
+  
+  if (html.trim() === '') {
+    content.html('<div class="bb-empty">当天暂无日记、总结或编年史记录</div>');
+  } else {
+    content.html(html);
+  }
+
+  // 显示面板
+  panel.removeClass('bb-hidden').addClass('bb-cal-aggregate-show');
+}
+
+/**
+ * 生成每日聚合内容HTML
+ */
+function generateCalendarDayAggregateContent(year, month, day) {
+  const parts = [];
+
+  // 日记
+  const diaries = (pluginData.diary_blood || []).filter(d => {
+    const dDate = parseDateString(d.date);
+    return dDate && dDate.year === year && dDate.month === month && dDate.day === day;
+  });
+
+  if (diaries.length > 0) {
+    parts.push('<div class="bb-cal-agg-section">');
+    parts.push('<h5 class="bb-cal-agg-section-title">📖 日记</h5>');
+    for (const diary of diaries) {
+      parts.push(`<div class="bb-cal-agg-item">
+        <div class="bb-cal-agg-item-meta">${esc(diary.date)}</div>
+        <div class="bb-cal-agg-item-content">${renderSafeHTML(diary.content)}</div>
+      </div>`);
+    }
+    parts.push('</div>');
+  }
+
+  // 总结
+  const summaries = (pluginData.summaries || []).filter(s => {
+    const sDate = parseDateString(s.date);
+    return sDate && sDate.year === year && sDate.month === month && sDate.day === day;
+  });
+
+  if (summaries.length > 0) {
+    parts.push('<div class="bb-cal-agg-section">');
+    parts.push('<h5 class="bb-cal-agg-section-title">📜 总结</h5>');
+    for (const summary of summaries) {
+      parts.push(`<div class="bb-cal-agg-item">
+        <div class="bb-cal-agg-item-meta">${esc(summary.date)}</div>
+        <div class="bb-cal-agg-item-content">${renderSafeHTML(summary.content)}</div>
+      </div>`);
+    }
+    parts.push('</div>');
+  }
+
+  // 编年史
+  const chronicles = (pluginData.chronicle_events || []).filter(c => {
+    const cDate = parseDateString(c.timestamp);
+    return cDate && cDate.year === year && cDate.month === month && cDate.day === day;
+  });
+
+  if (chronicles.length > 0) {
+    parts.push('<div class="bb-cal-agg-section">');
+    parts.push('<h5 class="bb-cal-agg-section-title">⭐ 编年史</h5>');
+    for (const chr of chronicles) {
+      const importanceStars = '★'.repeat(chr.importance || 3) + '☆'.repeat(5 - (chr.importance || 3));
+      parts.push(`<div class="bb-cal-agg-item bb-cal-chronicle-item">
+        <div class="bb-cal-agg-item-meta">
+          <span class="bb-chronicle-importance">${importanceStars}</span>
+          ${chr.category ? `<span class="bb-chronicle-category">${esc(chr.category)}</span>` : ''}
+        </div>
+        <div class="bb-cal-agg-item-title">${esc(chr.title)}</div>
+        <div class="bb-cal-agg-item-content">${esc(chr.description)}</div>
+      </div>`);
+    }
+    parts.push('</div>');
+  }
+
+  return parts.join('');
+}
+
+/**
+ * 隐藏每日聚合面板
+ */
+function hideCalendarDayAggregate() {
+  const panel = $('#bb-cal-day-aggregate');
+  panel.removeClass('bb-cal-aggregate-show').addClass('bb-hidden');
+}
+
+// ═══════════════════════════════════════════
+// T8 - 事件绑定
+// ═══════════════════════════════════════════
+
+/**
+ * 绑定日历面板的所有事件
+ */
+function bindCalendarEvents() {
+  // 导航按钮
+  $('#bb-cal-prev').off('click').on('click', function() {
+    navigateCalendar('prev');
+  });
+
+  $('#bb-cal-next').off('click').on('click', function() {
+    navigateCalendar('next');
+  });
+
+  $('#bb-cal-today').off('click').on('click', function() {
+    navigateCalendar('today');
+  });
+
+  // 视图切换
+  $('.bb-cal-view-btn').off('click').on('click', function() {
+    const view = $(this).data('view');
+    switchCalendarView(view);
+  });
+
+  // 模板切换
+  $('#bb-cal-template').off('change').on('change', function() {
+    const templateId = $(this).val();
+    switchCalendarTemplate(templateId);
+  });
+
+  // 关闭聚合面板
+  $('#bb-cal-agg-close').off('click').on('click', function() {
+    hideCalendarDayAggregate();
+  });
+
+  // 子Tab切换（日记Tab下的子Tab）
+  $('.bb-sub-tab-btn[data-subtab="diary-calendar"]').off('click').on('click', function() {
+    // 切换到日历子Tab时刷新渲染
+    setTimeout(() => {
+      renderCalendarCurrentView();
+    }, 50);
+  });
+}
+/**
+ * 导航日历（前进/后退/今天）
+ */
+function navigateCalendar(direction) {
+  const templateId = calendarState.templateId;
+  const view = calendarState.currentView;
+
+  if (direction === 'today') {
+    const today = getCalendarToday();
+    calendarState.currentYear = today.year;
+    calendarState.currentMonth = today.month;
+    calendarState.currentDay = today.day;
+    calendarState.currentWeekStart = getWeekStartDate(today, templateId);
+    renderCalendarCurrentView();
+    return;
+  }
+
+  const delta = direction === 'next' ? 1 : -1;
+
+  if (view === 'month') {
+    const monthCount = getMonthCount(templateId);
+    let newMonth = calendarState.currentMonth + delta;
+    let newYear = calendarState.currentYear;
+
+    if (newMonth >= monthCount) {
+      newMonth = 0;
+      newYear++;
+    } else if (newMonth < 0) {
+      newMonth = monthCount - 1;
+      newYear--;
+    }
+
+    calendarState.currentMonth = newMonth;
+    calendarState.currentYear = newYear;} else if (view === 'week') {
+    const daysPerWeek = getDaysPerWeek(templateId);
+    if (!calendarState.currentWeekStart) {
+      const today = getCalendarToday();
+      calendarState.currentWeekStart = getWeekStartDate(today, templateId);
+    }
+    calendarState.currentWeekStart = addDaysToDate(
+      calendarState.currentWeekStart,
+      delta * daysPerWeek,
+      templateId
+    );
+    // 同步年月到周起始日
+    calendarState.currentYear = calendarState.currentWeekStart.year;
+    calendarState.currentMonth = calendarState.currentWeekStart.month;} else if (view === 'day') {
+    const daysInMonth = getDaysInMonth(templateId, calendarState.currentYear, calendarState.currentMonth);
+    let newDay = calendarState.currentDay + delta;
+    let newMonth = calendarState.currentMonth;
+    let newYear = calendarState.currentYear;
+    const monthCount = getMonthCount(templateId);
+
+    if (newDay > daysInMonth) {
+      newDay = 1;
+      newMonth++;
+      if (newMonth >= monthCount) {
+        newMonth = 0;
+        newYear++;
+      }
+    } else if (newDay < 1) {
+      newMonth--;
+      if (newMonth < 0) {
+        newMonth = monthCount - 1;
+        newYear--;
+      }
+      newDay = getDaysInMonth(templateId, newYear, newMonth);
+    }
+
+    calendarState.currentYear = newYear;
+    calendarState.currentMonth = newMonth;
+    calendarState.currentDay = newDay;}
+
+  renderCalendarCurrentView();
+}
+
+/**
+ * 切换日历视图
+ */
+function switchCalendarView(view) {
+  if (!['month', 'week', 'day'].includes(view)) return;
+
+  calendarState.currentView = view;
+
+  // 更新按钮高亮
+  $('.bb-cal-view-btn').removeClass('bb-sub-tab-active');
+  $(`.bb-cal-view-btn[data-view="${view}"]`).addClass('bb-sub-tab-active');
+
+  // 切换视图容器显隐
+  $('#bb-cal-month-view, #bb-cal-week-view, #bb-cal-day-view').addClass('bb-hidden');
+  $(`#bb-cal-${view}-view`).removeClass('bb-hidden');
+
+  // 隐藏聚合面板
+  hideCalendarDayAggregate();
+
+  // 如果切换到周视图，确保周起始日期已设置
+  if (view === 'week' && !calendarState.currentWeekStart) {
+    const current = {
+      year: calendarState.currentYear,
+      month: calendarState.currentMonth,
+      day: calendarState.currentDay || 1,
+    };
+    calendarState.currentWeekStart = getWeekStartDate(current, calendarState.templateId);
+  }
+
+  // 如果切换到日视图，确保日已设置
+  if (view === 'day' && !calendarState.currentDay) {
+    calendarState.currentDay = 1;
+  }
+
+  renderCalendarCurrentView();
+}
+
+/**
+ * 切换日历模板
+ */
+function switchCalendarTemplate(templateId) {
+  const tpl = getCalendarTemplate(templateId);
+  if (!tpl) {
+    toastr.warning('模板不存在');
+    return;
+  }
+
+  calendarState.templateId = templateId;
+
+  // 保存到设置
+  const settings = getSettings();
+  settings.calendar.template_id = templateId;
+  saveSettingsDebounced();
+
+  // 更新模式徽章
+  updateCalendarModeBadge(tpl);
+
+  // 重置月份（防止越界）
+  const monthCount = getMonthCount(templateId);
+  if (calendarState.currentMonth >= monthCount) {
+    calendarState.currentMonth = 0;}
+
+  // 重置周起始日
+  calendarState.currentWeekStart = null;
+
+  // 刷新模板下拉框中的自定义模板
+  refreshCalendarTemplateDropdown();
+
+  renderCalendarCurrentView();
+  toastr.info(`已切换到：${tpl.name}`);
+}
+
+/**
+ * 更新模式徽章
+ */
+function updateCalendarModeBadge(tpl) {
+  const badge = $('#bb-cal-mode-badge');
+  if (tpl.type === 'real') {
+    badge.text('现实同步').removeClass('bb-badge-warning').addClass('bb-badge-info');
+    calendarState.mode = 'real';
+  } else {
+    badge.text('RP模式').removeClass('bb-badge-info').addClass('bb-badge-warning');
+    calendarState.mode = 'rp';
+  }
+}
+
+/**
+ * 刷新模板下拉框（包含自定义模板）
+ */
+function refreshCalendarTemplateDropdown() {
+  const select = $('#bb-cal-template');
+  const currentVal = select.val();
+  select.empty();
+
+  const templates = getAllCalendarTemplates();
+
+  // 内置模板分组
+  const builtinGroup = $('<optgroup label="内置模板"></optgroup>');
+  const customGroup = $('<optgroup label="自定义模板"></optgroup>');
+  let hasCustom = false;
+
+  for (const tpl of templates) {
+    const option = $(`<option value="${tpl.id}"></option>`);
+    const icon = tpl.type === 'real' ? '🌍' : '🏔️';
+    option.text(`${icon} ${tpl.name}`);
+
+    if (tpl.editable) {
+      customGroup.append(option);
+      hasCustom = true;
+    } else {
+      builtinGroup.append(option);
+    }
+  }
+
+  select.append(builtinGroup);
+  if (hasCustom) {
+    select.append(customGroup);
+  }
+
+  // 添加"创建新模板"选项
+  select.append('<option value="__create_new__">➕ 创建新模板...</option>');
+
+  //恢复选中值
+  if (currentVal && select.find(`option[value="${currentVal}"]`).length > 0) {
+    select.val(currentVal);
+  } else {
+    select.val(calendarState.templateId);
+  }
+
+  // 监听"创建新模板"
+  select.off('change.create').on('change.create', function() {
+    if ($(this).val() === '__create_new__') {
+      openCalendarTemplateModal();
+      //恢复之前的选择
+      $(this).val(calendarState.templateId);
+    }
+  });
+}
+
+/**
+ *渲染当前视图（统一入口）
+ */
+function renderCalendarCurrentView() {
+  const view = calendarState.currentView;
+
+  if (view === 'month') {
+    renderCalendarMonthView();
+  } else if (view === 'week') {
+    renderCalendarWeekView();
+  } else if (view === 'day') {
+    renderCalendarDayView();
+  }
+}
+
+// ═══════════════════════════════════════════
+// T9 - 模态框
+// ═══════════════════════════════════════════
+
+/**
+ * 打开事件编辑模态框
+ * @param {Object|null} existingEvent - 已有事件（编辑模式），null为新建
+ * @param {Object} defaultDate - 默认日期 {year, month, day}
+ */
+function openCalendarEventModal(existingEvent, defaultDate) {
+  const isEdit = !!existingEvent;
+  const templateId = calendarState.templateId;
+  const tpl = getCalendarTemplate(templateId);
+
+  // 默认日期
+  const date = existingEvent
+    ? { year: existingEvent.year, month: existingEvent.month, day: existingEvent.day }
+    : (defaultDate || calendarState.selectedDate || getCalendarToday());
+
+  const monthOptions = tpl.months.map((m, idx) =>
+    `<option value="${idx}" ${idx === date.month ? 'selected' : ''}>${esc(m.name)}</option>`
+  ).join('');
+
+  const colorOptions = [
+    { value: '#c9a0dc', label: '💜紫色' },
+    { value: '#f4a460', label: '🧡 橙色' },
+    { value: '#87ceeb', label: '💙 蓝色' },
+    { value: '#90ee90', label: '💚 绿色' },
+    { value: '#ff6b6b', label: '❤️ 红色' },
+    { value: '#ffd700', label: '💛 金色' },
+    { value: '#dda0dd', label: '🩷 粉色' },
+    { value: '#c0c0c0', label: '🩶 灰色' },
+  ];
+
+  const colorSelect = colorOptions.map(c =>
+    `<option value="${c.value}" ${(existingEvent?.color || '#c9a0dc') === c.value ? 'selected' : ''}>${c.label}</option>`
+  ).join('');
+
+  const modalHtml = `
+    <div class="bb-modal-overlay bb-cal-modal-overlay">
+      <div class="bb-modal bb-cal-event-modal">
+        <div class="bb-modal-header">
+          <h3>${isEdit ? '✏️ 编辑事件' : '➕ 添加事件'}</h3>
+          <button class="bb-modal-close bb-cal-modal-close">✕</button>
+        </div>
+        <div class="bb-modal-body">
+          <div class="bb-form-group">
+            <label class="bb-label">标题 <span class="bb-required">*</span></label>
+            <input type="text" id="bb-cal-evt-title" class="bb-input"value="${isEdit ? esc(existingEvent.title) : ''}" placeholder="事件标题" maxlength="100">
+          </div>
+
+          <div class="bb-form-row">
+            <div class="bb-form-group" style="flex:1;">
+              <label class="bb-label">年</label>
+              <input type="number" id="bb-cal-evt-year" class="bb-input" value="${date.year}">
+            </div>
+            <div class="bb-form-group" style="flex:1;">
+              <label class="bb-label">月</label>
+              <select id="bb-cal-evt-month" class="bb-input">${monthOptions}</select>
+            </div>
+            <div class="bb-form-group" style="flex:1;">
+              <label class="bb-label">日</label>
+              <input type="number" id="bb-cal-evt-day" class="bb-input" value="${date.day}" min="1">
+            </div>
+          </div>
+
+          <div class="bb-form-group">
+            <label class="bb-label">描述</label>
+            <textarea id="bb-cal-evt-desc" class="bb-input bb-textarea" rows="3"
+              placeholder="事件描述（可选）">${isEdit ? esc(existingEvent.description || '') : ''}</textarea>
+          </div>
+
+          <div class="bb-form-row">
+            <div class="bb-form-group" style="flex:1;">
+              <label class="bb-label">颜色</label>
+              <select id="bb-cal-evt-color" class="bb-input">${colorSelect}</select>
+            </div>
+            <div class="bb-form-group" style="flex:1;">
+              <label class="bb-label">重复</label>
+              <select id="bb-cal-evt-repeat" class="bb-input">
+                <option value="none" ${(!existingEvent?.repeat || existingEvent?.repeat === 'none') ? 'selected' : ''}>不重复</option>
+                <option value="yearly" ${existingEvent?.repeat === 'yearly' ? 'selected' : ''}>每年重复</option>
+                <option value="monthly" ${existingEvent?.repeat === 'monthly' ? 'selected' : ''}>每月重复</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="bb-modal-footer">
+          ${isEdit ? `<button class="bb-btn bb-btn-danger bb-cal-evt-delete" data-id="${existingEvent.id}">🗑️ 删除</button>` : ''}
+          <button class="bb-btn bb-cal-modal-close">取消</button>
+          <button class="bb-btn bb-btn-primary bb-cal-evt-save">${isEdit ? '保存修改' : '添加事件'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 移除已有模态框
+  $('.bb-cal-modal-overlay').remove();
+
+  // 插入DOM
+  $('body').append(modalHtml);
+
+  // 聚焦标题输入框
+  setTimeout(() => $('#bb-cal-evt-title').focus(), 100);
+
+  //绑定关闭
+  $('.bb-cal-modal-close').on('click', function() {
+    closeCalendarEventModal();
+  });
+
+  // 点击遮罩关闭
+  $('.bb-cal-modal-overlay').on('click', function(e) {
+    if ($(e.target).hasClass('bb-cal-modal-overlay')) {
+      closeCalendarEventModal();
+    }
+  });
+
+  // ESC关闭
+  $(document).on('keydown.calModal', function(e) {
+    if (e.key === 'Escape') {
+      closeCalendarEventModal();
+    }
+  });
+
+  // 保存按钮
+  $('.bb-cal-evt-save').on('click', function() {
+    saveCalendarEventFromModal(isEdit ? existingEvent.id : null);
+  });
+
+  // 删除按钮
+  $('.bb-cal-evt-delete').on('click', function() {
+    const id = $(this).data('id');
+    if (confirm('确定删除此事件？')) {
+      deleteCalendarEvent(id);
+      closeCalendarEventModal();
+      renderCalendarCurrentView();
+      toastr.info('事件已删除');
+    }
+  });
+
+  // 月份变化时更新日的最大值
+  $('#bb-cal-evt-month').on('change', function() {
+    const selectedMonth = parseInt($(this).val());
+    const selectedYear = parseInt($('#bb-cal-evt-year').val());
+    const maxDay = getDaysInMonth(templateId, selectedYear, selectedMonth);
+    const dayInput = $('#bb-cal-evt-day');
+    dayInput.attr('max', maxDay);
+    if (parseInt(dayInput.val()) > maxDay) {
+      dayInput.val(maxDay);
+    }
+  });
+}
+
+/**
+ * 从模态框保存事件
+ */
+function saveCalendarEventFromModal(existingId) {
+  const title = $('#bb-cal-evt-title').val().trim();
+  if (!title) {
+    toastr.warning('请输入事件标题');
+    $('#bb-cal-evt-title').focus();
+    return;
+  }
+
+  const templateId = calendarState.templateId;
+  const year = parseInt($('#bb-cal-evt-year').val());
+  const month = parseInt($('#bb-cal-evt-month').val());
+  const day = parseInt($('#bb-cal-evt-day').val());
+
+  // 验证日期
+  const maxDay = getDaysInMonth(templateId, year, month);
+  if (isNaN(day) || day < 1 || day > maxDay) {
+    toastr.warning(`日期无效，该月最多${maxDay}天`);
+    return;
+  }
+
+  const eventData = {
+    title,
+    year,
+    month,
+    day,
+    description: $('#bb-cal-evt-desc').val().trim(),
+    color: $('#bb-cal-evt-color').val(),
+    repeat: $('#bb-cal-evt-repeat').val(),
+    templateId,
+  };
+
+  if (existingId) {
+    updateCalendarEvent(existingId, eventData);
+    toastr.success('事件已更新');
+  } else {
+    addCalendarEvent(eventData);
+    toastr.success('事件已添加');
+  }
+
+  closeCalendarEventModal();
+  renderCalendarCurrentView();
+}
+
+/**
+ * 关闭事件模态框
+ */
+function closeCalendarEventModal() {
+  $('.bb-cal-modal-overlay').remove();
+  $(document).off('keydown.calModal');
+}
+
+/**
+ * 打开自定义模板创建/编辑模态框
+ * @param {Object|null} existingTemplate - 已有模板（编辑模式）
+ */
+function openCalendarTemplateModal(existingTemplate) {
+  const isEdit = !!existingTemplate;
+
+  // 默认12个月
+  const defaultMonths = [];
+  for (let i = 0; i < 12; i++) {
+    defaultMonths.push({ name: `第${i + 1}月`, days: 30 });
+  }
+
+  const months = isEdit ? existingTemplate.months : defaultMonths;
+  const weekdays = isEdit
+    ? existingTemplate.weekdays
+    : ['日', '一', '二', '三', '四', '五', '六'];
+
+  // 生成月份编辑行
+  const monthRows = months.map((m, idx) => `
+    <div class="bb-cal-tpl-month-row" data-idx="${idx}">
+      <input type="text" class="bb-input bb-cal-tpl-month-name" value="${esc(m.name)}" placeholder="月名" style="flex:2;">
+      <input type="number" class="bb-input bb-cal-tpl-month-days" value="${m.days}" min="1" max="100" style="flex:1;">
+      <button class="bb-sm-btn bb-btn-xs bb-btn-danger bb-cal-tpl-del-month" title="删除">✕</button>
+    </div>
+  `).join('');
+
+  // 生成星期编辑行
+  const weekdayInputs = weekdays.map((w, idx) => `
+    <input type="text" class="bb-input bb-cal-tpl-weekday" data-idx="${idx}" 
+      value="${esc(w)}" placeholder="第${idx + 1}天" style="width:60px;">
+  `).join('');
+
+  const modalHtml = `
+    <div class="bb-modal-overlay bb-cal-tpl-modal-overlay">
+      <div class="bb-modal bb-cal-template-modal">
+        <div class="bb-modal-header">
+          <h3>${isEdit ? '✏️ 编辑模板' : '🛠️ 创建自定义历法'}</h3>
+          <button class="bb-modal-close bb-cal-tpl-modal-close">✕</button>
+        </div>
+        <div class="bb-modal-body bb-modal-scroll">
+          <div class="bb-form-group">
+            <label class="bb-label">历法名称 <span class="bb-required">*</span></label>
+            <input type="text" id="bb-cal-tpl-name" class="bb-input" 
+              value="${isEdit ? esc(existingTemplate.name) : ''}" placeholder="如：灵界历法" maxlength="50">
+          </div>
+
+          <div class="bb-form-group">
+            <label class="bb-label">纪元名称</label>
+            <input type="text" id="bb-cal-tpl-epoch" class="bb-input" 
+              value="${isEdit ? esc(existingTemplate.epoch || '') : ''}" placeholder="如：灵历、天元">
+          </div>
+
+          <div class="bb-form-group">
+            <label class="bb-label">年份偏移</label>
+            <input type="number" id="bb-cal-tpl-year-offset" class="bb-input" 
+              value="${isEdit ? existingTemplate.yearOffset || 0 : 0}" 
+              title="相对于现实年份的偏移量">
+          </div>
+
+          <div class="bb-form-group">
+            <label class="bb-label">月份定义</label>
+            <div id="bb-cal-tpl-months" class="bb-cal-tpl-list"><div class="bb-cal-tpl-list-header">
+                <span style="flex:2;">月名</span>
+                <span style="flex:1;">天数</span>
+                <span style="width:32px;"></span>
+              </div>
+              ${monthRows}
+            </div>
+            <button class="bb-sm-btn" id="bb-cal-tpl-add-month" style="margin-top:4px;">➕ 添加月份</button>
+          </div>
+
+          <div class="bb-form-group">
+            <label class="bb-label">星期定义（每周天数由此决定）</label>
+            <div id="bb-cal-tpl-weekdays" class="bb-cal-tpl-weekday-row">
+              ${weekdayInputs}
+            </div>
+            <div style="margin-top:4px;">
+              <button class="bb-sm-btn" id="bb-cal-tpl-add-weekday">➕</button>
+              <button class="bb-sm-btn" id="bb-cal-tpl-del-weekday">➖</button>
+            </div>
+          </div>
+
+          <div class="bb-form-group">
+            <label class="bb-label">
+              <input type="checkbox" id="bb-cal-tpl-leap" ${isEdit && existingTemplate.hasLeapYear ? 'checked' : ''}>
+              启用闰年规则
+            </label>
+            <div id="bb-cal-tpl-leap-config" class="bb-cal-tpl-leap-config ${isEdit && existingTemplate.hasLeapYear ? '' : 'bb-hidden'}">
+              <label class="bb-label">闰年规则</label>
+              <select id="bb-cal-tpl-leap-rule" class="bb-input">
+                <option value="gregorian" ${isEdit && existingTemplate.leapYearRule === 'gregorian' ? 'selected' : ''}>公历规则（4/100/400）</option>
+                <option value="simple4" ${isEdit && existingTemplate.leapYearRule === 'simple4' ? 'selected' : ''}>简单4年一闰</option>
+              </select>
+              <label class="bb-label" style="margin-top:4px;">闰月索引（0起始）</label>
+              <input type="number" id="bb-cal-tpl-leap-month" class="bb-input" 
+                value="${isEdit ? (existingTemplate.leapMonthIndex ?? 1) : 1}" min="0">
+              <label class="bb-label" style="margin-top:4px;">闰年额外天数</label>
+              <input type="number" id="bb-cal-tpl-leap-extra" class="bb-input" 
+                value="${isEdit ? (existingTemplate.leapExtraDays ?? 1) : 1}" min="1">
+            </div>
+          </div>
+        </div>
+
+        <div class="bb-modal-footer">
+          ${isEdit ? `<button class="bb-btn bb-btn-danger bb-cal-tpl-delete" data-id="${existingTemplate.id}">🗑️ 删除模板</button>` : ''}
+          <button class="bb-btn bb-cal-tpl-modal-close">取消</button>
+          <button class="bb-btn bb-btn-primary bb-cal-tpl-save">${isEdit ? '保存修改' : '创建模板'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 移除已有模态框
+  $('.bb-cal-tpl-modal-overlay').remove();
+  $('body').append(modalHtml);
+
+  setTimeout(() => $('#bb-cal-tpl-name').focus(), 100);
+
+  // 关闭
+  $('.bb-cal-tpl-modal-close').on('click', function() {
+    closeCalendarTemplateModal();
+  });
+
+  $('.bb-cal-tpl-modal-overlay').on('click', function(e) {
+    if ($(e.target).hasClass('bb-cal-tpl-modal-overlay')) {
+      closeCalendarTemplateModal();
+    }
+  });
+
+  $(document).on('keydown.calTplModal', function(e) {
+    if (e.key === 'Escape') {
+      closeCalendarTemplateModal();
+    }
+  });
+
+  // 闰年复选框
+  $('#bb-cal-tpl-leap').on('change', function() {
+    $('#bb-cal-tpl-leap-config').toggleClass('bb-hidden', !this.checked);
+  });
+
+  // 添加月份
+  $('#bb-cal-tpl-add-month').on('click', function() {
+    const container = $('#bb-cal-tpl-months');
+    const idx = container.find('.bb-cal-tpl-month-row').length;
+    const row = $(`
+      <div class="bb-cal-tpl-month-row" data-idx="${idx}">
+        <input type="text" class="bb-input bb-cal-tpl-month-name" value="第${idx + 1}月" placeholder="月名" style="flex:2;">
+        <input type="number" class="bb-input bb-cal-tpl-month-days" value="30" min="1" max="100" style="flex:1;">
+        <button class="bb-sm-btn bb-btn-xs bb-btn-danger bb-cal-tpl-del-month" title="删除">✕</button>
+      </div>
+    `);
+    row.find('.bb-cal-tpl-del-month').on('click', function() {
+      $(this).closest('.bb-cal-tpl-month-row').remove();
+    });
+    container.append(row);
+  });
+
+  // 删除月份（委托事件，覆盖初始行）
+  $('#bb-cal-tpl-months').on('click', '.bb-cal-tpl-del-month', function() {
+    const rows = $('#bb-cal-tpl-months .bb-cal-tpl-month-row');
+    if (rows.length <= 1) {
+      toastr.warning('至少保留1个月份');
+      return;
+    }
+    $(this).closest('.bb-cal-tpl-month-row').remove();
+  });
+
+  // 添加星期天
+  $('#bb-cal-tpl-add-weekday').on('click', function() {
+    const container = $('#bb-cal-tpl-weekdays');
+    const idx = container.find('.bb-cal-tpl-weekday').length;
+    if (idx >= 14) {
+      toastr.warning('每周最多14天');
+      return;
+    }
+    container.append(`
+      <input type="text" class="bb-input bb-cal-tpl-weekday" data-idx="${idx}" 
+        value="第${idx + 1}天" placeholder="第${idx + 1}天" style="width:60px;">
+    `);
+  });
+
+  // 删除星期天
+  $('#bb-cal-tpl-del-weekday').on('click', function() {
+    const container = $('#bb-cal-tpl-weekdays');
+    const inputs = container.find('.bb-cal-tpl-weekday');
+    if (inputs.length <= 2) {
+      toastr.warning('每周至少2天');
+      return;
+    }
+    inputs.last().remove();
+  });
+
+  // 保存
+  $('.bb-cal-tpl-save').on('click', function() {
+    saveCalendarTemplateFromModal(isEdit ? existingTemplate.id : null);
+  });
+
+  // 删除模板
+  $('.bb-cal-tpl-delete').on('click', function() {
+    const id = $(this).data('id');
+    if (confirm('确定删除此自定义模板？相关事件不会被删除，但将无法在此模板下查看。')) {
+      deleteCustomTemplate(id);
+      closeCalendarTemplateModal();
+      refreshCalendarTemplateDropdown();
+      renderCalendarCurrentView();
+      toastr.info('模板已删除');
+    }
+  });
+}
+
+/**
+ * 从模板模态框保存
+ */
+function saveCalendarTemplateFromModal(existingId) {
+  const name = $('#bb-cal-tpl-name').val().trim();
+  if (!name) {
+    toastr.warning('请输入历法名称');
+    $('#bb-cal-tpl-name').focus();
+    return;
+  }
+
+  // 收集月份
+  const months = [];
+  let valid = true;
+  $('#bb-cal-tpl-months .bb-cal-tpl-month-row').each(function() {
+    const monthName = $(this).find('.bb-cal-tpl-month-name').val().trim();
+    const days = parseInt($(this).find('.bb-cal-tpl-month-days').val());
+    if (!monthName || isNaN(days) || days < 1) {
+      valid = false;
+      return false;
+    }
+    months.push({ name: monthName, days });
+  });
+
+  if (!valid || months.length === 0) {
+    toastr.warning('月份定义无效，请检查每个月的名称和天数');
+    return;
+  }
+
+  // 收集星期
+  const weekdays = [];
+  $('#bb-cal-tpl-weekdays .bb-cal-tpl-weekday').each(function() {
+    const val = $(this).val().trim();
+    weekdays.push(val || `第${weekdays.length + 1}天`);
+  });
+
+  if (weekdays.length < 2) {
+    toastr.warning('每周至少需要2天');
+    return;
+  }
+
+  // 闰年
+  const hasLeapYear = $('#bb-cal-tpl-leap').is(':checked');
+  let leapYearRule = null;
+  let leapMonthIndex = 1;
+  let leapExtraDays = 1;
+  if (hasLeapYear) {
+    leapYearRule = $('#bb-cal-tpl-leap-rule').val();
+    leapMonthIndex = parseInt($('#bb-cal-tpl-leap-month').val()) || 1;
+    leapExtraDays = parseInt($('#bb-cal-tpl-leap-extra').val()) || 1;
+  }
+
+  const templateData = {
+    name,
+    epoch: $('#bb-cal-tpl-epoch').val().trim() || '',
+    yearOffset: parseInt($('#bb-cal-tpl-year-offset').val()) || 0,
+    months,
+    weekdays,
+    daysPerWeek: weekdays.length,
+    hasLeapYear,
+    leapYearRule,
+    leapMonthIndex,
+    leapExtraDays,
+    seasons: [], // 用户可以后续编辑
+  };
+
+  if (existingId) {
+    updateCustomTemplate(existingId, templateData);
+    toastr.success('模板已更新');
+  } else {
+    const newId = createCustomTemplate(templateData);
+    // 自动切换到新模板
+    switchCalendarTemplate(newId);
+    toastr.success(`已创建历法：${name}`);
+  }
+
+  closeCalendarTemplateModal();
+  refreshCalendarTemplateDropdown();
+}
+
+/**
+ * 关闭模板模态框
+ */
+function closeCalendarTemplateModal() {
+  $('.bb-cal-tpl-modal-overlay').remove();
+  $(document).off('keydown.calTplModal');
+}
+
+// ═══════════════════════════════════════════
+// T10 - 导出导入
+// ═══════════════════════════════════════════
+
+/**
+ * 导出日历数据（事件+自定义模板+自定义节日）
+ * @returns {string} JSON字符串
+ */
+function exportCalendarData() {
+  const settings = getSettings();
+  const data = {
+    version: VERSION,
+    exportTime: new Date().toISOString(),
+    events: pluginData.calendar_events || [],
+    customTemplates: settings.calendar?.custom_templates || [],
+    customHolidays: settings.calendar?.custom_holidays || [],
+  };
+
+  const json = JSON.stringify(data, null, 2);
+  
+  // 触发下载
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bb_calendar_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  toastr.success('日历数据已导出');
+  return json;
+}
+
+/**
+ * 导入日历数据
+ * @param {File} file - 上传的文件
+ */
+function importCalendarData(file) {
+  const reader = new FileReader();
+  
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      
+      if (!data.events && !data.customTemplates && !data.customHolidays) {
+        toastr.error('文件格式不正确');
+        return;
+      }
+
+      let importCount = 0;
+      const settings = getSettings();
+
+      // 导入事件
+      if (data.events && Array.isArray(data.events)) {
+        for (const evt of data.events) {
+          // 检查是否已存在（根据日期+标题去重）
+          const exists = (pluginData.calendar_events || []).some(e =>
+            e.year === evt.year &&
+            e.month === evt.month &&
+            e.day === evt.day &&
+            e.title === evt.title
+          );
+          
+          if (!exists) {
+            addCalendarEvent(evt);
+            importCount++;
+          }
+        }
+      }
+
+      // 导入自定义模板
+      if (data.customTemplates && Array.isArray(data.customTemplates)) {
+        if (!settings.calendar.custom_templates) {
+          settings.calendar.custom_templates = [];
+        }
+        
+        for (const tpl of data.customTemplates) {
+          // 检查是否已存在（根据名称去重）
+          const exists = settings.calendar.custom_templates.some(t => t.name === tpl.name);
+          
+          if (!exists) {
+            // 重新生成ID
+            const newTpl = { ...tpl, id: 'custom_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9) };
+            settings.calendar.custom_templates.push(newTpl);
+            importCount++;
+          }
+        }
+      }
+
+      // 导入自定义节日
+      if (data.customHolidays && Array.isArray(data.customHolidays)) {
+        if (!settings.calendar.custom_holidays) {
+          settings.calendar.custom_holidays = [];
+        }
+        
+        for (const holiday of data.customHolidays) {
+          // 检查是否已存在（根据日期+名称去重）
+          const exists = settings.calendar.custom_holidays.some(h =>
+            h.templateId === holiday.templateId &&
+            h.month === holiday.month &&
+            h.day === holiday.day &&
+            h.name === holiday.name
+          );
+          
+          if (!exists) {
+            settings.calendar.custom_holidays.push(holiday);
+            importCount++;
+          }
+        }
+      }
+
+      saveSettingsDebounced();
+      saveChatData();
+      refreshCalendarTemplateDropdown();
+      renderCalendarCurrentView();
+
+      toastr.success(`成功导入 ${importCount} 项数据`);
+      
+    } catch (err) {
+      console.error('[骨与血·日历] 导入失败:', err);
+      toastr.error('导入失败：' + err.message);
+    }
+  };
+
+  reader.onerror = function() {
+    toastr.error('文件读取失败');
+  };
+
+  reader.readAsText(file);
+}
+
+/**
+ * 触发导入文件选择
+ */
+function triggerCalendarImport() {
+  const input = $('<input type="file" accept=".json" style="display:none;">');
+  
+  input.on('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      importCalendarData(file);
+    }
+  });
+
+  input.trigger('click');
+}
+
+// ═══════════════════════════════════════════
+// T11 - 宏注入
+// ═══════════════════════════════════════════
+
+/**
+ * 注册日历相关宏
+ */
+function registerCalendarMacros() {
+  // {{bb_calendar_today}} - 今天的日期（根据当前模板）
+  registerMacro('bb_calendar_today', () => {
+    const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+    const tpl = getCalendarTemplate(templateId);
+    const today = getCalendarToday();
+    const monthName = getMonthName(templateId, today.month);
+    const epoch = tpl.epoch || '';
+    return `${epoch}${today.year}年 ${monthName} ${today.day}日`;
+  });
+
+  // {{bb_calendar_today_short}} - 短格式（YYYY-MM-DD）
+  registerMacro('bb_calendar_today_short', () => {
+    const today = getCalendarToday();
+    return `${today.year}-${String(today.month + 1).padStart(2, '0')}-${String(today.day).padStart(2, '0')}`;
+  });
+
+  // {{bb_calendar_weekday}} - 今天是星期几
+  registerMacro('bb_calendar_weekday', () => {
+    const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+    const tpl = getCalendarTemplate(templateId);
+    const today = getCalendarToday();
+    const weekdays = getWeekdayNames(templateId);
+    const daysPerWeek = getDaysPerWeek(templateId);
+
+    let weekdayIndex;
+    if (tpl.leapYearRule === 'gregorian') {
+      const jsDate = new Date(today.year, today.month, today.day);
+      const settings = getSettings();
+      const weekStart = settings.calendar?.week_start || 0;
+      weekdayIndex = (jsDate.getDay() - weekStart + 7) % 7;
+    } else {
+      let totalDays = 0;
+      const daysPerYear = tpl.months.reduce((sum, m) => sum + m.days, 0);
+      totalDays += today.year * daysPerYear;
+      for (let m = 0; m < today.month; m++) {
+        totalDays += tpl.months[m].days;
+      }
+      totalDays += today.day - 1;
+      weekdayIndex = totalDays % daysPerWeek;
+    }
+
+    return weekdays[weekdayIndex];
+  });
+
+  // {{bb_calendar_season}} - 当前季节
+  registerMacro('bb_calendar_season', () => {
+    const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+    const today = getCalendarToday();
+    const season = getCurrentSeason(templateId, today.month, today.day);
+    return season ? `${season.icon} ${season.name}` : '';
+  });
+
+  // {{bb_calendar_holidays}} - 今天的节日
+  registerMacro('bb_calendar_holidays', () => {
+    const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+    const today = getCalendarToday();
+    const holidays = getHolidaysForDate(templateId, today.month, today.day);
+    if (holidays.length === 0) return '';
+    return holidays.map(h => `${h.icon}${h.name}`).join('、');
+  });
+
+  // {{bb_calendar_events}} - 今天的用户事件
+  registerMacro('bb_calendar_events', () => {
+    const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+    const today = getCalendarToday();
+    const events = getEventsForDate(today.year, today.month, today.day, templateId);
+    if (events.length === 0) return '';
+    return events.map(e => e.title).join('、');
+  });
+
+  // {{bb_calendar_context}} - 完整的日历上下文（供AI使用）
+  registerMacro('bb_calendar_context', () => {
+    const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+    const tpl = getCalendarTemplate(templateId);
+    const today = getCalendarToday();
+    const monthName = getMonthName(templateId, today.month);
+    const epoch = tpl.epoch || '';
+    const weekdays = getWeekdayNames(templateId);
+    const daysPerWeek = getDaysPerWeek(templateId);
+
+    // 计算星期几
+    let weekdayIndex;
+    if (tpl.leapYearRule === 'gregorian') {
+      const jsDate = new Date(today.year, today.month, today.day);
+      const settings = getSettings();
+      const weekStart = settings.calendar?.week_start || 0;
+      weekdayIndex = (jsDate.getDay() - weekStart + 7) % 7;
+    } else {
+      let totalDays = 0;
+      const daysPerYear = tpl.months.reduce((sum, m) => sum + m.days, 0);
+      totalDays += today.year * daysPerYear;
+      for (let m = 0; m < today.month; m++) {
+        totalDays += tpl.months[m].days;
+      }
+      totalDays += today.day - 1;
+      weekdayIndex = totalDays % daysPerWeek;
+    }
+    const weekdayName = weekdays[weekdayIndex];
+
+    const parts = [];
+    parts.push(`【日历】${epoch}${today.year}年 ${monthName} ${today.day}日 星期${weekdayName}`);
+
+    const season = getCurrentSeason(templateId, today.month, today.day);
+    if (season) {
+      parts.push(`【季节】${season.icon} ${season.name}${season.context ? '：' + season.context : ''}`);
+    }
+
+    const holidays = getHolidaysForDate(templateId, today.month, today.day);
+    if (holidays.length > 0) {
+      parts.push(`【节日】${holidays.map(h => `${h.icon}${h.name}`).join('、')}`);
+    }
+
+    const events = getEventsForDate(today.year, today.month, today.day, templateId);
+    if (events.length > 0) {
+      parts.push(`【事件】${events.map(e => e.title).join('、')}`);
+    }
+
+    return parts.join('\n');
+  });
+
+  console.log('[骨与血·日历] 已注册7个日历宏');
+}
+
+/**
+ * 替换日历宏（在 replaceBBMacros 中调用）
+ */
+function replaceCalendarMacros(text) {
+  if (!text) return text;
+
+  const macros = {
+    'bb_calendar_today': () => {
+      const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+      const tpl = getCalendarTemplate(templateId);
+      const today = getCalendarToday();
+      const monthName = getMonthName(templateId, today.month);
+      const epoch = tpl.epoch || '';
+      return `${epoch}${today.year}年 ${monthName} ${today.day}日`;
+    },
+    'bb_calendar_today_short': () => {
+      const today = getCalendarToday();
+      return `${today.year}-${String(today.month + 1).padStart(2, '0')}-${String(today.day).padStart(2, '0')}`;
+    },
+    'bb_calendar_weekday': () => {
+      const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+      const tpl = getCalendarTemplate(templateId);
+      const today = getCalendarToday();
+      const weekdays = getWeekdayNames(templateId);
+      const daysPerWeek = getDaysPerWeek(templateId);
+
+      let weekdayIndex;
+      if (tpl.leapYearRule === 'gregorian') {
+        const jsDate = new Date(today.year, today.month, today.day);
+        const settings = getSettings();
+        const weekStart = settings.calendar?.week_start || 0;
+        weekdayIndex = (jsDate.getDay() - weekStart + 7) % 7;
+      } else {
+        let totalDays = 0;
+        const daysPerYear = tpl.months.reduce((sum, m) => sum + m.days, 0);
+        totalDays += today.year * daysPerYear;
+        for (let m = 0; m < today.month; m++) {
+          totalDays += tpl.months[m].days;
+        }
+        totalDays += today.day - 1;
+        weekdayIndex = totalDays % daysPerWeek;
+      }
+
+      return weekdays[weekdayIndex];
+    },
+    'bb_calendar_season': () => {
+      const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+      const today = getCalendarToday();
+      const season = getCurrentSeason(templateId, today.month, today.day);
+      return season ? `${season.icon} ${season.name}` : '';
+    },
+    'bb_calendar_holidays': () => {
+      const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+      const today = getCalendarToday();
+      const holidays = getHolidaysForDate(templateId, today.month, today.day);
+      if (holidays.length === 0) return '';
+      return holidays.map(h => `${h.icon}${h.name}`).join('、');
+    },
+    'bb_calendar_events': () => {
+      const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+      const today = getCalendarToday();
+      const events = getEventsForDate(today.year, today.month, today.day, templateId);
+      if (events.length === 0) return '';
+      return events.map(e => e.title).join('、');
+    },
+    'bb_calendar_context': () => {
+      const templateId = calendarState.templateId || getSettings().calendar?.template_id || 'gregorian';
+      const tpl = getCalendarTemplate(templateId);
+      const today = getCalendarToday();
+      const monthName = getMonthName(templateId, today.month);
+      const epoch = tpl.epoch || '';
+      const weekdays = getWeekdayNames(templateId);
+      const daysPerWeek = getDaysPerWeek(templateId);
+
+      let weekdayIndex;
+      if (tpl.leapYearRule === 'gregorian') {
+        const jsDate = new Date(today.year, today.month, today.day);
+        const settings = getSettings();
+        const weekStart = settings.calendar?.week_start || 0;
+        weekdayIndex = (jsDate.getDay() - weekStart + 7) % 7;
+      } else {
+        let totalDays = 0;
+        const daysPerYear = tpl.months.reduce((sum, m) => sum + m.days, 0);
+        totalDays += today.year * daysPerYear;
+        for (let m = 0; m < today.month; m++) {
+          totalDays += tpl.months[m].days;
+        }
+        totalDays += today.day - 1;
+        weekdayIndex = totalDays % daysPerWeek;
+      }
+      const weekdayName = weekdays[weekdayIndex];
+
+      const parts = [];
+      parts.push(`【日历】${epoch}${today.year}年 ${monthName} ${today.day}日 星期${weekdayName}`);
+
+      const season = getCurrentSeason(templateId, today.month, today.day);
+      if (season) {
+        parts.push(`【季节】${season.icon} ${season.name}${season.context ? '：' + season.context : ''}`);
+      }
+
+      const holidays = getHolidaysForDate(templateId, today.month, today.day);
+      if (holidays.length > 0) {
+        parts.push(`【节日】${holidays.map(h => `${h.icon}${h.name}`).join('、')}`);
+      }
+
+      const events = getEventsForDate(today.year, today.month, today.day, templateId);
+      if (events.length > 0) {
+        parts.push(`【事件】${events.map(e => e.title).join('、')}`);
+      }
+
+      return parts.join('\n');
+    },
+  };
+
+  for (const [key, fn] of Object.entries(macros)) {
+    const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+    text = text.replace(regex, fn());
+  }
+
+  return text;
+}
+
+// ═══════════════════════════════════════════
+// T12 - 时间锚点系统
+// ═══════════════════════════════════════════
+
+/**
+ * 设置时间锚点（固定当前RP时间，不再跟随现实时间）
+ * @param {Object} date - {year, month, day}
+ * @param {string} templateId - 模板ID
+ */
+function setTimeAnchor(date, templateId) {
+  const settings = getSettings();
+  
+  settings.calendar.time_anchor = {
+    enabled: true,
+    date: { ...date },
+    templateId: templateId || calendarState.templateId,
+    setAt: new Date().toISOString(),
+  };
+
+  saveSettingsDebounced();
+  toastr.success('时间锚点已设置，日历已固定在此时间');
+  console.log('[骨与血·日历] 时间锚点已设置:', settings.calendar.time_anchor);
+}
+
+/**
+ * 清除时间锚点（恢复跟随现实时间）
+ */
+function clearTimeAnchor() {
+  const settings = getSettings();
+  
+  if (settings.calendar.time_anchor) {
+    settings.calendar.time_anchor.enabled = false;
+  }
+
+  saveSettingsDebounced();
+  toastr.info('时间锚点已清除，日历恢复现实同步');
+  console.log('[骨与血·日历] 时间锚点已清除');
+}
+
+/**
+ * 获取当前日历"今天"（考虑时间锚点）
+ * @returns {Object} {year, month, day}
+ */
+function getCalendarToday() {
+  const settings = getSettings();
+  const anchor = settings.calendar?.time_anchor;
+
+  // 如果启用了时间锚点，返回锚点日期
+  if (anchor && anchor.enabled && anchor.date) {
+    return {
+      year: anchor.date.year,
+      month: anchor.date.month,
+      day: anchor.date.day,
+    };
+  }
+
+  // 否则返回现实今天
+  const now = new Date();
+  const templateId = calendarState.templateId || settings.calendar?.template_id || 'gregorian';
+  const tpl = getCalendarTemplate(templateId);
+
+  // 对于现实同步模板（公历），直接返回现实日期
+  if (tpl.type === 'real') {
+    return {
+      year: now.getFullYear(),
+      month: now.getMonth(),
+      day: now.getDate(),
+    };
+  }
+
+  // 对于RP模板，应用年份偏移
+  return {
+    year: now.getFullYear() + (tpl.yearOffset || 0),
+    month: now.getMonth(),
+    day: now.getDate(),
+  };
+}
+
+/**
+ * 推进时间（手动推进RP时间）
+ * @param {number} days - 推进的天数
+ */
+function advanceTime(days) {
+  const settings = getSettings();
+  const anchor = settings.calendar?.time_anchor;
+
+  if (!anchor || !anchor.enabled) {
+    toastr.warning('请先设置时间锚点');
+    return;
+  }
+
+  const templateId = anchor.templateId || calendarState.templateId;
+  const currentDate = anchor.date;
+  const newDate = addDaysToDate(currentDate, days, templateId);
+
+  settings.calendar.time_anchor.date = newDate;
+  saveSettingsDebounced();
+
+  const tpl = getCalendarTemplate(templateId);
+  const monthName = getMonthName(templateId, newDate.month);
+  const epoch = tpl.epoch || '';
+  
+  toastr.success(`时间已推进${days}天，当前：${epoch}${newDate.year}年 ${monthName} ${newDate.day}日`);
+  
+  // 刷新日历显示
+  calendarState.currentYear = newDate.year;
+  calendarState.currentMonth = newDate.month;
+  calendarState.currentDay = newDate.day;
+  renderCalendarCurrentView();
+}
+
+/**
+ * 显示时间锚点管理面板（可选，简化版可用按钮）
+ */
+function showTimeAnchorPanel() {
+  const settings = getSettings();
+  const anchor = settings.calendar?.time_anchor;
+  const isEnabled = anchor && anchor.enabled;
+
+  let statusText = '未设置';
+  if (isEnabled) {
+    const tpl = getCalendarTemplate(anchor.templateId);
+    const monthName = getMonthName(anchor.templateId, anchor.date.month);
+    const epoch = tpl.epoch || '';
+    statusText = `${epoch}${anchor.date.year}年 ${monthName} ${anchor.date.day}日`;
+  }
+
+  const html = `
+    <div class="bb-modal-overlay bb-anchor-modal-overlay">
+      <div class="bb-modal bb-anchor-modal">
+        <div class="bb-modal-header">
+          <h3>⚓ 时间锚点管理</h3>
+          <button class="bb-modal-close bb-anchor-modal-close">✕</button>
+        </div>
+        <div class="bb-modal-body">
+          <div class="bb-form-group">
+            <label class="bb-label">当前状态</label>
+            <div class="bb-anchor-status">
+              ${isEnabled ? '✅ 已启用' : '❌ 未启用'}
+              ${isEnabled ? `<div class="bb-anchor-date">${statusText}</div>` : ''}
+            </div>
+          </div>
+
+          ${isEnabled ? `
+            <div class="bb-form-group">
+              <label class="bb-label">推进时间</label>
+              <div style="display:flex;gap:4px;">
+                <button class="bb-btn bb-btn-sm bb-anchor-advance" data-days="1">+1天</button>
+                <button class="bb-btn bb-btn-sm bb-anchor-advance" data-days="7">+7天</button>
+                <button class="bb-btn bb-btn-sm bb-anchor-advance" data-days="30">+30天</button>
+                <input type="number" id="bb-anchor-custom-days" class="bb-input" placeholder="自定义天数" style="flex:1;">
+                <button class="bb-btn bb-btn-sm bb-anchor-advance-custom">推进</button>
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="bb-form-group">
+            <label class="bb-label">说明</label>
+            <p class="bb-help-text">
+              时间锚点用于固定RP世界的时间。启用后，日历将不再跟随现实时间，
+              而是固定在设置的日期，您可以手动推进时间来模拟时间流逝。
+            </p>
+          </div>
+        </div>
+
+        <div class="bb-modal-footer">
+          ${isEnabled ? `
+            <button class="bb-btn bb-btn-danger bb-anchor-clear">清除锚点</button>
+          ` : `
+            <button class="bb-btn bb-btn-primary bb-anchor-set-today">设置为今天</button>
+          `}
+          <button class="bb-btn bb-anchor-modal-close">关闭</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  $('.bb-anchor-modal-overlay').remove();
+  $('body').append(html);
+
+  // 关闭
+  $('.bb-anchor-modal-close').on('click', function() {
+    $('.bb-anchor-modal-overlay').remove();
+  });
+
+  // 设置为今天
+  $('.bb-anchor-set-today').on('click', function() {
+    const today = {
+      year: calendarState.currentYear,
+      month: calendarState.currentMonth,
+      day: calendarState.currentDay || 1,
+    };
+    setTimeAnchor(today, calendarState.templateId);
+    $('.bb-anchor-modal-overlay').remove();
+    renderCalendarCurrentView();
+  });
+
+  // 清除锚点
+  $('.bb-anchor-clear').on('click', function() {
+    if (confirm('确定清除时间锚点？日历将恢复跟随现实时间。')) {
+      clearTimeAnchor();
+      $('.bb-anchor-modal-overlay').remove();
+      renderCalendarCurrentView();
+    }
+  });
+
+  // 推进时间（预设）
+  $('.bb-anchor-advance').on('click', function() {
+    const days = parseInt($(this).data('days'));
+    advanceTime(days);
+    $('.bb-anchor-modal-overlay').remove();
+  });
+
+  // 推进时间（自定义）
+  $('.bb-anchor-advance-custom').on('click', function() {
+    const days = parseInt($('#bb-anchor-custom-days').val());
+    if (isNaN(days) || days === 0) {
+      toastr.warning('请输入有效的天数');
+      return;
+    }
+    advanceTime(days);
+    $('.bb-anchor-modal-overlay').remove();
+  });
+}
+
+// ═══════════════════════════════════════════
+// T13 - 初始化函数
+// ═══════════════════════════════════════════
+
+/**
+ * 初始化日历系统
+ */
+function initCalendar() {
+  console.log('[骨与血·日历] 正在初始化...');
+
+  const settings = getSettings();
+
+  // 初始化设置（如果不存在）
+  if (!settings.calendar) {
+    settings.calendar = {
+      enabled: true,
+      template_id: 'gregorian',
+      custom_templates: [],
+      custom_holidays: [],
+      week_start: 0, // 0=周日, 1=周一
+      time_anchor: null,
+    };
+    saveSettingsDebounced();
+  }
+
+  // 初始化 pluginData
+  if (!pluginData.calendar_events) {
+    pluginData.calendar_events = [];
+    saveChatData();
+  }
+
+  // 初始化运行时状态
+  const today = getCalendarToday();
+  calendarState.templateId = settings.calendar.template_id || 'gregorian';
+  calendarState.currentYear = today.year;
+  calendarState.currentMonth = today.month;
+  calendarState.currentDay = today.day;
+  calendarState.currentView = 'month';
+  calendarState.selectedDate = null;
+  calendarState.currentWeekStart = null;
+
+  // 注册宏
+  registerCalendarMacros();
+
+  // 刷新模板下拉框
+  refreshCalendarTemplateDropdown();
+
+  // 更新模式徽章
+  const tpl = getCalendarTemplate(calendarState.templateId);
+  updateCalendarModeBadge(tpl);
+
+  // 绑定事件
+  bindCalendarEvents();
+
+  console.log('[骨与血·日历] 初始化完成 ✓');
+}
+
+// ═══════════════ 区块 T 结束 ═══════════════
+
 
 
 
