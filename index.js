@@ -5757,51 +5757,40 @@ function collectMessage(messageId) {
 //──宏注册（通过事件监听实现宏替换） ──
 
 function registerAllMacros() {
-  // 在SillyTavern标准扩展环境中，registerMacroLike 和 MacrosParser 均不可用
-  // 使用 eventSource 事件监听方式，在AI生成前替换宏文本
+  // 在SillyTavern标准扩展环境中，使用事件监听方式替换宏文本
   
   try {
     // 方式1: 通过 GENERATE_AFTER_COMBINE_PROMPTS 事件替换 prompt 中的宏
     if (eventSource && event_types.GENERATE_AFTER_COMBINE_PROMPTS) {
       eventSource.on(event_types.GENERATE_AFTER_COMBINE_PROMPTS, (data) => {
-        if (!data || !data.prompt || !pluginData) return;
-        data.prompt = replaceBBMacros(data.prompt);});
+        if (!data || !data.prompt) return;
+        if (pluginData) {
+          data.prompt = replaceBBMacros(data.prompt);
+        }
+        // 日历宏不依赖 pluginData，总是尝试替换
+        data.prompt = replaceBBCalendarMacros(data.prompt);
+      });
       console.log('[骨与血]📝 宏替换已通过 GENERATE_AFTER_COMBINE_PROMPTS 事件注册');
     }
     
     // 方式2: 通过 CHAT_COMPLETION_PROMPT_READY 事件替换 chat messages中的宏
     if (eventSource && event_types.CHAT_COMPLETION_PROMPT_READY) {
       eventSource.on(event_types.CHAT_COMPLETION_PROMPT_READY, (eventData) => {
-        if (!eventData || !eventData.chat || !pluginData) return;
+        if (!eventData || !eventData.chat) return;
         eventData.chat.forEach(msg => {
           if (msg.content && typeof msg.content === 'string') {
-            msg.content = replaceBBMacros(msg.content);
+            if (pluginData) {
+              msg.content = replaceBBMacros(msg.content);
+            }
+            msg.content = replaceBBCalendarMacros(msg.content);
           }
         });
       });
-      console.log('[骨与血] 📝 宏替换已通过 CHAT_COMPLETION_PROMPT_READY 事件注册');
+      console.log('[骨与血]📝 宏替换已通过 CHAT_COMPLETION_PROMPT_READY 事件注册');
     }
     
-    // 方式3: 通过 GENERATE_AFTER_DATA事件替换（覆盖更多场景）
-    if (eventSource && event_types.GENERATE_AFTER_DATA) {
-      eventSource.on(event_types.GENERATE_AFTER_DATA, (generateData) => {
-        if (!generateData || !generateData.prompt || !pluginData) return;
-        if (Array.isArray(generateData.prompt)) {
-          generateData.prompt.forEach(msg => {
-            if (msg.content && typeof msg.content === 'string') {
-              msg.content = replaceBBMacros(msg.content);
-            }
-          });
-        }
-      });
-      console.log('[骨与血] 📝 宏替换已通过 GENERATE_AFTER_DATA 事件注册');
-    }
-    
-    if (!eventSource) {
-      console.warn('[骨与血] ⚠️ eventSource 不可用，宏替换未注册');
-    }
-  } catch (e) {
-    console.error('[骨与血] 宏注册失败:', e);
+  } catch (err) {
+    console.error('[骨与血]❌ 宏注册失败:', err);
   }
 }
 
