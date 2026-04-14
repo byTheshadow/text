@@ -4765,6 +4765,112 @@ function bindSettingsPanelEvents() {
       }
     } catch (e) { toastr.error(`连接失败: ${e.message}`); }
   });
+    // ═══════════════════════════════════════════
+  // 日历设置事件绑定
+  // ═══════════════════════════════════════════
+  
+  // 日历启用开关
+  $('#bb-set-calendar-enabled').on('change', function() {
+    const settings = getSettings();
+    settings.calendar.enabled = this.checked;
+    saveSettingsDebounced();
+  });
+
+  // 默认模板切换
+  $('#bb-set-calendar-template').on('change', function() {
+    const templateId = $(this).val();
+    const settings = getSettings();
+    settings.calendar.template_id = templateId;
+    saveSettingsDebounced();
+    
+    if (typeof switchCalendarTemplate === 'function') {
+      switchCalendarTemplate(templateId);
+    }
+  });
+
+  // 周起始日
+  $('#bb-set-calendar-week-start').on('change', function() {
+    const weekStart = parseInt($(this).val());
+    const settings = getSettings();
+    settings.calendar.week_start = weekStart;
+    saveSettingsDebounced();
+    
+    if (typeof renderCalendarCurrentView === 'function') {
+      renderCalendarCurrentView();
+    }
+  });
+
+  // 显示节日开关
+  $('#bb-set-calendar-show-holidays').on('change', function() {
+    const settings = getSettings();
+    settings.calendar.show_holidays = this.checked;
+    saveSettingsDebounced();
+    
+    if (typeof renderCalendarCurrentView === 'function') {
+      renderCalendarCurrentView();
+    }
+  });
+
+  // 显示季节开关
+  $('#bb-set-calendar-show-seasons').on('change', function() {
+    const settings = getSettings();
+    settings.calendar.show_seasons = this.checked;
+    saveSettingsDebounced();
+    
+    if (typeof renderCalendarCurrentView === 'function') {
+      renderCalendarCurrentView();
+    }
+  });
+
+  // 启用日历宏开关
+  $('#bb-set-calendar-inject-macros').on('change', function() {
+    const settings = getSettings();
+    settings.calendar.inject_macros = this.checked;
+    saveSettingsDebounced();
+  });
+
+  // 管理时间锚点按钮
+  $('#bb-set-calendar-anchor-manage').on('click', function() {
+    if (typeof showTimeAnchorPanel === 'function') {
+      showTimeAnchorPanel();
+    } else {
+      toastr.warning('时间锚点功能未加载');
+    }
+  });
+
+  // 导出日历数据
+  $('#bb-set-calendar-export').on('click', function() {
+    if (typeof exportCalendarData === 'function') {
+      exportCalendarData();
+    } else {
+      toastr.warning('导出功能未加载');
+    }
+  });
+
+  // 导入日历数据
+  $('#bb-set-calendar-import').on('click', function() {
+    if (typeof triggerCalendarImport === 'function') {
+      triggerCalendarImport();
+    } else {
+      toastr.warning('导入功能未加载');
+    }
+  });
+
+  // 聚合面板显示日记
+  $('#bb-set-calendar-aggregate-diary').on('change', function() {
+    const settings = getSettings();
+    settings.calendar.aggregate_show_diary = this.checked;
+    saveSettingsDebounced();
+  });
+
+  // 聚合面板显示编年史
+  $('#bb-set-calendar-aggregate-chronicle').on('change', function() {
+    const settings = getSettings();
+    settings.calendar.aggregate_show_chronicle = this.checked;
+    saveSettingsDebounced();
+  });
+
+  console.log('[骨与血·日历] 设置面板事件已绑定');
 
 
   // 通用预设管理
