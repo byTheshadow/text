@@ -10619,7 +10619,74 @@ function triggerCalendarImport() {
 // ═══════════════════════════════════════════
 // T11 - 宏注入
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// 宏注册辅助函数（兼容新旧API）
+// ═══════════════════════════════════════════
 
+/**
+ * 全局宏处理器存储
+ */
+if (!window._bbMacroHandlers) {
+  window._bbMacroHandlers = {};
+}
+
+/**
+ * 宏注册辅助函数 - 兼容多种API
+ * @param {string} name - 宏名称（不含 {{}}）
+ * @param {function} handler - 处理函数，返回替换文本
+ */
+function registerMacro(name, handler) {
+  try {
+    // 方案1: 使用新的 macros.registry API (ST 1.12.0+)
+    if (window.macros && window.macros.registry && typeof window.macros.registry.registerMacro === 'function') {
+      window.macros.registry.registerMacro(name, handler);
+      console.log(`[骨与血] 宏 {{${name}}} 已注册（macros.registry）`);
+      return;
+    }
+    
+    // 方案2: 使用 context.registerMacro (旧版ST)
+    const context = getContext();
+    if (context && typeof context.registerMacro === 'function') {
+      context.registerMacro(name, handler);
+      console.log(`[骨与血] 宏 {{${name}}} 已注册（context.registerMacro）`);
+      return;
+    }
+    
+    // 方案3: 备用方案 - 存储到全局对象，通过事件监听替换
+    window._bbMacroHandlers[name] = handler;
+    console.log(`[骨与血] 宏 {{${name}}} 已注册（事件监听备用方案）`);
+    
+  } catch (err) {
+    console.error(`[骨与血] 注册宏 {{${name}}} 失败:`, err);
+  }
+}
+
+/**
+ * 替换文本中的所有日历宏
+ * @param {string} text - 原始文本
+ * @returns {string} 替换后的文本
+ */
+function replaceBBCalendarMacros(text) {
+  if (!text || typeof text !== 'string') return text;
+  if (!window._bbMacroHandlers || Object.keys(window._bbMacroHandlers).length === 0) return text;
+  
+  let result = text;
+  
+  // 遍历所有注册的宏
+  Object.keys(window._bbMacroHandlers).forEach(macroName => {
+    const regex = new RegExp(`\\{\\{${macroName}\\}\\}`, 'gi');
+    if (regex.test(result)) {
+      try {
+        const replacement = window._bbMacroHandlers[macroName]();
+        result = result.replace(regex, String(replacement || ''));
+      } catch (err) {
+        console.error(`[骨与血] 执行宏 {{${macroName}}} 失败:`, err);
+      }
+    }
+  });
+  
+  return result;
+}
 /**
  * 注册日历相关宏
  */
