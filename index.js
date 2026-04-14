@@ -6015,6 +6015,16 @@ jQuery(async () => {
 
   // 13. 注册宏
   registerAllMacros();
+  
+  // 13.5 注册日历宏（新增这一行）
+  try {
+    if (typeof registerCalendarMacros === 'function') {
+      registerCalendarMacros();
+      console.log('[骨与血] 日历宏注册完成');
+    }
+  } catch (err) {
+    console.error('[骨与血] 日历宏注册失败:', err);
+  }
 
   // 14. 为已有消息注入按钮
   setTimeout(() => injectButtonsToExistingMessages(), 1000);
