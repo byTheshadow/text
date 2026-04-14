@@ -5788,6 +5788,16 @@ function replaceBBMacros(text) {
     }
     return '(编年史未加载)';
   });
+    // 编年史宏
+  if (typeof replaceChronicleМacros === 'function') {
+    text = replaceChronicleМacros(text);
+  }
+
+  // 日历宏
+  if (typeof replaceCalendarMacros === 'function') {
+    text = replaceCalendarMacros(text);
+  }
+  
   return text;
 }
 
