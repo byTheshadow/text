@@ -4331,6 +4331,35 @@ function bindMainPanelEvents(panel) {
 
   // 编年史事件绑定
   bindChroniclePanelEvents();
+    // 日历相关事件绑定
+  if (typeof bindCalendarEvents === 'function') {
+    bindCalendarEvents();
+  }
+
+  // 子Tab切换逻辑（确保日记下的4个子Tab正常工作）
+  $('.bb-sub-tab-btn').off('click.subtab').on('click.subtab', function() {
+    const subtab = $(this).data('subtab');
+    if (!subtab) return;
+
+    // 更新按钮状态
+    $(this).siblings('.bb-sub-tab-btn').removeClass('bb-sub-tab-active');
+    $(this).addClass('bb-sub-tab-active');
+
+    // 切换面板
+    const parentContainer = $(this).closest('.bb-tab-pane');
+    parentContainer.find('.bb-sub-tab-pane').addClass('bb-hidden');
+    parentContainer.find(`#bb-subtab-${subtab}`).removeClass('bb-hidden');
+
+    // 如果切换到日历，刷新渲染
+    if (subtab === 'diary-calendar' && typeof renderCalendarCurrentView === 'function') {
+      setTimeout(() => renderCalendarCurrentView(), 50);
+    }
+
+    // 如果切换到编年史，刷新渲染
+    if (subtab === 'diary-chronicle' && typeof renderChronicle === 'function') {
+      setTimeout(() => renderChronicle(), 50);
+    }
+  });
 
   // ── 音乐播放器事件 ──
   $(panel).off('click.bbmusictoggle').on('click.bbmusictoggle', '#bb-music-toggle', bbPlayerToggle);
