@@ -396,6 +396,170 @@ const CHRONICLE_IMPORTANCE = {
   4: { name: '关键',   label: '★★★★☆' },
   5: { name: '史诗',   label: '★★★★★' },
 };
+// ═══════════════════════════════════════════
+// 日历系统常量
+// ═══════════════════════════════════════════
+
+const CALENDAR_VIEWS = { MONTH: 'month', WEEK: 'week', DAY: 'day' };
+const CALENDAR_MODES = { REAL: 'real', RP: 'rp' };
+
+/**
+ * 内置日历模板
+ */
+const CALENDAR_TEMPLATES = {
+  //── 公历（现实时间）──
+  gregorian: {
+    id: 'gregorian',
+    name: '公历（现实时间）',
+    type: 'real',
+    editable: false,
+    months: [
+      { name: '一月', days: 31 }, { name: '二月', days: 28 },
+      { name: '三月', days: 31 }, { name: '四月', days: 30 },
+      { name: '五月', days: 31 }, { name: '六月', days: 30 },
+      { name: '七月', days: 31 }, { name: '八月', days: 31 },
+      { name: '九月', days: 30 }, { name: '十月', days: 31 },
+      { name: '十一月', days: 30 }, { name: '十二月', days: 31 }
+    ],
+    weekdays: ['日', '一', '二', '三', '四', '五', '六'],
+    daysPerWeek: 7,
+    hasLeapYear: true,
+    leapYearRule: 'gregorian',
+    yearOffset: 0,
+    epoch: '公元',
+    seasons: [
+      { name: '春', startMonth: 2, startDay: 4, icon: '🌸', context: '春回大地，万物复苏，微风拂面带着花香。' },
+      { name: '夏', startMonth: 5, startDay: 5, icon: '☀️', context: '烈日炎炎，蝉鸣阵阵，空气中弥漫着热浪。' },
+      { name: '秋', startMonth: 8, startDay: 7, icon: '🍂', context: '秋高气爽，落叶纷飞，天空湛蓝而高远。' },
+      { name: '冬', startMonth: 11, startDay: 7, icon: '❄️', context: '寒风凛冽，万物萧瑟，大地银装素裹。' }
+    ]
+  },
+
+  // ── 修仙历法──
+  xianxia: {
+    id: 'xianxia',
+    name: '修仙历法',
+    type: 'rp',
+    editable: false,
+    months: [
+      { name: '元阳月', days: 30 }, { name: '惊蛰月', days: 30 },
+      { name: '清明月', days: 30 }, { name: '立夏月', days: 30 },
+      { name: '芒种月', days: 30 }, { name: '小暑月', days: 30 },
+      { name: '立秋月', days: 30 }, { name: '白露月', days: 30 },
+      { name: '寒露月', days: 30 }, { name: '立冬月', days: 30 },
+      { name: '大雪月', days: 30 }, { name: '冬至月', days: 30 }
+    ],
+    weekdays: ['天罡', '地煞', '玄武', '朱雀', '青龙', '白虎'],
+    daysPerWeek: 6,
+    hasLeapYear: false,
+    leapYearRule: null,
+    yearOffset: 0,
+    epoch: '天元',
+    seasons: [
+      { name: '灵春', startMonth: 0, startDay: 1, icon: '🌿', context: '天地灵气复苏，草木吐纳灵息，修炼事半功倍。' },
+      { name: '炎夏', startMonth: 3, startDay: 1, icon: '🔥', context: '火灵充沛，天地间弥漫着炽热灵力，适合炼丹锻器。' },
+      { name: '金秋', startMonth: 6, startDay: 1, icon: '🍁', context: '金气肃杀，万物收敛，适合闭关突破。' },
+      { name: '玄冬', startMonth: 9, startDay: 1, icon: '🌙', context: '阴气极盛，水灵活跃，适合修炼水系功法和参悟大道。' }
+    ]
+  },
+
+  // ── 中土世界历法（夏尔历）──
+  middleearth: {
+    id: 'middleearth',
+    name: '中土世界历法（夏尔历）',
+    type: 'rp',
+    editable: false,
+    months: [
+      { name: 'Afteryule', days: 30 }, { name: 'Solmath', days: 30 },
+      { name: 'Rethe', days: 30 }, { name: 'Astron', days: 30 },
+      { name: 'Thrimidge', days: 30 }, { name: 'Forelithe', days: 30 },
+      { name: 'Afterlithe', days: 30 }, { name: 'Wedmath', days: 30 },
+      { name: 'Halimath', days: 30 }, { name: 'Winterfilth', days: 30 },
+      { name: 'Blotmath', days: 30 }, { name: 'Foreyule', days: 30 }
+    ],
+    weekdays: ['Sterday', 'Sunday', 'Monday', 'Trewsday', 'Hevensday', 'Mersday', 'Highday'],
+    daysPerWeek: 7,
+    hasLeapYear: false,
+    leapYearRule: null,
+    yearOffset: 0,
+    epoch: 'S.R.',
+    seasons: [
+      { name: 'Spring', startMonth: 2, startDay: 1, icon: '🌼', context: 'TheShire blooms with wildflowers, hobbits tend their gardens.' },
+      { name: 'Summer', startMonth: 5, startDay: 1, icon: '🌞', context: 'Long warm days, perfect for parties and pipe-weed.' },
+      { name: 'Autumn', startMonth: 8, startDay: 1, icon: '🍄', context: 'Harvest time, mushrooms aplenty, leaves turning gold.' },
+      { name: 'Winter', startMonth: 11, startDay: 1, icon: '🌨️', context: 'Cold winds from the North, fires burning in every hearth.' }
+    ]
+  }
+};
+
+/**
+ * 内置节日数据库
+ */
+const BUILTIN_HOLIDAYS = {
+  gregorian: [
+    // 国际节日
+    { name: '元旦', month: 0, day: 1, icon: '🎆', type: 'international', context: '新年伊始，万象更新，人们互道祝福迎接新的一年。' },
+    { name: '情人节', month: 1, day: 14, icon: '💕', type: 'international', context: '空气中弥漫着甜蜜的气息，恋人们交换礼物与心意。' },
+    { name: '国际妇女节', month: 2, day: 8, icon: '🌹', type: 'international', context: '致敬每一位女性的力量与温柔。' },
+    { name: '愚人节', month: 3, day: 1, icon: '🃏', type: 'international', context: '小心今天的每一句话，谁知道是真是假呢？' },
+    { name: '劳动节', month: 4, day: 1, icon: '⚒️', type: 'international', context: '劳动者的节日，致敬每一份辛勤付出。' },
+    { name: '儿童节', month: 5, day: 1, icon: '🎈', type: 'international', context: '童真与欢笑的日子，每个人心中都住着一个孩子。' },
+    { name: '万圣节', month: 9, day: 31, icon: '🎃', type: 'international', context: '南瓜灯亮起，幽灵与女巫出没，不给糖就捣蛋！' },
+    { name: '平安夜', month: 11, day: 24, icon: '🌟', type: 'international', context: '平安夜的钟声响起，温暖的灯光照亮每个角落。' },
+    { name: '圣诞节', month: 11, day: 25, icon: '🎄', type: 'international', context: '圣诞老人驾着雪橇而来，带来欢乐与祝福。' },
+    // 中国节日（固定日期）
+    { name: '植树节', month: 2, day: 12, icon: '🌳', type: 'chinese', context: '种下一棵树，种下一份希望。' },
+    { name: '青年节', month: 4, day: 4, icon: '🔥', type: 'chinese', context: '青春的热血与理想，永不熄灭。' },
+    { name: '建军节', month: 7, day: 1, icon: '⭐', type: 'chinese', context: '致敬最可爱的人。' },
+    { name: '国庆节', month: 9, day: 1, icon: '🇨🇳', type: 'chinese', context: '举国欢庆，红旗飘扬，祝福祖国繁荣昌盛。' },
+    // 二十四节气（近似固定日期）
+    { name: '小寒', month: 0, day: 6, icon: '🧊', type: 'solar_term', context: '寒气凛冽，天寒地冻。' },
+    { name: '大寒', month: 0, day: 20, icon: '☃️', type: 'solar_term', context: '一年中最冷的时节，坚冰深厚。' },
+    { name: '立春', month: 1, day: 4, icon: '🌱', type: 'solar_term', context: '东风解冻，蛰虫始振，春天的脚步近了。' },
+    { name: '雨水', month: 1, day: 19, icon: '🌧️', type: 'solar_term', context: '冰雪消融，春雨润物，大地开始苏醒。' },
+    { name: '惊蛰', month: 2, day: 6, icon: '⚡', type: 'solar_term', context: '春雷乍动，万物惊醒，蛰伏的生灵破土而出。' },
+    { name: '春分', month: 2, day: 21, icon: '☯️', type: 'solar_term', context: '昼夜平分，阴阳相半，春意正浓。' },
+    { name: '清明', month: 3, day: 5, icon: '🕯️', type: 'solar_term', context: '气清景明，慎终追远，缅怀先人。' },
+    { name: '谷雨', month: 3, day: 20, icon: '🌾', type: 'solar_term', context: '雨生百谷，春播繁忙，大地一片生机。' },
+    { name: '立夏', month: 4, day: 6, icon: '🌺', type: 'solar_term', context: '夏季来临，万物繁茂，绿荫渐浓。' },
+    { name: '小满', month: 4, day: 21, icon: '🌿', type: 'solar_term', context: '麦穗初齐，万物小得盈满。' },
+    { name: '芒种', month: 5, day: 6, icon: '🌾', type: 'solar_term', context: '麦熟收割，稻秧插种，最忙碌的时节。' },
+    { name: '夏至', month: 5, day: 21, icon: '☀️', type: 'solar_term', context: '日长至极，阳气最盛，白昼最长的一天。' },
+    { name: '小暑', month: 6, day: 7, icon: '🌡️', type: 'solar_term', context: '暑气渐盛，热浪来袭。' },
+    { name: '大暑', month: 6, day: 23, icon: '🔥', type: 'solar_term', context: '一年中最热的时节，酷暑难当。' },
+    { name: '立秋', month: 7, day: 7, icon: '🍃', type: 'solar_term', context: '秋风始至，暑去凉来，收获的季节开始了。' },
+    { name: '处暑', month: 7, day: 23, icon: '🌤️', type: 'solar_term', context: '暑气渐消，秋意渐浓。' },
+    { name: '白露', month: 8, day: 8, icon: '💧', type: 'solar_term', context: '露凝而白，夜凉如水，秋意深浓。' },
+    { name: '秋分', month: 8, day: 23, icon: '🌗', type: 'solar_term', context: '昼夜再次平分，秋色平分。' },
+    { name: '寒露', month: 9, day: 8, icon: '🥶', type: 'solar_term', context: '露气寒冷，将凝结为霜。' },
+    { name: '霜降', month: 9, day: 23, icon: '🌫️', type: 'solar_term', context: '天气渐寒，初霜降临，草木枯黄。' },
+    { name: '立冬', month: 10, day: 7, icon: '🌬️', type: 'solar_term', context: '冬季来临，万物收藏，天地闭塞。' },
+    { name: '小雪', month: 10, day: 22, icon: '🌨️', type: 'solar_term', context: '初雪飘落，天地间一片静谧。' },
+    { name: '大雪', month: 11, day: 7, icon: '❄️', type: 'solar_term', context: '大雪纷飞，银装素裹，天地苍茫。' },
+    { name: '冬至', month: 11, day: 22, icon: '🌑', type: 'solar_term', context: '阴极阳生，白昼最短，一阳来复。' },
+  ],
+
+  xianxia: [
+    { name: '天元祭', month: 0, day: 1, icon: '🏮', type: 'major', context: '天地灵气最为活跃的一天，各大宗门举行盛大祭典，祈求来年修行顺遂。' },
+    { name: '百花会', month: 2, day: 15, icon: '🌸', type: 'festival', context: '灵花齐放，各派弟子齐聚交流丹方与灵植心得。' },
+    { name: '论剑大会', month: 5, day: 1, icon: '⚔️', type: 'major', context: '天下剑修齐聚，以剑论道，决出天下剑道排名。' },
+    { name: '鬼门开', month: 6, day: 15, icon: '👻', type: 'danger', context: '幽冥之门大开，阴气弥漫，邪祟横行，修士需格外警惕。' },
+    { name: '丹道盛典', month: 8, day: 9, icon: '⚗️', type: 'festival', context: '炼丹宗师齐聚，展示毕生所学，天材地宝交易繁忙。' },
+    { name: '飞升日', month: 11, day: 15, icon: '✨', type: 'major', context: '传说中最容易感悟天道的日子，历代飞升者多在此日破碎虚空。' }
+  ],
+
+  middleearth: [
+    { name: 'Yule (New Year)', month: 0, day: 1, icon: '🎆', type: 'major', context: 'The first day of the new year, celebrated with feasting and fireworks.' },
+    { name: "Bilbo & Frodo's Birthday", month: 8, day: 22, icon: '🎂', type: 'special', context: 'A most remarkable birthday, celebrated in the Shire with great festivities.' },
+    { name: 'Lithe (Midsummer)', month: 5, day: 30, icon: '🌞', type: 'major', context: 'The longest day, a time of great celebration and merriment.' },
+    { name: 'Overlithe', month: 6, day: 1, icon: '🎉', type: 'festival', context: 'An extra day of feasting between Forelithe and Afterlithe.' },
+    { name: 'Harvest Festival', month: 8, day: 15, icon: '🌾', type: 'festival', context: 'Hobbits gather to celebrate the bounty of the harvest.' },
+    { name: 'Fall of Sauron', month: 2, day: 25, icon: '💍', type: 'memorial', context: 'The day the One Ring was destroyed and Sauron fell forever.' }
+  ]
+};
+
+const SEASON_ICONS = { '春': '🌸', '夏': '☀️', '秋': '🍂', '冬': '❄️' };
+
 
 //编年史运行时数据
 let chronicleExtracting = false;
